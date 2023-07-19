@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.1
+// @version      1.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/
@@ -47,15 +47,19 @@ function $unfuck () {
     $(".FA5JM").css({border: "none"});
     $main.css({border: "none", marginTop: "40px"});
     $aside.css({marginLeft: "50px"})
+    $aside.children().eq(0).css({position: "fixed", width: "320px"});
+    $(".m8mN_._qHCt.j_AvJ").css("position", "fixed");
     $(".FtjPK .AD_w7 .JZ10N.y0ud2").css("top", "calc(70px + var(--dashboard-tabs-header-height,0px))");
     $(".zmjaW").css("background", "none");
     $nav.css({display: "flex", justifyContent: "flex-end", flexBasis: "100%", marginBottom: "0px", marginTop: "8px"});
     $nav.children(":nth-child(2),:nth-child(10),:nth-child(11),:nth-child(12)").remove();
     $nav.find("svg").css("scale", "1.4");
     $(".kn4U3 + .a132D").remove();
-    $(".jL4Qq").css({height: "800px", overflowY: "scroll", background: "RGB(var(--white))", scrollbarColor: "rgba(var(--black),.4)rgba(var(--white),.1)", color: "RGB(var(--black))"});
+    $(".jL4Qq").css({height: "800px", overflowY: "scroll", background: "RGB(var(--white))", scrollbarColor: "rgba(var(--black),.4)rgba(var(--white),.1)", color: "RGB(var(--black))", position: "absolute", borderRadius: "4px", marginTop: "48px"});
     $(".jL4Qq *").css({color: "RGB(var(--black))"});
-    $(".jL4Qq li").css("list-style-type", "none");
+    $(".jL4Qq li").css({listStyleType: "none", borderBottom: "rgba(var(--black),.07)"});
+    $("#settings_subnav").css("height", "fit-content");
+    $(".h8SQv").replaceWith(`<div class="l463r" style="display: flex;align-items: center;justify-content: space-between;background: rgba(var(--black),.07);height: 36px;padding: 4px 12px 4px 12px;color: rgba(var(--black),.65);"><h3>Blogs</h3><a class="Oyvhq" style="text-decoration: none;" href="/new/blog">+ New</a></div>`);
     $footer.css({position: "fixed", height: "20px", bottom: "0px", right: "50px"});
     $create.css({width: "44px", marginRight: "100px", marginLeft: "10px"});
     $create.children().eq(0).css({borderRadius: "3px"});
