@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.0
+// @version      1.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
+// @match        https://www.tumblr.com/
 // @match        https://www.tumblr.com/dashboard
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
 // @grant        none
