@@ -150,7 +150,7 @@ getCssMapUtilities().then($unfuck);
 
 window.addEventListener('locationchange', function(){
     console.log("locationchange event occured, unfucking page");
-    window.setTimeout($unfuck, 200);
+    window.setTimeout(getCssMapUtilities().then($unfuck), 200);
 });
 
 async function getCssMapUtilities () {
