@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.4
+// @version      1.5
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,11 +16,15 @@
 var $ = window.jQuery;
 
 function $unfuck ({ keyToClasses, keyToCss }) {
-    if ($(keyToCss("headerWrapper")).length) {
+    if ($("#__hw").length) {
         console.log("no need to unfuck");
         return
     }
     else {console.log("unfucking dashboard...")}
+    if (!$(keyToCss("navigationLinks")).length) {
+        console.log("page not loaded, retrying...");
+        throw "page not loaded";
+    }
     var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox", "tagged"]
     var compare = window.location.href.split("/")[3].split("?")[0];
     var test = true;
@@ -37,7 +41,7 @@ function $unfuck ({ keyToClasses, keyToCss }) {
     var $nav = $(keyToCss("navigationLinks")).eq(0);
     var $content = ""
     var $main = $(keyToCss("newDesktopLayout")).eq(0);
-    var $bar = $("<div>", {class: keyToClasses("headerWrapper").join(" ")});
+    var $bar = $("<div>", {class: keyToClasses("headerWrapper").join(" "), id: "__hw"});
     var $logo = $(keyToCss("logoContainer")).eq(0);
     var $create = $(keyToCss("createPost")).eq(0);
     var $search = ""
@@ -127,31 +131,12 @@ function $unfuck ({ keyToClasses, keyToCss }) {
 
 getCssMapUtilities().then($unfuck);
 
-;(function() {
-    var pushState = history.pushState;
-    var replaceState = history.replaceState;
-
-    history.pushState = function() {
-        pushState.apply(history, arguments);
-        window.dispatchEvent(new Event('pushstate'));
-        window.dispatchEvent(new Event('locationchange'));
-    };
-
-    history.replaceState = function() {
-        replaceState.apply(history, arguments);
-        window.dispatchEvent(new Event('replacestate'));
-        window.dispatchEvent(new Event('locationchange'));
-    };
-
-    window.addEventListener('popstate', function() {
-        window.dispatchEvent(new Event('locationchange'))
+window.tumblr.on('navigation', () => requestAnimationFrame(function() {
+    getCssMapUtilities().then($unfuck)
+    .catch((e) => {
+        window.setTimeout(() => getCssMapUtilities().then($unfuck), 400)
     });
-})();
-
-window.addEventListener('locationchange', function(){
-    console.log("locationchange event occured, unfucking page");
-    window.setTimeout(() => getCssMapUtilities().then($unfuck), 200);
-});
+}));
 
 async function getCssMapUtilities () {
     let retries = 0;
