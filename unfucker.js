@@ -14,7 +14,7 @@
 
 var $ = window.jQuery;
 
-function $unfuck ({ keyToClasses, keyToCss }) {
+function $unfuck () {
     if ($(".hlDot").length) {
         console.log("no need to unfuck");
         return
@@ -66,15 +66,5 @@ function $unfuck ({ keyToClasses, keyToCss }) {
     $create.find("a").eq(0).html(`<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation"><use href="#managed-icon__post"></use></svg>`);
 }
 
-async function getCssMapUtilities () {
-    let retries = 0;
-    while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined")) {
-        await new Promise((resolve) => setTimeout(resolve));
-    }
-    const cssMap = await tumblr.getCssMap();
-    const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
-    const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
-    return { keyToClasses, keyToCss };
-}
 
-getCssMapUtilities().then($unfuck);
+$(document).ready($unfuck);
