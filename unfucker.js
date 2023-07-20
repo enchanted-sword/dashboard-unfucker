@@ -21,7 +21,7 @@ function $unfuck () {
         return
     }
     else {console.log("unfucking dashboard...")}
-    var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox"]
+    var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox", "tagged"]
     var compare = window.location.href.split("/")[3];
     var test = true;
     for (let x in match) {
@@ -60,7 +60,7 @@ function $unfuck () {
         $content = $(".RkANE").eq(0);
         $search = $(`<div class="N5wJr" style="max-width: 550px; width: 100%; padding: 14px 8px 0px 8px;"><div class="Mw2UR"><span data-testid="controlled-popover-wrapper" class="BPf9u"><span class="BPf9u"><form method="GET" action="/search" role="search" class="aogHd"><div class="oPa7v"><div class="Z3WPg"><svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" role="presentation"><use href="#managed-icon__search"></use></svg></div><input name="q" type="text" autocomplete="off" aria-label="Search" class="NaqPB" placeholder="Search Tumblr" autocapitalize="sentences" value=""></div></form></span></span></div></div>`)
     }
-    if (compare === "search") {
+    if (compare === "search" || compare === "tagged") {
         $content.css("max-width", "fit-content");
     }
     $search.detach();
