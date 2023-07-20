@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.3
+// @version      1.4
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -22,7 +22,7 @@ function $unfuck () {
     }
     else {console.log("unfucking dashboard...")}
     var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox", "tagged"]
-    var compare = window.location.href.split("/")[3];
+    var compare = window.location.href.split("/")[3].split("?")[0];
     var test = true;
     for (let x in match) {
         if (compare === match[x]) {
