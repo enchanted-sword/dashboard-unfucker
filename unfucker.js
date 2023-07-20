@@ -15,7 +15,7 @@
 
 var $ = window.jQuery;
 
-function $unfuck () {
+function $unfuck ({ keyToClasses, keyToCss }) {
     if ($(".hlDot").length) {
         console.log("no need to unfuck");
         return
@@ -97,7 +97,7 @@ function $unfuck () {
     console.log("dashboard fixed!");
 }
 
-$(document).ready($unfuck);
+getCssMapUtilities().then($unfuck);
 
 ;(function() {
     var pushState = history.pushState;
@@ -124,3 +124,16 @@ window.addEventListener('locationchange', function(){
     console.log("locationchange event occured, unfucking page");
     window.setTimeout($unfuck, 200);
 });
+
+async function getCssMapUtilities () {
+    let retries = 0;
+    while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined")) {
+        await new Promise((resolve) => setTimeout(resolve));
+    }
+    const cssMap = await tumblr.getCssMap();
+    const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
+    const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
+    return { keyToClasses, keyToCss };
+}
+
+getCssMapUtilities().then($unfuck);
