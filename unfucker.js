@@ -163,5 +163,3 @@ async function getCssMapUtilities () {
     const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
     return { keyToClasses, keyToCss };
 }
-
-getCssMapUtilities().then($unfuck);
