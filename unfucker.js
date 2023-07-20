@@ -4,11 +4,6 @@
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
-// @match        https://www.tumblr.com/dashboard
-// @match        https://www.tumblr.com/blog/*
-// @match        https://www.tumblr.com/inbox
-// @match        https://www.tumblr.com/settings/*
-// @match        https://www.tumblr.com/domains
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
 // @downloadURL  https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.js
 // @updateURL    https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.js
@@ -26,7 +21,7 @@ function $unfuck () {
         return
     }
     else {console.log("unfucking dashboard...")}
-    var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following"]
+    var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox"]
     var compare = window.location.href.split("/")[3];
     var test = true;
     for (let x in match) {
@@ -129,5 +124,3 @@ window.addEventListener('locationchange', function(){
     console.log("locationchange event occured, unfucking page");
     window.setTimeout($unfuck, 200);
 });
-
-
