@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.5
+// @version      1.6
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -61,7 +61,7 @@ function $unfuck ({ keyToClasses, keyToCss }) {
         $(`${keyToCss("about")}${keyToCss("inSidebar")}${keyToCss("usesNewDimensions")}`).css({position: "fixed", height: "20px", bottom: "0px"});
     }
     else {
-        $content = $(keyToCss("container")).eq(0);
+        $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`).eq(0);
         $search = $(`
             <div class="${keyToClasses("searchSidebarItem").join(" ")}" style="max-width: 550px; width: 100%; padding: 14px 8px 0px 8px" >
                 <div class="${keyToClasses("formContainer").join(" ")}">
@@ -110,7 +110,13 @@ function $unfuck ({ keyToClasses, keyToCss }) {
     $(`${keyToCss("post")} ${keyToCss("stickyContainer")} ${keyToCss("avatar")}${keyToCss("newDesktopLayout")}`).css("top", "calc(70px + var(--dashboard-tabs-header-height,0px))");
     $(keyToCss("searchShadow")).css("background", "none");
     $nav.css({display: "flex", justifyContent: "flex-end", flexBasis: "100%", marginBottom: "0px", marginTop: "8px"});
-    $nav.children(":nth-child(2),:nth-child(10),:nth-child(11),:nth-child(12)").remove();
+    if ($(window).width() >= 1150) {
+        $nav.children(":nth-child(2),:nth-child(10),:nth-child(11),:nth-child(12)").remove();
+    }
+    else {
+        $nav.children(":nth-child(2),:nth-child(8),:nth-child(9),:nth-child(10)").remove();
+        $(keyToCss("buttonInner")).css("padding", "8px 16px");
+    }
     $nav.find("svg").css("scale", "1.4");
     $(`${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")}`).remove();
     $(keyToCss("blogTile")).css("list-style-type", "none");
