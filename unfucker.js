@@ -19,10 +19,39 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
 
     var $styleElement = $("<style>");
     $styleElement.appendTo("html");
-
     $styleElement.text(`
+        ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
+        #__hw { display: flex; }
+        ${keyToCss("createPost")} {
+            width: 44px;
+            margin-right: 100px;
+            margin-left: 10px;
+        }
+        ${keyToCss("createPost")} > a { border-radius: 3px !important; }
+        ${keyToCss("navigationLinks")} svg { scale: 1.4; }
+        ${keyToCss("navigationLinks")} {
+            display: flex;
+            justify-content: flex-end;
+            flex-basis: 100%;
+            margin-bottom: 0px;
+            margin-top: 8px;
+        }
+        ${keyToCss("timelineHeader")} { border: none; }
+        @media (max-width: 980px) {
+            ${keyToCss("logoContainer")} {
+                scale: 0.75;
+                padding: 16px 16px 0px;
+            }
+            ${keyToCss("navigationLinks")} {
+                display: flex;
+                justify-content: center;
+            }
+            ${keyToCss("mobileLayout")} {
+                display: flex;
+                justify-content: center;
+            }
+        }
         @media (min-width: 990px) {
-            #__hw { display: flex; }
             ${keyToCss("logoContainer")} { margin-left: 100px; }
             ${keyToCss("searchSidebarItem")} { max-width: 550px; }
             ${keyToCss("navigation")} { border: none; }
@@ -30,14 +59,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 top: calc(70px + var(--dashboard-tabs-header-height,0px))
             }
             ${keyToCss("searchShadow")} { background: none; }
-            ${keyToCss("navigationLinks")} {
-                display: flex;
-                justify-content: flex-end;
-                flex-basis: 100%;
-                margin-bottom: 0px;
-                margin-top: 8px;
-            }
-            ${keyToCss("navigationLinks")} svg { scale: 1.4; }
             ${keyToCss("blogTile")} { list-style-type: none; }
             ${keyToCss("subNav")} {
                 height: 800px;
@@ -56,12 +77,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             }
             #managed-icon__caret-thin { --icon-color-primary: rgba(var(--black),.65); }
             #settings_subnav { height: fit-content; }
-            ${keyToCss("createPost")} {
-                width: 44px;
-                margin-right: 100px;
-                margin-left: 10px;
-            }
-            ${keyToCss("createPost")} > a { border-radius: 3px !important; }
             @media (max-width: 1150px) {
                 ${keyToCss("navItem")} ${keyToCss("buttonInner")} { padding: 8px 16px !important; }
             }
@@ -71,9 +86,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 flex-basis: unset !important;
             }
             ${keyToCss("navigationWrapper")} { display: none !important; }
-            ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
             ${(keyToCss("timelineHeaderNavInner"))} { "justify-content", "center"; }
-            ${keyToCss("timelineHeader")} { "border", "none"; }
         }
     `);
 
