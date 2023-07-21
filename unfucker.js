@@ -63,7 +63,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             }
             ${keyToCss("createPost")} > a { border-radius: 3px !important; }
             @media (max-width: 1150px) {
-                ${keyToCss("buttonInner")} { padding: 8px 16px; }
+                ${keyToCss("navItem")} ${keyToCss("buttonInner")} { padding: 8px 16px !important; }
             }
 
             ${keyToCss("mainContentWrapper")} { display: none !important; }
