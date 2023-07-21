@@ -17,6 +17,61 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
 
     var $ = window.jQuery;
 
+    var $styleElement = $("<style>");
+    $styleElement.appendTo("html");
+
+    $styleElement.text(`
+        @media (min-width: 990px) {
+            #__hw { display: flex; }
+            ${keyToCss("logoContainer")} { margin-left: 100px; }
+            ${keyToCss("searchSidebarItem")} { max-width: 550px; }
+            ${keyToCss("navigation")} { border: none; }
+            ${keyToCss("post")} ${keyToCss("stickyContainer")} ${keyToCss("avatar")}${keyToCss("newDesktopLayout")} {
+                top: calc(70px + var(--dashboard-tabs-header-height,0px))
+            }
+            ${keyToCss("searchShadow")} { background: none; }
+            ${keyToCss("navigationLinks")} {
+                display: flex;
+                justify-content: flex-end;
+                flex-basis: 100%;
+                margin-bottom: 0px;
+                margin-top: 8px;
+            }
+            ${keyToCss("navigationLinks")} svg { scale: 1.4; }
+            ${keyToCss("blogTile")} { list-style-type: none; }
+            ${keyToCss("subNav")} {
+                height: 800px;
+                overflow-y: scroll;
+                background: RGB(var(--white));
+                scrollbar-color: rgba(var(--black),.4)rgba(var(--white),.1);
+                color: RGB(var(--black));
+                position: absolute;
+                border-radius: 4px;
+                margin-top: 48px;
+            }
+            ${keyToCss("subNav")} * { color: RGB(var(--black)) !important; }
+            ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
+                list-style-type: none;
+                border-bottom: 1px solid rgba(var(--black),.07);
+            }
+            #managed-icon__caret-thin { --icon-color-primary: rgba(var(--black),.65); }
+            #settings_subnav { height: fit-content; }
+            ${keyToCss("createPost")} {
+                width: 44px;
+                margin-right: 100px;
+                margin-left: 10px;
+            }
+            ${keyToCss("createPost")} > a { border-radius: 3px !important; }
+            @media (max-width: 1150px) {
+                ${keyToCss("buttonInner")} { padding: 8px 16px; }
+            }
+
+            ${keyToCss("mainContentWrapper")} { display: none !important; }
+            ${keyToCss("navigationWrapper")} { display: none !important; }
+            ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
+        }
+    `);
+
     async function $unfuck () {
         if ($("#__hw").length) {
             console.log("no need to unfuck");
@@ -48,7 +103,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         var $create = $(keyToCss("createPost")).eq(0);
         var $search = ""
         $create.detach();
-        $bar.css({display: "flex"});
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
         $bar.append($logo);
@@ -105,38 +159,17 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         $bar.append($create);
         $content.detach();
         $main.prepend($content)
-        $logo.css("margin-left", "100px");
-        $search.css("max-width", "550px");
-        $(keyToCss("mainContentWrapper")).eq(0).remove();
-        $(keyToCss("navigationWrapper")).eq(0).remove();
-        $(keyToCss("navigation")).css({border: "none"});
         $main.css({border: "none", marginTop: "40px"});
-        $(`${keyToCss("post")} ${keyToCss("stickyContainer")} ${keyToCss("avatar")}${keyToCss("newDesktopLayout")}`).css("top", "calc(70px + var(--dashboard-tabs-header-height,0px))");
-        $(keyToCss("searchShadow")).css("background", "none");
-        $nav.css({display: "flex", justifyContent: "flex-end", flexBasis: "100%", marginBottom: "0px", marginTop: "8px"});
         $nav.children().has('use[href="#managed-icon__explore"]')
             .add($nav.children().has('use[href="#managed-icon__shop"]'))
             .add($nav.children().has('use[href="#managed-icon__live-video"]'))
             .add($nav.children().has('use[href="#managed-icon__earth"]'))
             .add($nav.children().has('use[href="#managed-icon__sparkle"]'))
             .remove();
-        if ($(window).width() < 1150) {
-            $(keyToCss("buttonInner")).css("padding", "8px 16px");
-        }
-        $nav.find("svg").css("scale", "1.4");
-        $(`${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")}`).remove();
-        $(keyToCss("blogTile")).css("list-style-type", "none");
-        $(keyToCss("subNav")).css({height: "800px", overflowY: "scroll", background: "RGB(var(--white))", scrollbarColor: "rgba(var(--black),.4)rgba(var(--white),.1)", color: "RGB(var(--black))", position: "absolute", borderRadius: "4px", marginTop: "48px"});
-        $(`${keyToCss("subNav")} *`).css({color: "RGB(var(--black))"});
         var $navli = $(`${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li`);
-        $navli.css({listStyleType: "none", borderBottom: "1px solid rgba(var(--black),.07)"});
         $navli.on("mouseenter", function() {$(this).css("background-color", "rgba(var(--black),.07)")});
         $navli.on("mouseleave", function() {$(this).css("background-color", "rgb(var(--white))")});
-        $("#managed-icon__caret-thin").css("--icon-color-primary", "rgba(var(--black),.65)")
-        $("#settings_subnav").css("height", "fit-content");
         $(keyToCss("navSubHeader")).replaceWith(`<div class="${keyToClasses("heading").join(" ")}" style="display: flex;align-items: center;justify-content: space-between;background: rgba(var(--black),.07);height: 36px;padding: 4px 12px 4px 12px;color: rgba(var(--black),.65);"><h3>Blogs</h3><a class="${keyToClasses("headingLink").join(" ")}" style="text-decoration: none;" href="/new/blog">+ New</a></div>`);
-        $create.css({width: "44px", marginRight: "100px", marginLeft: "10px"});
-        $create.children().eq(0).css({borderRadius: "3px"});
         $create.find("a").eq(0).html('<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation"><use href="#managed-icon__post"></use></svg>');
         console.log("dashboard fixed!");
     }
