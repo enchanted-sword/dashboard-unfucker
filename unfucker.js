@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.7
+// @version      1.8
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -69,6 +69,8 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${keyToCss("mainContentWrapper")} { display: none !important; }
             ${keyToCss("navigationWrapper")} { display: none !important; }
             ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
+            ${(keyToCss("timelineHeaderNavInner"))} { "justify-content", "center"; }
+            ${keyToCss("timelineHeader")} { "border", "none"; }
         }
     `);
 
@@ -82,7 +84,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             console.log("page not loaded, retrying...");
             throw "page not loaded";
         }
-        var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox", "tagged"]
+        var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox", "tagged", "explore"]
         var compare = window.location.href.split("/")[3].split("?")[0];
         var test = true;
         for (let x in match) {
@@ -116,7 +118,13 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             $aside.children().eq(0).css({width: "320px"});
             $(`${keyToCss("about")}${keyToCss("inSidebar")}${keyToCss("usesNewDimensions")}`).css({position: "fixed", height: "20px", bottom: "0px"});
             $(keyToCss("sidebarItem")).remove();
-            $(keyToCss("tabsHeader")).remove();
+            var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
+            var $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
+            if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
+                console.log("test");
+                $forYou.insertAfter($following);
+                window.tumblr.navigate("/dashboard/following");
+            }
         }
         else {
             $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`).eq(0);
