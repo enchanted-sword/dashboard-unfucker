@@ -66,7 +66,10 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 ${keyToCss("navItem")} ${keyToCss("buttonInner")} { padding: 8px 16px !important; }
             }
 
-            ${keyToCss("mainContentWrapper")} { display: none !important; }
+            ${keyToCss("mainContentWrapper")} {
+                min-width: unset !important;
+                flex-basis: unset !important;
+            }
             ${keyToCss("navigationWrapper")} { display: none !important; }
             ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
             ${(keyToCss("timelineHeaderNavInner"))} { "justify-content", "center"; }
@@ -112,8 +115,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             var $aside = $(keyToCss("sidebar")).eq(0);
             $search = $(keyToCss("searchSidebarItem")).eq(0);
             $content = $(keyToCss("main")).eq(0);
-            $aside.detach();
-            $main.append($aside)
             $aside.css({marginLeft: "50px", position: "sticky", top: "54px", height: "fit-content"})
             $aside.children().eq(0).css({width: "320px"});
             $(`${keyToCss("about")}${keyToCss("inSidebar")}${keyToCss("usesNewDimensions")}`).css({position: "fixed", height: "20px", bottom: "0px"});
