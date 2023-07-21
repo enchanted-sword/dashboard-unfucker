@@ -140,7 +140,7 @@ async function $unfuck () {
 $unfuck();
 
 window.tumblr.on('navigation', () => requestAnimationFrame(function() {
-    $unfuck.catch((e) => {
+    $unfuck().catch((e) => {
         window.setTimeout(() => getCssMapUtilities().then($unfuck), 400)
     });
 }));
