@@ -61,7 +61,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 margin-right: 100px;
                 margin-left: 10px;
             }
-            ${keyToCss("createPost")} > a { border-radius: 3px; }
+            ${keyToCss("createPost")} > a { border-radius: 3px !important; }
             @media (max-width: 1150px) {
                 ${keyToCss("buttonInner")} { padding: 8px 16px; }
             }
