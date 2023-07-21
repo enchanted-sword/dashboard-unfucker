@@ -65,6 +65,10 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             @media (max-width: 1150px) {
                 ${keyToCss("buttonInner")} { padding: 8px 16px; }
             }
+
+            ${keyToCss("mainContentWrapper")} { display: none !important; }
+            ${keyToCss("navigationWrapper")} { display: none !important; }
+            ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
         }
     `);
 
@@ -155,8 +159,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         $bar.append($create);
         $content.detach();
         $main.prepend($content)
-        $(keyToCss("mainContentWrapper")).eq(0).remove();
-        $(keyToCss("navigationWrapper")).eq(0).remove();
         $main.css({border: "none", marginTop: "40px"});
         $nav.children().has('use[href="#managed-icon__explore"]')
             .add($nav.children().has('use[href="#managed-icon__shop"]'))
@@ -164,7 +166,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             .add($nav.children().has('use[href="#managed-icon__earth"]'))
             .add($nav.children().has('use[href="#managed-icon__sparkle"]'))
             .remove();
-        $(`${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")}`).remove();
         var $navli = $(`${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li`);
         $navli.on("mouseenter", function() {$(this).css("background-color", "rgba(var(--black),.07)")});
         $navli.on("mouseleave", function() {$(this).css("background-color", "rgb(var(--white))")});
