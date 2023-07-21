@@ -117,7 +117,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             $aside.css({marginLeft: "50px", position: "sticky", top: "54px", height: "fit-content"})
             $aside.children().eq(0).css({width: "320px"});
             $(`${keyToCss("about")}${keyToCss("inSidebar")}${keyToCss("usesNewDimensions")}`).css({position: "fixed", height: "20px", bottom: "0px"});
-            $(keyToCss("sidebarItem")).remove();
+            $(keyToCss("sidebarItem")).css("display", "none");
             var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
             var $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
             if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
@@ -173,7 +173,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             .add($nav.children().has('use[href="#managed-icon__live-video"]'))
             .add($nav.children().has('use[href="#managed-icon__earth"]'))
             .add($nav.children().has('use[href="#managed-icon__sparkle"]'))
-            .remove();
+            .css("display", "none");
         var $navli = $(`${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li`);
         $navli.on("mouseenter", function() {$(this).css("background-color", "rgba(var(--black),.07)")});
         $navli.on("mouseleave", function() {$(this).css("background-color", "rgb(var(--white))")});
