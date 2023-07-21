@@ -49,7 +49,7 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 border-radius: 4px;
                 margin-top: 48px;
             }
-            ${keyToCss("subNav")} * { color: RGB(var(--black)); }
+            ${keyToCss("subNav")} * { color: RGB(var(--black)) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
                 border-bottom: 1px solid rgba(var(--black),.07);
