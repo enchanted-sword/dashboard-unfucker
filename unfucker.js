@@ -62,6 +62,9 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 margin-left: 10px;
             }
             ${keyToCss("createPost")} > a { border-radius: 3px; }
+            @media (max-width: 1150px) {
+                ${keyToCss("buttonInner")} { padding: 8px 16px; }
+            }
         }
     `);
 
@@ -161,9 +164,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             .add($nav.children().has('use[href="#managed-icon__earth"]'))
             .add($nav.children().has('use[href="#managed-icon__sparkle"]'))
             .remove();
-        if ($(window).width() < 1150) {
-            $(keyToCss("buttonInner")).css("padding", "8px 16px");
-        }
         $(`${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")}`).remove();
         var $navli = $(`${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li`);
         $navli.on("mouseenter", function() {$(this).css("background-color", "rgba(var(--black),.07)")});
