@@ -13,9 +13,11 @@
 
 'use strict';
 
+getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
+
 var $ = window.jQuery;
 
-function $unfuck ({ keyToClasses, keyToCss }) {
+async function $unfuck () {
     if ($("#__hw").length) {
         console.log("no need to unfuck");
         return
@@ -135,14 +137,15 @@ function $unfuck ({ keyToClasses, keyToCss }) {
     console.log("dashboard fixed!");
 }
 
-getCssMapUtilities().then($unfuck);
+$unfuck();
 
 window.tumblr.on('navigation', () => requestAnimationFrame(function() {
-    getCssMapUtilities().then($unfuck)
-    .catch((e) => {
+    $unfuck.catch((e) => {
         window.setTimeout(() => getCssMapUtilities().then($unfuck), 400)
     });
 }));
+
+});
 
 async function getCssMapUtilities () {
     let retries = 0;
