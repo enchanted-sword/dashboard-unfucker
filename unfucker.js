@@ -61,9 +61,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${keyToCss("searchShadow")} { background: none; }
             ${keyToCss("blogTile")} { list-style-type: none; }
             ${keyToCss("subNav")} {
-                height: ${$(window).height() - 100}px ;
-                overflow-y: scroll;
-                overscroll-behavior: none;
                 background: RGB(var(--white));
                 scrollbar-color: rgba(var(--black),.4)rgba(var(--white),.1);
                 color: RGB(var(--black));
@@ -71,6 +68,12 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 border-radius: 4px;
                 margin-top: 48px;
             }
+            #account_subnav {
+                height: 85vh;
+                overflow-y: scroll;
+                overscroll-behavior: none;
+            }
+            #settings_subnav { height: fit-content; }
             ${keyToCss("subNav")} * { color: RGB(var(--black)) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
@@ -80,7 +83,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${keyToCss("subNav")} > ${keyToCss("navItem")}:hover, ${keyToCss("accountStats")} li:hover {
                 background-color: rgba(var(--black),.07);
             }
-            #settings_subnav { height: fit-content; }
             @media (max-width: 1150px) {
                 ${keyToCss("navItem")} ${keyToCss("buttonInner")} { padding: 8px 16px !important; }
             }
@@ -93,11 +95,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${(keyToCss("timelineHeaderNavInner"))} { "justify-content", "center"; }
         }
     `);
-
-    $(window).on("resize", () => {
-        console.log($(window).height());
-        $("#account_subnav").css("height", `${$(window).height() - 100}px`)
-    });
 
     const waitFor = (selector, retried = 0) => new Promise(resolve => {
         $(selector).length ? resolve() : retried < 25 && requestAnimationFrame(() => waitFor(selector, retried + 1));
