@@ -75,7 +75,10 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 list-style-type: none;
                 border-bottom: 1px solid rgba(var(--black),.07);
             }
-            #managed-icon__caret-thin { --icon-color-primary: rgba(var(--black),.65); }
+            ${keyToCss("subNav")} use { --icon-color-primary: rgba(var(--black),.65) }
+            ${keyToCss("subNav")} > ${keyToCss("navItem")}:hover, ${keyToCss("accountStats")} li:hover {
+                background-color: rgba(var(--black),.07);
+            }
             #settings_subnav { height: fit-content; }
             @media (max-width: 1150px) {
                 ${keyToCss("navItem")} ${keyToCss("buttonInner")} { padding: 8px 16px !important; }
@@ -182,15 +185,18 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         $content.detach();
         $main.prepend($content)
         $main.css({border: "none", marginTop: "40px"});
-        $nav.children().has('use[href="#managed-icon__explore"]')
-            .add($nav.children().has('use[href="#managed-icon__shop"]'))
-            .add($nav.children().has('use[href="#managed-icon__live-video"]'))
-            .add($nav.children().has('use[href="#managed-icon__earth"]'))
-            .add($nav.children().has('use[href="#managed-icon__sparkle"]'))
+        var $navItems = $nav.children();
+        $navItems.has('use[href="#managed-icon__explore"]')
+            .add($navItems.has('use[href="#managed-icon__shop"]'))
+            .add($navItems.has('use[href="#managed-icon__live-video"]'))
+            .add($navItems.has('use[href="#managed-icon__earth"]'))
+            .add($navItems.has('use[href="#managed-icon__sparkle"]'))
             .css("display", "none");
-        var $navli = $(`${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li`);
-        $navli.on("mouseenter", function() {$(this).css("background-color", "rgba(var(--black),.07)")});
-        $navli.on("mouseleave", function() {$(this).css("background-color", "rgb(var(--white))")});
+        var $home = $navItems.has('use[href="#managed-icon__home"]');
+        var $inbox = $navItems.has('use[href="#managed-icon__mail"]');
+        var $messages = $navItems.has('use[href="#managed-icon__messaging"]');
+        $inbox.insertAfter($home);
+        $messages.insertAfter($inbox);
         $(keyToCss("navSubHeader")).replaceWith(`<div class="${keyToClasses("heading").join(" ")}" style="display: flex;align-items: center;justify-content: space-between;background: rgba(var(--black),.07);height: 36px;padding: 4px 12px 4px 12px;color: rgba(var(--black),.65);"><h3>Blogs</h3><a class="${keyToClasses("headingLink").join(" ")}" style="text-decoration: none;" href="/new/blog">+ New</a></div>`);
         $create.find("a").eq(0).html('<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation"><use href="#managed-icon__post"></use></svg>');
         console.log("dashboard fixed!");
@@ -203,7 +209,6 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             window.setTimeout($unfuck, 400)
         });
     }));
-
 });
 
 async function getCssMapUtilities () {
