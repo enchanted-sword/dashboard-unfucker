@@ -61,8 +61,9 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${keyToCss("searchShadow")} { background: none; }
             ${keyToCss("blogTile")} { list-style-type: none; }
             ${keyToCss("subNav")} {
-                height: 800px;
+                height: ${$(window).height() - 100}px ;
                 overflow-y: scroll;
+                overscroll-behavior: none;
                 background: RGB(var(--white));
                 scrollbar-color: rgba(var(--black),.4)rgba(var(--white),.1);
                 color: RGB(var(--black));
@@ -92,6 +93,15 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${(keyToCss("timelineHeaderNavInner"))} { "justify-content", "center"; }
         }
     `);
+
+    $(window).on("resize", () => {
+        console.log($(window).height());
+        $("#account_subnav").css("height", `${$(window).height() - 100}px`)
+    });
+
+    const waitFor = (selector, retried = 0) => new Promise(resolve => {
+        $(selector).length ? resolve() : retried < 25 && requestAnimationFrame(() => waitFor(selector, retried + 1));
+    });
 
     async function $unfuck () {
         if ($("#__hw").length) {
@@ -128,8 +138,11 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         $logo.detach()
         $bar.append($logo);
         if (test) {
+            waitFor(keyToCss("searchSidebarItem")).then(() => {
+                $search = $(keyToCss("searchSidebarItem")).eq(0);
+                $search.insertAfter($logo);
+            });
             var $aside = $(keyToCss("sidebar")).eq(0);
-            $search = $(keyToCss("searchSidebarItem")).eq(0);
             $content = $(keyToCss("main")).eq(0);
             $aside.css({marginLeft: "50px", position: "sticky", top: "54px", height: "fit-content"})
             $aside.children().eq(0).css({width: "320px"});
@@ -146,43 +159,41 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         else {
             $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`).eq(0);
             $search = $(`
-            <div class="${keyToClasses("searchSidebarItem").join(" ")}" style="max-width: 550px; width: 100%; padding: 14px 8px 0px 8px" >
-                <div class="${keyToClasses("formContainer").join(" ")}">
-                <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper").join(" ")}">
-                    <span class="${keyToClasses("targetWrapper").join(" ")}">
-                    <form method="GET" action="/search" role="search" class="${keyToClasses("form").join(" ")}">
-                        <div class="${keyToClasses("searchbarContainer").join(" ")}">
-                        <div class="${keyToClasses("searchIcon").join(" ")}">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" role="presentation" >
-                            <use href="#managed-icon__search"></use>
-                            </svg>
-                        </div>
-                        <input
-                            name="q"
-                            type="text"
-                            autocomplete="off"
-                            aria-label="Search"
-                            class="${keyToClasses("searchbar").join(" ")}"
-                            placeholder="Search Tumblr"
-                            autocapitalize="sentences"
-                            value=""
-                        />
-                        </div>
-                    </form>
+                <div class="${keyToClasses("searchSidebarItem").join(" ")}" style="max-width: 550px; width: 100%; padding: 14px 8px 0px 8px" >
+                    <div class="${keyToClasses("formContainer").join(" ")}">
+                    <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper").join(" ")}">
+                        <span class="${keyToClasses("targetWrapper").join(" ")}">
+                        <form method="GET" action="/search" role="search" class="${keyToClasses("form").join(" ")}">
+                            <div class="${keyToClasses("searchbarContainer").join(" ")}">
+                            <div class="${keyToClasses("searchIcon").join(" ")}">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" role="presentation" >
+                                <use href="#managed-icon__search"></use>
+                                </svg>
+                            </div>
+                            <input
+                                name="q"
+                                type="text"
+                                autocomplete="off"
+                                aria-label="Search"
+                                class="${keyToClasses("searchbar").join(" ")}"
+                                placeholder="Search Tumblr"
+                                autocapitalize="sentences"
+                                value=""
+                            />
+                            </div>
+                        </form>
+                        </span>
                     </span>
-                </span>
+                    </div>
                 </div>
-            </div>
-        `)
+            `);
+            $bar.append($search);
         }
         if (compare === "search" || compare === "tagged") {
             $content.css("max-width", "fit-content");
         }
-        $search.detach();
-        $bar.append($search);
         $bar.append($nav);
         $bar.append($create);
-        $content.detach();
         $main.prepend($content)
         $main.css({border: "none", marginTop: "40px"});
         var $navItems = $nav.children();
