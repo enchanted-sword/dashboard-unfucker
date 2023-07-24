@@ -11,6 +11,8 @@
 // @require      https://code.jquery.com/jquery-3.6.4.min.js
 // ==/UserScript==
 
+/* globals tumblr */
+
 'use strict';
 
 getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
