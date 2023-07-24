@@ -97,7 +97,10 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
     `);
 
     const waitFor = (selector, retried = 0) => new Promise(resolve => {
-        $(selector).length ? resolve() : retried < 25 && requestAnimationFrame(() => waitFor(selector, retried + 1));
+        console.log("waitFor", selector, retried);
+        $(selector).length
+            ? resolve()
+            : retried < 25 && requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve));
     });
 
     async function $unfuck () {
