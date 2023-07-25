@@ -273,6 +273,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
         var $starIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__star-outline"></use></svg>`);
         var $helpIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__posts-ask"></use></svg>`);
+        var $coinsIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__coins"></use></svg>`);
         var $keyboardIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="12" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__keyboard"></use></svg>`);
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         $create.detach();
@@ -343,6 +344,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $("#settings_subnav").insertAfter($settings);
         $(`a[href="/changes"] ${keyToCss("childWrapper")}`).prepend($starIcon);
         $(`a[href="/help"] ${keyToCss("childWrapper")}`).prepend($helpIcon);
+        $(`a[href="/live/shop"] ${keyToCss("childWrapper")}`).prepend($coinsIcon);
         $(`button span:contains("Keyboard shortcuts")`).eq(0).prepend($keyboardIcon);
         var $paletteWrapper = $("<li>", {class: `${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}`});
         var $palette = $(`button[aria-label="${tr("Change palette")}"]`);
