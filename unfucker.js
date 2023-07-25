@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.9
+// @version      2.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -22,7 +22,6 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
     var $styleElement = $("<style id='__s'>");
     $styleElement.appendTo("html");
     $styleElement.text(`
-        ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
         #__h {
             display: flex;
             margin: auto;
@@ -31,6 +30,38 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             align-items: center;
             height: 55px;
         }
+        #__in {
+            padding: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #__in h1 {
+            color: rgb(var(--white));
+            font-size: 1.2em;
+            display: inline;
+        }
+        #__c ul {
+            margin: 4px;
+            padding: 0;
+            background: RGB(var(--white));
+            border-radius: 3px;
+        }
+        #__c li {
+            list-style-type: none;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(var(--black),.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #__c li:first-of-type {
+            background: rgba(var(--black),.07);
+            padding: 12px 12px;
+            font-weight: bold;
+        }
+        ${keyToCss("addFreeCtaBanner")} { display: none !important; }
         ${keyToCss("createPost")} {
             width: 44px;
             margin-left: 10px;
@@ -131,6 +162,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 height: 85vh;
                 width: 240px;
                 overflow-y: scroll;
+                overflox-x: hidden;
                 overscroll-behavior: none;
                 scrollbar-width: thin;
             }
@@ -141,8 +173,10 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 left: 8px;
                 border: 2px solid rgba(var(--black),.14);
             }
-            ${keyToCss("subNav")} * { color: RGB(var(--black)) !important; }
-            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")} { color: rgba(var(--black),.65) !important; }
+            ${keyToCss("subNav")} a,${keyToCss("subNav")} ${keyToCss("childWrapper")},${keyToCss("blogDescription")} * { color: RGB(var(--black)) !important; }
+            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")},${keyToCss("subNav")} ${keyToCss("count")},${keyToCss("reorderButton")} { color: rgba(var(--black),.65) !important; }
+            ${keyToCss("navSubHeader")} a { color: rgba(var(--black),.65); }
+             { color: rgba(var(--black),.65) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
                 border-bottom: 1px solid rgba(var(--black),.07);
@@ -156,11 +190,12 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 display: flex;
                 align-items: center;
             }
-            #settings_button ${keyToCss("navLink")} { justify-content: flex-start; }
+            #settings_button_new ${keyToCss("navLink")} { justify-content: flex-start; }
             ${keyToCss("heading")} {
                 position: sticky;
                 top: 0;
                 height: 36px;
+                width: 240px !important;
                 background: RGB(var(--white));
                 z-index: 1;
                 padding: 5px 20px 5px 10px;
@@ -179,7 +214,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 width: 100%;
                 height: 36px;
                 content: "";
-                background: rgba(var(--black),.07)
+                background: rgba(var(--black),.07);
+                pointer-events: none;
             }
             ${keyToCss("childWrapper")} > svg {
                 margin-right: 10px;
@@ -190,12 +226,39 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         }
     `);
 
-    const waitFor = (selector, retried = 0) => new Promise(resolve => {
-        $(selector).length
-            ? resolve()
-            : retried < 25 && requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve));
+    const waitFor = (selector, retried = 0,) => new Promise((resolve, reject) => {
+        if ($(selector).length) {resolve()}
+        else if (retried < 25) {requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve))}
+        else {reject()}
     });
 
+    function storageAvailable(type) { //thanks mdn web docs!
+        let storage;
+        try {
+          storage = window[type];
+          const x = "__storage_test__";
+          storage.setItem(x, x);
+          storage.removeItem(x);
+          return true;
+        } catch (e) {
+          return (
+            e instanceof DOMException &&
+            // everything except Firefox
+            (e.code === 22 ||
+              // Firefox
+              e.code === 1014 ||
+              // test name field too, because code might not be present
+              // everything except Firefox
+              e.name === "QuotaExceededError" ||
+              // Firefox
+              e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+            // acknowledge QuotaExceededError only if there's something already stored
+            storage &&
+            storage.length !== 0
+          );
+        }
+    }
+      
     function newSearch () {
         console.log("no search bar found, creating new search bar");
         var $search = $(`
@@ -230,6 +293,36 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $("#__h").append($search);
     }
 
+    function updatePreferences(arr) {
+        localStorage.setItem("configPreferences", JSON.stringify(arr))
+    }
+
+    function checkboxEvent(id, value) {
+        if (id === "__c1") {
+            $(keyToCss("timelineHeader")).toggle(!value);
+        }
+        else if (id === "__c2") {
+            $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!value);
+        }
+        else if (id === "__c3") {
+            $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!value);
+        }
+        else if (id === "__c4") {
+            $(keyToCss("navItem")).has('use[href="#managed-icon__explore"]').toggle(!value);
+        }
+        else if (id === "__c5") {
+            $(keyToCss("navItem")).has('use[href="#managed-icon__shop"]').toggle(!value);
+        }
+        else if (id === "__c6") {
+            $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).toggle(!value);
+        }
+        else if (id === "__c7") {
+            $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!value);
+        }
+        else if (id === "__c8") {
+            $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!value);
+        }
+    }
     async function $unfuck ($styleElement) {
         if ($(keyToCss("headerWrapper")).length) {
             console.log("no need to unfuck");
@@ -241,7 +334,25 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             return
         }
         else {console.log("unfucking dashboard...")}
-
+        var configPreferences = [
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "checkbox", value: "checked"},
+            {type: "range", value: "0"}
+        ];
+        if (storageAvailable("localStorage")) {
+            if (!localStorage.getItem("configPreferences")) {
+                updatePreferences(configPreferences)
+            }
+            else {
+                configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+            }
+        }
         if (!$(keyToCss("navigationLinks")).length) {
             console.log("page not loaded, retrying...");
             throw "page not loaded";
@@ -258,8 +369,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                     "inbox",
                     "tagged",
                     "explore",
-                    "reblog",
-                    "edit"
+                    "reblog"
                     ];
         var $nav = $(keyToCss("navigationLinks")).eq(0);
         var $content = ""
@@ -268,7 +378,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $header = $("<header>", {id: "__h"});
         var $logo = $(keyToCss("logoContainer")).eq(0);
         var $create = $(keyToCss("createPost")).eq(0);
-        var $heading = $(`<div class=${keyToClasses("heading").join(" ")}><h3>Account</h3></div>`);
+        var $heading = $(`<div class="${keyToClasses("heading").join(" ")}"><h3>Account</h3></div>`);
         var $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
         var $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
         var $starIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__star-outline"></use></svg>`);
@@ -276,6 +386,100 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $coinsIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__coins"></use></svg>`);
         var $keyboardIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="12" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__keyboard"></use></svg>`);
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
+        var $info = $(`
+            <div id="__in">
+                <h1>dashboard unfucker v2.0</h1>
+                    <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white),.65);">
+                            <use href="#managed-icon__embed"></use>
+                        </svg>
+                    </a>
+                    <button id="__cb">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white), 0.65);">
+                            <use href="#managed-icon__settings"></use>
+                        </svg>
+                    </button>
+                </div>
+                `);
+        var $config = $(`
+            <div id="__c">
+                <ul>
+                    <li>
+                        <span>configuration</span>
+                    </li>
+                    <li>
+                        <span>hide dashboard tabs</span>
+                        <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
+                    </li>
+                    <li>
+                        <span>hide recommended blogs</span>
+                        <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
+                    </li>
+                    <li>
+                        <span>hide tumblr radar</span>
+                        <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
+                    </li>
+                    <li>
+                        <span>hide explore</span>
+                        <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
+                    </li>
+                    <li>
+                        <span>hide tumblr shop</span>
+                        <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
+                    </li>
+                    <li>
+                        <span>hide tumblr live</span>
+                        <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
+                    </li>
+                    <li>
+                        <span>hide domains</span>
+                        <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
+                    </li>
+                    <li>
+                        <span>hide ad-free</span>
+                        <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
+                    </li>
+                    <li>
+                        <span>content positioning</span>
+                        <input class="configInput" type="range" id="c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
+                    </li>
+                </ul>
+            </div>
+            `);
+        $("html").append($info);
+        $("html").append($config);
+        $config.hide();
+        $("#__cb").on("click", () => {
+            if ($config.is(":hidden")) {
+                $("#__cb svg").css("--icon-color-primary", "rgb(var(--white))");
+            }
+            else {$("#__cb svg").css("--icon-color-primary", "rgba(var(--white),.65)")}
+            $config.toggle();
+        });
+        $(".configInput").on("change", function () {
+            if($(this).attr("type") === "checkbox") {
+                configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
+                checkboxEvent($(this).attr("id"), $(this).is(":checked"));
+            }
+            else {
+                configPreferences[Number($(this).attr("name"))].value = $(this).val();
+                if ($(keyToCss("main")).length) {
+                    $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
+                }
+            }
+            updatePreferences(configPreferences);
+        });
+        $(keyToCss("timelineHeader")).toggle(!$("#__c1").is(":checked"));
+        waitFor(keyToCss("sidebarItem")).then(() => {
+            $(keyToCss("sidebarItem")).eq(0).toggle(!$("#__c2").is(":checked"));
+            $(keyToCss("sidebarItem")).eq(1).toggle(!$("#__c3").is(":checked"));
+        });
+        $(keyToCss("navItem")).has('use[href="#managed-icon__explore"]').toggle(!$("#__c4").is(":checked"));
+        $(keyToCss("navItem")).has('use[href="#managed-icon__shop"]').toggle(!$("#__c5").is(":checked"));
+        $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).toggle(!$("#__c6").is(":checked"));
+        $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!$("#__c7").is(":checked"));
+        $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
+        $main.css("margin", $("#__c9").val());
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
@@ -283,9 +487,11 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $header.append($logo);
         if (match.includes(location.pathname.split("/")[1])) {
             waitFor(keyToCss("searchSidebarItem")).then(() => {
-                var $search = $(keyToCss("searchSidebarItem")).eq(0);
-                $search.insertAfter($logo);
-            });
+                    var $search = $(keyToCss("searchSidebarItem")).eq(0);
+                    $search.insertAfter($logo);
+                    $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!$("#__c2").is(":checked"));
+                    $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!$("#__c3").is(":checked"));
+                });
             $content = $(keyToCss("main")).eq(0);
             if (["/dashboard", "/"].includes(location.pathname)) {
                 waitFor(keyToCss("timelineOptionsWrapper")).then(() => {
@@ -309,12 +515,6 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $header.append($create);
         $main.prepend($content)
         var $navItems = $nav.children();
-        $navItems.has('use[href="#managed-icon__explore"]')
-            .add($navItems.has('use[href="#managed-icon__shop"]'))
-            .add($navItems.has('use[href="#managed-icon__live-video"]'))
-            .add($navItems.has('use[href="#managed-icon__earth"]'))
-            .add($navItems.has('use[href="#managed-icon__sparkle"]'))
-            .css("display", "none");
         var $home = $navItems.has('use[href="#managed-icon__home"]');
         var $inbox = $navItems.has('use[href="#managed-icon__mail"]');
         var $messages = $navItems.has('use[href="#managed-icon__messaging"]');
@@ -322,7 +522,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $messages.insertAfter($inbox);
         var $subnav = $(keyToCss("subNav"));
         $create.find("a").eq(0).html('<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation"><use href="#managed-icon__post"></use></svg>');
-        $(document).on("click", (x) => {
+        $(document).on("click", () => {
             if ($(`${keyToCss("subNav")}:hover`).length) {return}
             if ($subnav.eq(0).attr("hidden") ? false : true) {
                 document.getElementById("account_button").click();
@@ -336,12 +536,124 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $heading.append($(keyToCss("logoutButton")));
         $(`a[href="/likes"] ${keyToCss("childWrapper")}`).prepend($likeIcon);
         $(`a[href="/following"] ${keyToCss("childWrapper")}`).prepend($followingIcon);
-        var $settingsWrapper = $("<li>", {class: `${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}`});
-        var $settings = $("#settings_button");
-        $settingsWrapper.insertAfter($subnav.children("li").has("span:contains('Following')"));
-        $settingsWrapper.append($settings);
-        $settings.children("span").eq(0).append("Settings");
-        $("#settings_subnav").insertAfter($settings);
+        var $settings = $(`
+            <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                <button class="${keyToClasses("button")[0]} ${keyToClasses("navLinkButtonWrapper").join(" ")}">
+                    <span class="${keyToClasses("buttonInner").join(" ")} ${keyToClasses("navLink").join(" ")}" tabindex="-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation">
+                            <use href="#managed-icon__settings"></use>
+                        </svg>
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Settings</span>
+                            <span class="${keyToClasses("buttonInner").join(" ")} ${keyToClasses("caret").join(" ")}" id="settings_caret" style="transition: transform 200ms ease-in-out 0s;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" role="presentation">
+                                <use href="#managed-icon__caret-thin"></use>
+                            </svg>
+                            </span>
+                        </div>
+                    </span>
+                </button>
+            </li>
+            `);
+        var $settingsSubmenu = $(`
+            <ul class="${keyToClasses("accountStats").join(" ")}" id="settings_submenu_new" style="margin: 0;">
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/account">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Account</span>
+                            </span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/dashboard">
+                        <div class="${keyToClasses("navInfo").join(" ")}"> 
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Dashboard</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/notifications">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Notifications</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/domains">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Domains</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/ad-free-browsing">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Ad-Free Browsing</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/purchases">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Payment &amp; purchases</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/subscriptions">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Post+ subscriptions</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/apps">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Apps</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/privacy">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Privacy</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/labs">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Labs</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
+                    <a class="${keyToClasses("navLink").join(" ")}" href="/settings/gifts">
+                        <div class="${keyToClasses("navInfo").join(" ")}">
+                            <span class="${keyToClasses("childWrapper").join(" ")}">Gifts</span>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+            `);
+        $settings.insertAfter($subnav.children("li").has("span:contains('Following')"));
+        $settingsSubmenu.insertAfter($settings);
+        $settingsSubmenu.hide();
+        $settings.on("click", () => {
+            if ($settingsSubmenu.is(":hidden")) {
+                $("#settings_caret").css("transform", "rotate(180deg)");
+            }
+            else {$("#settings_caret").css("transform", "rotate(0deg)")}
+            $settingsSubmenu.toggle();
+        });
+        var $domains = $navItems.has('use[href="#managed-icon__earth"]');
+        var $adFree = $navItems.has('use[href="#managed-icon__sparkle"]');
+        var $shop = $navItems.has('use[href="#managed-icon__shop"]')
+        $domains.insertAfter($settingsSubmenu);
+        $adFree.insertAfter($domains);
+        $shop.insertAfter($adFree);
+        $("#settings_button").hide();
         $(`a[href="/changes"] ${keyToCss("childWrapper")}`).prepend($starIcon);
         $(`a[href="/help"] ${keyToCss("childWrapper")}`).prepend($helpIcon);
         $(`a[href="/live/shop"] ${keyToCss("childWrapper")}`).prepend($coinsIcon);
@@ -353,6 +665,11 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $palette.children("span").eq(0).prepend($paletteIcon);
         if (["blog", "likes", "following"].includes(location.pathname.split("/")[1])) { document.getElementById("account_button").click(); }
         $header.append($("<nav>"));
+        waitFor(keyToCss("sidebar")).then(() => {
+            $(keyToCss("sidebar")).prepend($config);
+            $(keyToCss("sidebar")).prepend($info);
+        });
+        $(`${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")}`).not(`#account_subnav div`).hide();
         console.log("dashboard fixed!");
     }
 
