@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      1.8
+// @version      1.9
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,37 +15,43 @@
 
 'use strict';
 
-getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
+getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
 
     var $ = window.jQuery;
 
-    var $styleElement = $("<style>");
+    var $styleElement = $("<style id='__s'>");
     $styleElement.appendTo("html");
     $styleElement.text(`
         ${keyToCss("startChildWrapper")} + ${keyToCss("navInfo")} { display: none !important; }
-        #__hw { display: flex; }
+        #__h {
+            display: flex;
+            margin: auto;
+            max-width: 1716px;
+            padding: 0 20px 0;
+            align-items: center;
+            height: 55px;
+        }
         ${keyToCss("createPost")} {
             width: 44px;
-            margin-right: 100px;
             margin-left: 10px;
         }
-        ${keyToCss("createPost")} > a { border-radius: 3px !important; }
+        ${keyToCss("createPost")} > a {
+            border-radius: 3px !important;
+            padding: 5px 12px !important;
+        }
         ${keyToCss("navigationLinks")} svg { scale: 1.4; }
         ${keyToCss("navigationLinks")} {
             display: flex;
-            justify-content: flex-end;
             flex-basis: 100%;
-            margin-bottom: 0px;
-            margin-top: 8px;
+            margin: 0;
         }
-        ${keyToCss("timelineHeader")} { border: none; }
+        ${keyToCss("navigationLinks")} > ${keyToCss("navItem")} { border: none !important; }
         @media (max-width: 980px) {
             ${keyToCss("logoContainer")} {
                 scale: 0.75;
                 padding: 16px 16px 0px;
             }
             ${keyToCss("navigationLinks")} {
-                display: flex;
                 justify-content: center;
             }
             ${keyToCss("mobileLayout")} {
@@ -53,9 +59,13 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 justify-content: center;
             }
         }
+
         @media (min-width: 990px) {
-            ${keyToCss("logoContainer")} { margin-left: 100px; }
-            ${keyToCss("searchSidebarItem")} { max-width: 550px; }
+            ${keyToCss("searchSidebarItem")} {
+                max-width: 550px;
+                height: unset;
+                padding: 0 8px;
+            }
             ${keyToCss("navigation")} { border: none; }
             ${keyToCss("post")} ${keyToCss("stickyContainer")} ${keyToCss("avatar")}${keyToCss("newDesktopLayout")} {
                 top: calc(70px + var(--dashboard-tabs-header-height,0px))
@@ -70,13 +80,69 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
                 border-radius: 4px;
                 margin-top: 48px;
             }
+            ${keyToCss("bluespaceLayout")} > ${keyToCss("newDesktopLayout")} {
+                border: none !important;
+                margin-top: 40px;
+            }
+            ${keyToCss("navigationLinks")} {
+                justify-content: flex-end;
+            }
+            ${keyToCss("notificationBadgeIn")} { top: -70% !important; }
+            ${keyToCss("timelineHeader")} { border: none; }
+            ${keyToCss("mainContentWrapper")} {
+                min-width: unset !important;
+                flex-basis: unset !important;
+            }
+            ${keyToCss("main")} { border: none !important; }
+            ${keyToCss("navigationWrapper")} { display: none !important; }
+            ${keyToCss("navSubHeader")} {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: rgba(var(--black),.07);
+                height: 36px;
+                padding: 4px 12px 4px 12px;
+                color: rgba(var(--black),.65);
+            }
+            ${keyToCss("navSubHeader")} a { text-decoration: none; }
+            ${keyToCss("navSubHeader")} + ul {
+                width: 100%;
+                padding: 0 !important;
+            }
+            ${keyToCss("timelineHeaderNavInner")} { "justify-content", "center"; }
+            ${keyToCss("sidebar")} {
+                margin-left: 30px !important;
+                position: sticky;
+                top: 54px;
+                height: fit-content;
+            }
+            ${keyToCss("sidebar")} aside { width: 320px; }
+            ${keyToCss("about")}${keyToCss("inSidebar")}${keyToCss("usesNewDimensions")} {
+                position: fixed;
+                height: 20px;
+                bottom: 0;
+            }
+            ${keyToCss("searchbarContainer")} {
+                padding: 0;
+                border: none;
+                margin: 0;
+            }
             #account_subnav {
                 height: 85vh;
+                width: 240px;
                 overflow-y: scroll;
                 overscroll-behavior: none;
+                scrollbar-width: thin;
             }
-            #settings_subnav { height: fit-content; }
+            #settings_subnav {
+                height: fit-content;
+                z-index: 1;
+                top: 96px;
+                left: 8px;
+                border: 2px solid rgba(var(--black),.14);
+            }
             ${keyToCss("subNav")} * { color: RGB(var(--black)) !important; }
+            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")} { color: rgba(var(--black),.65) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
                 border-bottom: 1px solid rgba(var(--black),.07);
@@ -85,16 +151,42 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             ${keyToCss("subNav")} > ${keyToCss("navItem")}:hover, ${keyToCss("accountStats")} li:hover {
                 background-color: rgba(var(--black),.07);
             }
+            ${keyToCss("subNav")} svg { scale: 1; }
+            ${keyToCss("navInfo")} ${keyToCss("childWrapper")} {
+                display: flex;
+                align-items: center;
+            }
+            #settings_button ${keyToCss("navLink")} { justify-content: flex-start; }
+            ${keyToCss("heading")} {
+                position: sticky;
+                top: 0;
+                height: 36px;
+                background: RGB(var(--white));
+                z-index: 1;
+                padding: 5px 20px 5px 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: .875rem;
+                color: rgba(var(--black),.65) !important;
+                line-height: 1.5;
+                box-sizing: border-box;
+            }
+            ${keyToCss("heading")}::before {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 36px;
+                content: "";
+                background: rgba(var(--black),.07)
+            }
+            ${keyToCss("childWrapper")} > svg {
+                margin-right: 10px;
+            }
             @media (max-width: 1150px) {
                 ${keyToCss("navItem")} ${keyToCss("buttonInner")} { padding: 8px 16px !important; }
             }
-
-            ${keyToCss("mainContentWrapper")} {
-                min-width: unset !important;
-                flex-basis: unset !important;
-            }
-            ${keyToCss("navigationWrapper")} { display: none !important; }
-            ${(keyToCss("timelineHeaderNavInner"))} { "justify-content", "center"; }
         }
     `);
 
@@ -104,99 +196,117 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
             : retried < 25 && requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve));
     });
 
-    async function $unfuck () {
-        if ($("#__hw").length) {
+    function newSearch () {
+        console.log("no search bar found, creating new search bar");
+        var $search = $(`
+            <div class="${keyToClasses("searchSidebarItem").join(" ")}" style="max-width: 550px; width: 100%;" >
+                <div class="${keyToClasses("formContainer").join(" ")}">
+                <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper").join(" ")}">
+                    <span class="${keyToClasses("targetWrapper").join(" ")}">
+                    <form method="GET" action="/search" role="search" class="${keyToClasses("form").join(" ")}">
+                        <div class="${keyToClasses("searchbarContainer").join(" ")}">
+                        <div class="${keyToClasses("searchIcon").join(" ")}">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" role="presentation" >
+                            <use href="#managed-icon__search"></use>
+                             </svg>
+                        </div>
+                        <input
+                            name="q"
+                            type="text"
+                            autocomplete="off"
+                            aria-label="${tr("Search")}"
+                            class="${keyToClasses("searchbar").join(" ")}"
+                            placeholder="Search Tumblr"
+                            autocapitalize="sentences"
+                            value=""
+                        />
+                        </div>
+                    </form>
+                    </span>
+                </span>
+                </div>
+            </div>
+        `);
+        $("#__h").append($search);
+    }
+
+    async function $unfuck ($styleElement) {
+        if ($(keyToCss("headerWrapper")).length) {
             console.log("no need to unfuck");
+            if (!$("#__h").length) {$("#__s").remove()}
+            return
+        }
+        if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline") === "/v2/tabs/for_you") {
+            window.tumblr.navigate("/dashboard/following");
             return
         }
         else {console.log("unfucking dashboard...")}
+
         if (!$(keyToCss("navigationLinks")).length) {
             console.log("page not loaded, retrying...");
             throw "page not loaded";
         }
-        var match = ["", "dashboard", "settings", "blog", "domains", "search", "likes", "following", "inbox", "tagged", "explore"]
-        var compare = window.location.href.split("/")[3].split("?")[0];
-        var test = true;
-        for (let x in match) {
-            if (compare === match[x]) {
-                test = true;
-                break;
-            }
-            else {
-                test = false;
-                continue;
-            }
-        }
+        var match = [
+                    "",
+                    "dashboard",
+                    "settings",
+                    "blog",
+                    "domains",
+                    "search",
+                    "likes",
+                    "following",
+                    "inbox",
+                    "tagged",
+                    "explore",
+                    "reblog",
+                    "edit"
+                    ];
         var $nav = $(keyToCss("navigationLinks")).eq(0);
         var $content = ""
         var $main = $(keyToCss("newDesktopLayout")).eq(0);
-        var $bar = $("<div>", {class: keyToClasses("headerWrapper").join(" "), id: "__hw"});
+        var $bar = $("<nav>", {class: keyToClasses("headerWrapper").join(" "), id: "__hw"});
+        var $header = $("<header>", {id: "__h"});
         var $logo = $(keyToCss("logoContainer")).eq(0);
         var $create = $(keyToCss("createPost")).eq(0);
-        var $search = ""
+        var $heading = $(`<div class=${keyToClasses("heading").join(" ")}><h3>Account</h3></div>`);
+        var $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
+        var $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
+        var $starIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__star-outline"></use></svg>`);
+        var $helpIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__posts-ask"></use></svg>`);
+        var $keyboardIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="12" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__keyboard"></use></svg>`);
+        var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
-        $bar.append($logo);
-        if (test) {
+        $bar.append($header)
+        $header.append($logo);
+        if (match.includes(location.pathname.split("/")[1])) {
             waitFor(keyToCss("searchSidebarItem")).then(() => {
-                $search = $(keyToCss("searchSidebarItem")).eq(0);
+                var $search = $(keyToCss("searchSidebarItem")).eq(0);
                 $search.insertAfter($logo);
             });
-            var $aside = $(keyToCss("sidebar")).eq(0);
             $content = $(keyToCss("main")).eq(0);
-            $aside.css({marginLeft: "50px", position: "sticky", top: "54px", height: "fit-content"})
-            $aside.children().eq(0).css({width: "320px"});
-            $(`${keyToCss("about")}${keyToCss("inSidebar")}${keyToCss("usesNewDimensions")}`).css({position: "fixed", height: "20px", bottom: "0px"});
-            $(keyToCss("sidebarItem")).css("display", "none");
-            var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
-            var $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
-            if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
-                console.log("test");
-                $forYou.insertAfter($following);
-                window.tumblr.navigate("/dashboard/following");
+            if (["/dashboard", "/"].includes(location.pathname)) {
+                waitFor(keyToCss("timelineOptionsWrapper")).then(() => {
+                    if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
+                        var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
+                        var $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
+                        $forYou.insertAfter($following);
+                    }
+                });
             }
+
         }
         else {
             $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`).eq(0);
-            $search = $(`
-                <div class="${keyToClasses("searchSidebarItem").join(" ")}" style="max-width: 550px; width: 100%; padding: 14px 8px 0px 8px" >
-                    <div class="${keyToClasses("formContainer").join(" ")}">
-                    <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper").join(" ")}">
-                        <span class="${keyToClasses("targetWrapper").join(" ")}">
-                        <form method="GET" action="/search" role="search" class="${keyToClasses("form").join(" ")}">
-                            <div class="${keyToClasses("searchbarContainer").join(" ")}">
-                            <div class="${keyToClasses("searchIcon").join(" ")}">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" role="presentation" >
-                                <use href="#managed-icon__search"></use>
-                                </svg>
-                            </div>
-                            <input
-                                name="q"
-                                type="text"
-                                autocomplete="off"
-                                aria-label="Search"
-                                class="${keyToClasses("searchbar").join(" ")}"
-                                placeholder="Search Tumblr"
-                                autocapitalize="sentences"
-                                value=""
-                            />
-                            </div>
-                        </form>
-                        </span>
-                    </span>
-                    </div>
-                </div>
-            `);
-            $bar.append($search);
+            newSearch();
         }
-        if (compare === "search" || compare === "tagged") {
+        if (["search", "tagged"].includes(location.pathname.split("/")[1])) {
             $content.css("max-width", "fit-content");
         }
-        $bar.append($nav);
-        $bar.append($create);
+        $header.append($nav);
+        $header.append($create);
         $main.prepend($content)
-        $main.css({border: "none", marginTop: "40px"});
         var $navItems = $nav.children();
         $navItems.has('use[href="#managed-icon__explore"]')
             .add($navItems.has('use[href="#managed-icon__shop"]'))
@@ -209,8 +319,38 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
         var $messages = $navItems.has('use[href="#managed-icon__messaging"]');
         $inbox.insertAfter($home);
         $messages.insertAfter($inbox);
-        $(keyToCss("navSubHeader")).replaceWith(`<div class="${keyToClasses("heading").join(" ")}" style="display: flex;align-items: center;justify-content: space-between;background: rgba(var(--black),.07);height: 36px;padding: 4px 12px 4px 12px;color: rgba(var(--black),.65);"><h3>Blogs</h3><a class="${keyToClasses("headingLink").join(" ")}" style="text-decoration: none;" href="/new/blog">+ New</a></div>`);
+        var $subnav = $(keyToCss("subNav"));
         $create.find("a").eq(0).html('<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation"><use href="#managed-icon__post"></use></svg>');
+        $(document).on("click", (x) => {
+            if ($(`${keyToCss("subNav")}:hover`).length) {return}
+            if ($subnav.eq(0).attr("hidden") ? false : true) {
+                document.getElementById("account_button").click();
+            }
+            if ($subnav.eq(1).attr("hidden") ? false : true) {
+                document.getElementById("settings_button").click();
+            }
+        });
+        var $accountSubnav = $("#account_subnav");
+        $accountSubnav.prepend($heading);
+        $heading.append($(keyToCss("logoutButton")));
+        $(`a[href="/likes"] ${keyToCss("childWrapper")}`).prepend($likeIcon);
+        $(`a[href="/following"] ${keyToCss("childWrapper")}`).prepend($followingIcon);
+        var $settingsWrapper = $("<li>", {class: `${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}`});
+        var $settings = $("#settings_button");
+        $settingsWrapper.insertAfter($subnav.children("li").has("span:contains('Following')"));
+        $settingsWrapper.append($settings);
+        $settings.children("span").eq(0).append("Settings");
+        $("#settings_subnav").insertAfter($settings);
+        $(`a[href="/changes"] ${keyToCss("childWrapper")}`).prepend($starIcon);
+        $(`a[href="/help"] ${keyToCss("childWrapper")}`).prepend($helpIcon);
+        $(`button span:contains("Keyboard shortcuts")`).eq(0).prepend($keyboardIcon);
+        var $paletteWrapper = $("<li>", {class: `${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}`});
+        var $palette = $(`button[aria-label="${tr("Change palette")}"]`);
+        $paletteWrapper.insertAfter($subnav.children("li").has("span:contains('Keyboard shortcuts')"));
+        $paletteWrapper.append($palette);
+        $palette.children("span").eq(0).prepend($paletteIcon);
+        if (["blog", "likes", "following"].includes(location.pathname.split("/")[1])) { document.getElementById("account_button").click(); }
+        $header.append($("<nav>"));
         console.log("dashboard fixed!");
     }
 
@@ -223,13 +363,14 @@ getCssMapUtilities().then(({ keyToClasses, keyToCss }) => {
     }));
 });
 
-async function getCssMapUtilities () {
+async function getUtilities () {
     let retries = 0;
-    while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined")) {
+    while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined" || typeof tumblr.languageData === "undefined")) {
         await new Promise((resolve) => setTimeout(resolve));
     }
     const cssMap = await tumblr.getCssMap();
     const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
     const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
-    return { keyToClasses, keyToCss };
+    const tr = (string) => `${window.tumblr.languageData.translations[string] || string}`
+    return { keyToClasses, keyToCss, tr };
 }
