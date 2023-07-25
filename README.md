@@ -10,4 +10,4 @@ It's a userscript designed for Tampermonkey, but feel free to port it to other J
 - If you've updated script versions but it doesn't fix a version-specific bug, it's likely because of browser caching, just do a full reload of the page.
 
 ## Known issues and discrepancies
-- The script currently crashes the page when resizing to below 980px in width
+- None ;)
