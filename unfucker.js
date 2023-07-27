@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      2.0
+// @version      2.0.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -173,10 +173,9 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 left: 8px;
                 border: 2px solid rgba(var(--black),.14);
             }
-            ${keyToCss("subNav")} a,${keyToCss("subNav")} ${keyToCss("childWrapper")},${keyToCss("blogDescription")} * { color: RGB(var(--black)) !important; }
+            ${keyToCss("subNav")} a,${keyToCss("subNav")} ${keyToCss("childWrapper")},${keyToCss("subNav")} ${keyToCss("blogDescription")} * { color: RGB(var(--black)) !important; }
             ${keyToCss("subNav")} ${keyToCss("endChildWrapper")},${keyToCss("subNav")} ${keyToCss("count")},${keyToCss("reorderButton")} { color: rgba(var(--black),.65) !important; }
-            ${keyToCss("navSubHeader")} a { color: rgba(var(--black),.65); }
-             { color: rgba(var(--black),.65) !important; }
+            ${keyToCss("navSubHeader")} a { color: rgba(var(--black),.65) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
                 border-bottom: 1px solid rgba(var(--black),.07);
@@ -258,7 +257,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
           );
         }
     }
-      
+
     function newSearch () {
         console.log("no search bar found, creating new search bar");
         var $search = $(`
@@ -388,7 +387,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         var $info = $(`
             <div id="__in">
-                <h1>dashboard unfucker v2.0</h1>
+                <h1>dashboard unfucker v2.0.1</h1>
                     <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                         <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white),.65);">
                             <use href="#managed-icon__embed"></use>
@@ -539,12 +538,12 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $settings = $(`
             <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
                 <button class="${keyToClasses("button")[0]} ${keyToClasses("navLinkButtonWrapper").join(" ")}">
-                    <span class="${keyToClasses("buttonInner").join(" ")} ${keyToClasses("navLink").join(" ")}" tabindex="-1">
+                    <span class="${keyToClasses("buttonInner").join(" ")} ${keyToClasses("navLink").join(" ")}" tabindex="-1" style="width: 100%;">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" role="presentation">
                             <use href="#managed-icon__settings"></use>
                         </svg>
                         <div class="${keyToClasses("navInfo").join(" ")}">
-                            <span class="${keyToClasses("childWrapper").join(" ")}">Settings</span>
+                            <span class="${keyToClasses("childWrapper").join(" ")}" style="font-size: 1rem;">Settings</span>
                             <span class="${keyToClasses("buttonInner").join(" ")} ${keyToClasses("caret").join(" ")}" id="settings_caret" style="transition: transform 200ms ease-in-out 0s;">
                             <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" role="presentation">
                                 <use href="#managed-icon__caret-thin"></use>
@@ -567,7 +566,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 </li>
                 <li class="${keyToClasses("navItem").join(" ")} ${keyToClasses("newDesktopLayout").join(" ")}">
                     <a class="${keyToClasses("navLink").join(" ")}" href="/settings/dashboard">
-                        <div class="${keyToClasses("navInfo").join(" ")}"> 
+                        <div class="${keyToClasses("navInfo").join(" ")}">
                             <span class="${keyToClasses("childWrapper").join(" ")}">Dashboard</span>
                         </div>
                     </a>
