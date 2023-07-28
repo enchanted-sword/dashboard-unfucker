@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      2.0.1
+// @version      2.0.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -38,7 +38,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             justify-content: space-between;
         }
         #__in h1 {
-            color: rgb(var(--white));
+            color: rgb(var(--white-on-dark));
             font-size: 1.2em;
             display: inline;
         }
@@ -387,14 +387,14 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         var $info = $(`
             <div id="__in">
-                <h1>dashboard unfucker v2.0.1</h1>
+                <h1>dashboard unfucker v2.0.2</h1>
                     <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white),.65);">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                             <use href="#managed-icon__embed"></use>
                         </svg>
                     </a>
                     <button id="__cb">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white), 0.65);">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
                             <use href="#managed-icon__settings"></use>
                         </svg>
                     </button>
@@ -450,9 +450,9 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $config.hide();
         $("#__cb").on("click", () => {
             if ($config.is(":hidden")) {
-                $("#__cb svg").css("--icon-color-primary", "rgb(var(--white))");
+                $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
             }
-            else {$("#__cb svg").css("--icon-color-primary", "rgba(var(--white),.65)")}
+            else {$("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)")}
             $config.toggle();
         });
         $(".configInput").on("change", function () {
