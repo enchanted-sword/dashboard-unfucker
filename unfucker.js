@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      2.0.2
+// @version      2.0.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -92,6 +92,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         }
 
         @media (min-width: 990px) {
+            ${keyToCss("tabsHeader")} { margin-top: 0 !important; }
             ${keyToCss("searchSidebarItem")} {
                 max-width: 550px;
                 height: unset;
