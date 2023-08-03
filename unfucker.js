@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      2.0.3
+// @version      2.0.4
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -55,6 +55,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            color: rgb(var(--black));
         }
         #__c li:first-of-type {
             background: rgba(var(--black),.07);
@@ -314,7 +315,9 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             $(keyToCss("navItem")).has('use[href="#managed-icon__shop"]').toggle(!value);
         }
         else if (id === "__c6") {
-            $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).toggle(!value);
+            $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]')
+                .add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]'))
+                .add($(keyToCss("listTimelineObject")).has(keyToCss("liveMarqueeTitle"))).toggle(!value);
         }
         else if (id === "__c7") {
             $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!value);
@@ -388,7 +391,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         var $info = $(`
             <div id="__in">
-                <h1>dashboard unfucker v2.0.2</h1>
+                <h1>dashboard unfucker v2.0.4</h1>
                     <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                         <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                             <use href="#managed-icon__embed"></use>
@@ -476,7 +479,9 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         });
         $(keyToCss("navItem")).has('use[href="#managed-icon__explore"]').toggle(!$("#__c4").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__shop"]').toggle(!$("#__c5").is(":checked"));
-        $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).toggle(!$("#__c6").is(":checked"));
+        $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]')
+            .add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]'))
+            .add($(keyToCss("listTimelineObject")).has(keyToCss("liveMarqueeTitle"))).toggle(!$("#__c6").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!$("#__c7").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
         $main.css("margin", $("#__c9").val());
