@@ -164,7 +164,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 height: 85vh;
                 width: 240px;
                 overflow-y: scroll;
-                overflox-x: hidden;
+                overflow-x: hidden;
                 overscroll-behavior: none;
                 scrollbar-width: thin;
             }
