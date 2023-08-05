@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      2.0.4
+// @version      2.0.5
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -175,8 +175,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 left: 8px;
                 border: 2px solid rgba(var(--black),.14);
             }
-            ${keyToCss("subNav")} a,${keyToCss("subNav")} ${keyToCss("childWrapper")},${keyToCss("subNav")} ${keyToCss("blogDescription")} * { color: RGB(var(--black)) !important; }
-            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")},${keyToCss("subNav")} ${keyToCss("count")},${keyToCss("reorderButton")} { color: rgba(var(--black),.65) !important; }
+            ${keyToCss("subNav")} a,${keyToCss("subNav")} ${keyToCss("childWrapper")},${keyToCss("subNav")} ${keyToCss("blogName")} { color: RGB(var(--black)) !important; }
+            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")},${keyToCss("subNav")} ${keyToCss("count")},${keyToCss("reorderButton")},${keyToCss("blogTitle")} { color: rgba(var(--black),.65) !important; }
             ${keyToCss("navSubHeader")} a { color: rgba(var(--black),.65) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
@@ -391,7 +391,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         var $info = $(`
             <div id="__in">
-                <h1>dashboard unfucker v2.0.4</h1>
+                <h1>dashboard unfucker v2.0.5/h1>
                     <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                         <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                             <use href="#managed-icon__embed"></use>
@@ -652,6 +652,82 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             else {$("#settings_caret").css("transform", "rotate(0deg)")}
             $settingsSubmenu.toggle();
         });
+        var $blogs = $(keyToCss("blogTile"));
+        for (let i = 0; i < $blogs.length; ++i) {
+            var $blog = $blogs.eq(i);
+            var blog = $blog.find(keyToCss("blogName")).text()
+            var $button = $(`
+                <button class="${keyToClasses("button")[0]}" aria-label="${tr("Show Blog Statistics")}">
+                    <span class="${keyToClasses("buttonInner").join(" ")} ${keyToClasses("menuTarget").join(" ")}" style="transform: rotate(0deg); display: flex; transition: transform 200ms ease-in-out 0s;" tabindex="-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" role="presentation">
+                            <use href="#managed-icon__caret-thin"></use>
+                        </svg>
+                    </span>
+                </button>
+            `);
+            $blog.find(keyToCss("actionButtons")).append($button);
+            var $accountStats = $(`
+            <ul class="${keyToClasses("accountStats").join(" ")}">
+                <li>
+                    <a href="/blog/${blog}">
+                        <span>Posts</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog/${blog}/followers">
+                        <span>Followers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog/${blog}/activity">
+                        <span>Activity</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog/${blog}/drafts">
+                        <span>Drafts</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog/${blog}/queue">
+                        <span>Queue</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog/${blog}/post-plus">
+                        <span>Post+</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog/${blog}/blaze">
+                        <span>Tumblr Blaze</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/settings/blog/${blog}">
+                        <span>Blog settings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/mega-editor/published/${blog}" target="_blank">
+                        <span>Mass Post Editor</span>
+                    </a>
+                </li>
+            </ul>
+            `);
+            $accountStats.insertAfter($blog);
+            $accountStats.hide()
+            $button.on("click", function() {
+                if ($(keyToCss("accountStats")).eq(i + 1).is(":hidden")) {
+                    $(this).css("transform", "rotate(180deg)");
+                }
+                else {
+                    $(this).css("transform", "rotate(0deg)");
+                }
+                $(keyToCss("accountStats")).eq(i + 1).toggle();
+            });
+        }
+        $(`button[aria-label="${tr("Show Blog Statistics")}"`).eq(0).trigger("click");
         var $domains = $navItems.has('use[href="#managed-icon__earth"]');
         var $adFree = $navItems.has('use[href="#managed-icon__sparkle"]');
         var $shop = $navItems.has('use[href="#managed-icon__shop"]')
