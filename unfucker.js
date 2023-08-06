@@ -391,7 +391,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         var $info = $(`
             <div id="__in">
-                <h1>dashboard unfucker v2.0.5/h1>
+                <h1>dashboard unfucker v2.0.5</h1>
                     <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                         <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                             <use href="#managed-icon__embed"></use>
