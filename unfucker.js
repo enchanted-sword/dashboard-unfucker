@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      2.0.5
+// @version      2.0.6
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -176,7 +176,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 border: 2px solid rgba(var(--black),.14);
             }
             ${keyToCss("subNav")} a,${keyToCss("subNav")} ${keyToCss("childWrapper")},${keyToCss("subNav")} ${keyToCss("blogName")} { color: RGB(var(--black)) !important; }
-            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")},${keyToCss("subNav")} ${keyToCss("count")},${keyToCss("reorderButton")},${keyToCss("blogTitle")} { color: rgba(var(--black),.65) !important; }
+            ${keyToCss("subNav")} ${keyToCss("endChildWrapper")},${keyToCss("subNav")} ${keyToCss("count")},${keyToCss("reorderButton")},${keyToCss("subNav")} ${keyToCss("blogTitle")} { color: rgba(var(--black),.65) !important; }
             ${keyToCss("navSubHeader")} a { color: rgba(var(--black),.65) !important; }
             ${keyToCss("subNav")} > ${keyToCss("navItem")}, ${keyToCss("accountStats")} li {
                 list-style-type: none;
@@ -391,7 +391,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $paletteIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__palette"></use></svg>`);
         var $info = $(`
             <div id="__in">
-                <h1>dashboard unfucker v2.0.5</h1>
+                <h1>dashboard unfucker v2.0.6</h1>
                     <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                         <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                             <use href="#managed-icon__embed"></use>
@@ -473,10 +473,6 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             updatePreferences(configPreferences);
         });
         $(keyToCss("timelineHeader")).toggle(!$("#__c1").is(":checked"));
-        waitFor(keyToCss("sidebarItem")).then(() => {
-            $(keyToCss("sidebarItem")).eq(0).toggle(!$("#__c2").is(":checked"));
-            $(keyToCss("sidebarItem")).eq(1).toggle(!$("#__c3").is(":checked"));
-        });
         $(keyToCss("navItem")).has('use[href="#managed-icon__explore"]').toggle(!$("#__c4").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__shop"]').toggle(!$("#__c5").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]')
