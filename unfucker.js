@@ -21,11 +21,17 @@ Object.defineProperty(window, "___INITIAL_STATE___", { //thanks twilight-sparkle
         let state = x; // copy state
         try {
             let obf = JSON.parse(atob(state.obfuscatedFeatures)); // convert from base64, parse from string
-            obf.redpopDesktopVerticalNav = false; // vertical nav layout
+            if (obf.redpopDesktopVerticalNav) {
+                obf.redpopDesktopVerticalNav = false; // vertical nav layout
+                obf.liveStreamingWeb = false; //no tumblr live
+            }
             obf.activityRedesignM3 = false; // ugly activity update
-            obf.liveStreamingWeb = false; //no tumblr live
             obf.liveStreaming = false;
+            obf.liveCustomMarqueeData = false;
+            obf.liveStreamingWebPayments = false;
             obf.adFreeCtaBanner = false; //no annoying popup when using an adblocker
+            obf.domainsSettings = false; //turn off tumblr domains
+            console.log(obf);
             state.obfuscatedFeatures = btoa(JSON.stringify(obf)); // compress back to string, convert to base64
         } catch (e) {
             console.error("Failed to modify features", e)
@@ -42,7 +48,7 @@ Object.defineProperty(window, "___INITIAL_STATE___", { //thanks twilight-sparkle
 
 const style = document.createElement("style");
 style.innerHTML = `
-    #base-container > div:first-child > div:first-child {
+    #base-container > div:not(#glass-container) > div:first-child {
         z-index: 100;
         border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
         position: -webkit-sticky !important;
@@ -101,6 +107,7 @@ $(document).ready(() => {
                 padding: 12px 12px;
                 font-weight: bold;
             }
+            ${keyToCss("liveMarqueeWrapper")} { display: none; }
         `);
 
         const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
@@ -166,6 +173,10 @@ $(document).ready(() => {
                 window.tumblr.navigate("/dashboard/following");
                 return
             }
+            if (!$(keyToCss("menuRight")).length) {
+                console.log("page not loaded, retrying...");
+                throw "page not loaded";
+            }
             else {console.log("unfucking dashboard...")}
             if (["/dashboard", "/"].includes(location.pathname)) {
                 waitFor(keyToCss("timelineOptionsWrapper")).then(() => {
@@ -176,7 +187,6 @@ $(document).ready(() => {
                     }
                 });
             }
-            $(keyToCss("navItem")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).hide()
             var configPreferences = [
                 {type: "checkbox", value: "checked"},
                 {type: "checkbox", value: "checked"},
@@ -273,6 +283,7 @@ $(document).ready(() => {
                 }
                 updatePreferences(configPreferences);
             });
+            $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).hide()
             $(keyToCss("timelineHeader")).toggle(!$("#__c1").is(":checked"));
             $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!$("#__c4").is(":checked"));
             $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!$("#__c5").is(":checked"));
