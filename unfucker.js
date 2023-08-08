@@ -165,7 +165,7 @@ $(document).ready(() => {
         }
 
         async function $unfuck () {
-            if($("__c").length) {
+            if($("#__c").length) {
                 console.log("page already processed")
                 return
             }
