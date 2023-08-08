@@ -42,7 +42,7 @@ Object.defineProperty(window, "___INITIAL_STATE___", { //thanks twilight-sparkle
 
 const style = document.createElement("style");
 style.innerHTML = `
-    #base-container > div > div:first-child {
+    #base-container > div:first-child > div:first-child {
         z-index: 100;
         border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
         position: -webkit-sticky !important;
@@ -158,7 +158,10 @@ $(document).ready(() => {
         }
 
         async function $unfuck () {
-
+            if($("__c").length) {
+                console.log("page already processed")
+                return
+            }
             if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline") === "/v2/tabs/for_you") {
                 window.tumblr.navigate("/dashboard/following");
                 return
