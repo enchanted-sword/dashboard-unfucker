@@ -5,8 +5,8 @@
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
-// @downloadURL  https://github.com/enchanted-sword/dashboard-unfucker/blob/main/unfucker.js
-// @updateURL    https://github.com/enchanted-sword/dashboard-unfucker/blob/main/unfucker.js
+// @downloadURL  https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
+// @updateURL    https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
 // @grant        none
 // @require      https://code.jquery.com/jquery-3.6.4.min.js
 // @run-at       document-start
