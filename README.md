@@ -3,6 +3,8 @@ Unfucks the twitterification of tumblr's dashboard by reverting it to the old la
 
 It's a userscript designed for Tampermonkey, but feel free to port it to other JavaScript injection methods as you please.
 
+To install, simply click on `unfucker.user.js` and click the `raw` button with Tampermonkey installed.
+
 ## Troubleshooting
 - The script apparently conflicts with the HTTPS Everywhere extension on Firefox.
 - Not tested on fully on chrome, but sources seem to say that it does work as intended.
