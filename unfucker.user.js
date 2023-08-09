@@ -15,46 +15,46 @@
 /* globals tumblr */
 
 'use strict';
-
-Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
-    set(x) {
-        let state = x; // copy state
-        try {
-            let obf = JSON.parse(atob(state.obfuscatedFeatures)); // convert from base64, parse from string
-            if (obf.redpopDesktopVerticalNav) {
-                obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
-                obf.liveStreamingWeb = false; // no tumblr live
+if (!window.___INITIAL_STATE___) {
+    Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
+        set(x) {
+            let state = x; // copy state
+            try {
+                let obf = JSON.parse(atob(state.obfuscatedFeatures)); // convert from base64, parse from string
+                if (obf.redpopDesktopVerticalNav) {
+                    obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
+                    obf.liveStreamingWeb = false; // no tumblr live
+                }
+                obf.activityRedesignM3 = false; // ugly activity update
+                obf.liveStreaming = false; // more live shenanigans
+                obf.liveCustomMarqueeData = false;
+                obf.liveStreamingWebPayments = false;
+                obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
+                obf.domainsSettings = false; // turn off tumblr domains
+                obf.messagingRedesign = false; // disable messaging update
+                obf.newBlogViewRoutes = false; // re-enable post links
+                obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
+                obf.configurableTabbedDash = true;
+                console.log(obf);
+                state.obfuscatedFeatures = btoa(JSON.stringify(obf)); // compress back to string, convert to base64
+            } catch (e) {
+                console.error("Failed to modify features", e)
+            } finally {
+                window.unfucked = state; // save to proxy variable
             }
-            obf.activityRedesignM3 = false; // ugly activity update
-            obf.liveStreaming = false; // more live shenanigans
-            obf.liveCustomMarqueeData = false;
-            obf.liveStreamingWebPayments = false;
-            obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
-            obf.domainsSettings = false; // turn off tumblr domains
-            obf.messagingRedesign = false; // disable messaging update
-            obf.newBlogViewRoutes = false; // re-enable post links
-            obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
-            obf.configurableTabbedDash = true;
-            console.log(obf);
-            state.obfuscatedFeatures = btoa(JSON.stringify(obf)); // compress back to string, convert to base64
-        } catch (e) {
-            console.error("Failed to modify features", e)
-        } finally {
-            window["unfucked"] = state; // save to proxy variable
-        }
-    },
-    get() {
-        return window["unfucked"]; // return proxy variable
-    },
-    enumerable: true,
-    configurable: true
-});
+        },
+        get() {
+            return window.unfucked; // return proxy variable
+        },
+        enumerable: true,
+        configurable: true
+    });
+}
 
 var $ = window.jQuery;
 
 const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
-    if ($(selector).length) {resolve()}
-    else if (retried < 25) {requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve))}
+    if ($(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
 });
 
 waitFor("head").then(() => {
@@ -81,8 +81,7 @@ function storageAvailable(type) { //thanks mdn web docs!
         storage.setItem(x, x);
         storage.removeItem(x);
         return true;
-    }
-    catch (e) {
+    } catch (e) {
         return (
             e instanceof DOMException && (
                 e.code === 22 ||
@@ -101,6 +100,9 @@ function updatePreferences(arr) {
 }
 
 $(document).ready(() => {
+    Object.defineProperty(window, "___INITIAL_STATE___", {
+        value: undefined // undefine state so reloading the page doesn't crash when we define the state
+    });
     getUtilities().then(({ keyToCss }) => {
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
@@ -151,23 +153,19 @@ $(document).ready(() => {
         function checkboxEvent(id, value) {
             if (id === "__c1") {
                 $(keyToCss("timelineHeader")).toggle(!value);
-            }
-            else if (id === "__c2") {
+            } else if (id === "__c2") {
                 $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!value);
-            }
-            else if (id === "__c3") {
+            } else if (id === "__c3") {
                 $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!value);
-            }
-            else if (id === "__c4") {
+            } else if (id === "__c4") {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!value);
-            }
-            else if (id === "__c5") {
+            } else if (id === "__c5") {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!value);
             }
         }
 
-        async function $unfuck () {
-            if($("#__c").length) {
+        async function $unfuck() {
+            if ($("#__c").length) {
                 console.log("page already processed")
                 return
             }
@@ -179,8 +177,7 @@ $(document).ready(() => {
             if (!$(keyToCss("menuRight")).length) {
                 console.log("page not loaded, retrying...");
                 throw "page not loaded";
-            }
-            else {console.log("unfucking dashboard...")}
+            } else { console.log("unfucking dashboard...") }
             if ("/dashboard/following" === location.pathname) {
                 waitFor(keyToCss("timelineOptions")).then(() => {
                     if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
@@ -191,17 +188,16 @@ $(document).ready(() => {
                 });
             }
             var configPreferences = [
-                {type: "checkbox", value: "checked"},
-                {type: "checkbox", value: "checked"},
-                {type: "checkbox", value: "checked"},
-                {type: "checkbox", value: "checked"},
-                {type: "checkbox", value: "checked"},
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
             ];
             if (storageAvailable("localStorage")) {
                 if (!localStorage.getItem("configPreferences")) {
                     updatePreferences(configPreferences)
-                }
-                else {
+                } else {
                     configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
                 }
             }
@@ -220,65 +216,63 @@ $(document).ready(() => {
                 "reblog"
             ];
             var $info = $(`
-                <div id="__in">
-                    <h1>dashboard unfucker v3.0.2</h1>
-                        <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
-                                <use href="#managed-icon__embed"></use>
-                            </svg>
-                        </a>
-                        <button id="__cb">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
-                                <use href="#managed-icon__settings"></use>
-                            </svg>
-                        </button>
-                    </div>
+                    <div id="__in">
+                        <h1>dashboard unfucker v3.0.2</h1>
+                            <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
+                                    <use href="#managed-icon__embed"></use>
+                                </svg>
+                            </a>
+                            <button id="__cb">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
+                                    <use href="#managed-icon__settings"></use>
+                                </svg>
+                            </button>
+                        </div>
                     `);
             var $config = $(`
-                <div id="__c">
-                    <ul>
-                        <li>
-                            <span>configuration</span>
-                        </li>
-                        <li>
-                            <span>hide dashboard tabs</span>
-                            <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
-                        </li>
-                        <li>
-                            <span>hide recommended blogs</span>
-                            <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
-                        </li>
-                        <li>
-                            <span>hide tumblr radar</span>
-                            <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
-                        </li>
-                        <li>
-                            <span>hide explore</span>
-                            <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
-                        </li>
-                        <li>
-                            <span>hide tumblr shop</span>
-                            <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
-                        </li>
-                    </ul>
-                </div>
-                `);
+                        <div id="__c">
+                            <ul>
+                                <li>
+                                    <span>configuration</span>
+                                </li>
+                                <li>
+                                    <span>hide dashboard tabs</span>
+                                    <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
+                                </li>
+                                <li>
+                                    <span>hide recommended blogs</span>
+                                    <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
+                                </li>
+                                <li>
+                                    <span>hide tumblr radar</span>
+                                    <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
+                                </li>
+                                <li>
+                                    <span>hide explore</span>
+                                    <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
+                                </li>
+                                <li>
+                                    <span>hide tumblr shop</span>
+                                    <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
+                                </li>
+                            </ul>
+                        </div>
+                    `);
             $("html").append($info);
             $("html").append($config);
             $config.hide();
             $("#__cb").on("click", () => {
                 if ($config.is(":hidden")) {
                     $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-                }
-                else {$("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)")}
+                } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
                 $config.toggle();
             });
             $(".configInput").on("change", function () {
-                if($(this).attr("type") === "checkbox") {
+                if ($(this).attr("type") === "checkbox") {
                     configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
                     checkboxEvent($(this).attr("id"), $(this).is(":checked"));
-                }
-                else {
+                } else {
                     configPreferences[Number($(this).attr("name"))].value = $(this).val();
                     if ($(keyToCss("main")).length) {
                         $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
@@ -317,7 +311,7 @@ $(document).ready(() => {
         }));
     });
 
-    async function getUtilities () {
+    async function getUtilities() {
         let retries = 0;
         while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined")) {
             await new Promise((resolve) => setTimeout(resolve));
