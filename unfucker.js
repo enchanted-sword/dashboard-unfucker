@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.0
+// @version      3.0.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -46,19 +46,21 @@ Object.defineProperty(window, "___INITIAL_STATE___", { //thanks twilight-sparkle
     configurable: true
 });
 
-const style = document.createElement("style");
-style.innerHTML = `
-    #base-container > div:not(#glass-container) > div:first-child {
-        z-index: 100;
-        border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
-        position: -webkit-sticky !important;
-        position: sticky !important;
-        top: 0 !important;
-        min-height: unset !important;
-        background-color: RGB(var(--navy));
-    }
-`;
-document.head.appendChild(style);
+window.onload = () => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+        #adBanner + div:not(#glass-container) > div:first-child {
+            z-index: 100;
+            border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            top: 0 !important;
+            min-height: unset !important;
+            background-color: RGB(var(--navy));
+        }
+    `;
+    document.head.appendChild(style);
+}
 
 var $ = window.jQuery;
 
@@ -218,7 +220,7 @@ $(document).ready(() => {
             ];
             var $info = $(`
                 <div id="__in">
-                    <h1>dashboard unfucker v3.0</h1>
+                    <h1>dashboard unfucker v3.0.1</h1>
                         <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                             <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                                 <use href="#managed-icon__embed"></use>
