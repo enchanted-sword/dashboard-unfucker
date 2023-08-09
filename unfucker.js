@@ -46,7 +46,14 @@ Object.defineProperty(window, "___INITIAL_STATE___", { //thanks twilight-sparkle
     configurable: true
 });
 
-window.onload = () => {
+var $ = window.jQuery;
+
+const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
+    if ($(selector).length) {resolve()}
+    else if (retried < 25) {requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve))}
+});
+
+waitFor("head").then(() => {
     const style = document.createElement("style");
     style.innerHTML = `
         #adBanner + div:not(#glass-container) > div:first-child {
@@ -60,9 +67,34 @@ window.onload = () => {
         }
     `;
     document.head.appendChild(style);
+});
+
+function storageAvailable(type) { //thanks mdn web docs!
+    let storage;
+    try {
+        storage = window[type];
+        const x = "__storage_test__";
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    } 
+    catch (e) {
+        return (
+            e instanceof DOMException && (
+                e.code === 22 ||
+                e.code === 1014 ||
+                e.name === "QuotaExceededError" ||
+                e.name === "NS_ERROR_DOM_QUOTA_REACHED"
+            ) &&
+            storage &&
+            storage.length !== 0
+        );
+    }
 }
 
-var $ = window.jQuery;
+function updatePreferences(arr) {
+    localStorage.setItem("configPreferences", JSON.stringify(arr))
+}
 
 $(document).ready(() => {
     getUtilities().then(({ keyToCss }) => {
@@ -111,42 +143,6 @@ $(document).ready(() => {
             }
             ${keyToCss("liveMarqueeWrapper")} { display: none; }
         `);
-
-        const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
-            if ($(selector).length) {resolve()}
-            else if (retried < 25) {requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve))}
-        });
-
-        function storageAvailable(type) { //thanks mdn web docs!
-            let storage;
-            try {
-            storage = window[type];
-            const x = "__storage_test__";
-            storage.setItem(x, x);
-            storage.removeItem(x);
-            return true;
-            } catch (e) {
-            return (
-                e instanceof DOMException &&
-                // everything except Firefox
-                (e.code === 22 ||
-                // Firefox
-                e.code === 1014 ||
-                // test name field too, because code might not be present
-                // everything except Firefox
-                e.name === "QuotaExceededError" ||
-                // Firefox
-                e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
-                // acknowledge QuotaExceededError only if there's something already stored
-                storage &&
-                storage.length !== 0
-            );
-            }
-        }
-
-        function updatePreferences(arr) {
-            localStorage.setItem("configPreferences", JSON.stringify(arr))
-        }
 
         function checkboxEvent(id, value) {
             if (id === "__c1") {
