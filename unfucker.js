@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.0.1
+// @version      3.0.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,21 +16,25 @@
 
 'use strict';
 
-Object.defineProperty(window, "___INITIAL_STATE___", { //thanks twilight-sparkle-irl!
+Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
         let state = x; // copy state
         try {
             let obf = JSON.parse(atob(state.obfuscatedFeatures)); // convert from base64, parse from string
             if (obf.redpopDesktopVerticalNav) {
-                obf.redpopDesktopVerticalNav = false; // vertical nav layout
-                obf.liveStreamingWeb = false; //no tumblr live
+                obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
+                obf.liveStreamingWeb = false; // no tumblr live
             }
             obf.activityRedesignM3 = false; // ugly activity update
-            obf.liveStreaming = false;
+            obf.liveStreaming = false; // more live shenanigans
             obf.liveCustomMarqueeData = false;
             obf.liveStreamingWebPayments = false;
-            obf.adFreeCtaBanner = false; //no annoying popup when using an adblocker
-            obf.domainsSettings = false; //turn off tumblr domains
+            obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
+            obf.domainsSettings = false; // turn off tumblr domains
+            obf.messagingRedesign = false; // disable messaging update
+            obf.newBlogViewRoutes = false; // re-enable post links
+            obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
+            obf.configurableTabbedDash = true;
             console.log(obf);
             state.obfuscatedFeatures = btoa(JSON.stringify(obf)); // compress back to string, convert to base64
         } catch (e) {
@@ -77,7 +81,7 @@ function storageAvailable(type) { //thanks mdn web docs!
         storage.setItem(x, x);
         storage.removeItem(x);
         return true;
-    } 
+    }
     catch (e) {
         return (
             e instanceof DOMException && (
@@ -167,17 +171,18 @@ $(document).ready(() => {
                 console.log("page already processed")
                 return
             }
-            if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline") === "/v2/tabs/for_you") {
+            if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
                 window.tumblr.navigate("/dashboard/following");
-                return
+                console.log("navigating to following");
+                throw "navigating tabs";
             }
             if (!$(keyToCss("menuRight")).length) {
                 console.log("page not loaded, retrying...");
                 throw "page not loaded";
             }
             else {console.log("unfucking dashboard...")}
-            if (["/dashboard", "/"].includes(location.pathname)) {
-                waitFor(keyToCss("timelineOptionsWrapper")).then(() => {
+            if ("/dashboard/following" === location.pathname) {
+                waitFor(keyToCss("timelineOptions")).then(() => {
                     if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
                         var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
                         var $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
@@ -216,7 +221,7 @@ $(document).ready(() => {
             ];
             var $info = $(`
                 <div id="__in">
-                    <h1>dashboard unfucker v3.0.1</h1>
+                    <h1>dashboard unfucker v3.0.2</h1>
                         <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                             <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                                 <use href="#managed-icon__embed"></use>
@@ -299,9 +304,13 @@ $(document).ready(() => {
             console.log("dashboard fixed!");
         }
 
-        $unfuck();
+        requestAnimationFrame(() => {
+            $unfuck().catch((e) => {
+                window.setTimeout($unfuck, 400)
+            });
+        });
 
-        window.tumblr.on('navigation', () => requestAnimationFrame(function() {
+        window.tumblr.on('navigation', () => requestAnimationFrame(() => {
             $unfuck().catch((e) => {
                 window.setTimeout($unfuck, 400)
             });
