@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.0.3
+// @version      3.1.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,6 +15,7 @@
 /* globals tumblr */
 
 'use strict';
+
 if (!window.___INITIAL_STATE___) {
     Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
         set(x) {
@@ -32,9 +33,11 @@ if (!window.___INITIAL_STATE___) {
                 obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
                 obf.domainsSettings = false; // turn off tumblr domains
                 obf.messagingRedesign = false; // disable messaging update
-                obf.newBlogViewRoutes = false; // re-enable post links
                 obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
-                obf.configurableTabbedDash = true;
+                obf.configurableTabbedDash = true; // new dashboard tab config
+                obf.crowdsignalPollsNpf = true; // poll functionality
+                obf.crowdsignalPollsCreate = true;
+                obf.allowAddingPollsToReblogs = true
                 console.log(obf);
                 state.obfuscatedFeatures = btoa(JSON.stringify(obf)); // compress back to string, convert to base64
             } catch (e) {
@@ -43,6 +46,41 @@ if (!window.___INITIAL_STATE___) {
                 window.unfucked = state; // save to proxy variable
             }
         },
+        get() {
+            return window.unfucked; // return proxy variable
+        },
+        enumerable: true,
+        configurable: true
+    });
+}
+else {
+    let state;
+    try {
+        let obf = JSON.parse(atob(window.___INITIAL_STATE___.obfuscatedFeatures)); // convert from base64, parse from string
+        if (obf.redpopDesktopVerticalNav) {
+            obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
+            obf.liveStreamingWeb = false; // no tumblr live
+        }
+        obf.activityRedesignM3 = false; // ugly activity update
+        obf.liveStreaming = false; // more live shenanigans
+        obf.liveCustomMarqueeData = false;
+        obf.liveStreamingWebPayments = false;
+        obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
+        obf.domainsSettings = false; // turn off tumblr domains
+        obf.messagingRedesign = false; // disable messaging update
+        obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
+        obf.configurableTabbedDash = true; // new dashboard tab config
+        obf.crowdsignalPollsNpf = true; // poll functionality
+        obf.crowdsignalPollsCreate = true;
+        obf.allowAddingPollsToReblogs = true
+        console.log(obf)
+        state = btoa(JSON.stringify(obf));
+    } catch (e) {
+        console.error("Failed to modify features", e)
+    } finally {
+        window.unfucked = state; // compress back to string, convert to base64
+    }
+    Object.defineProperty(window.___INITIAL_STATE___, "obfuscatedFeatures", {
         get() {
             return window.unfucked; // return proxy variable
         },
@@ -100,21 +138,11 @@ function updatePreferences(arr) {
 }
 
 $(document).ready(() => {
-    Object.defineProperty(window, "___INITIAL_STATE___", {
-        value: undefined // undefine state so reloading the page doesn't crash when we define the state
-    });
     getUtilities().then(({ keyToCss }) => {
+        window.___INITIAL_STATE = undefined;
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
         $styleElement.text(`
-            #__h {
-                display: flex;
-                margin: auto;
-                max-width: 1716px;
-                padding: 0 20px 0;
-                align-items: center;
-                height: 55px;
-            }
             #__in {
                 padding: 8px;
                 font-weight: bold;
@@ -217,7 +245,7 @@ $(document).ready(() => {
             ];
             var $info = $(`
                     <div id="__in">
-                        <h1>dashboard unfucker v3.0.3</h1>
+                        <h1>dashboard unfucker v3.1.0</h1>
                             <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
                                     <use href="#managed-icon__embed"></use>
