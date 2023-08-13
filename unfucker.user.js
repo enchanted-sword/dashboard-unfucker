@@ -16,24 +16,90 @@
 
 'use strict';
 
-const modifyOfuscatedFeatures = (obfuscatedFeatures) => {
-    let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
-    if (obf.redpopDesktopVerticalNav) {
-        obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
-        obf.liveStreamingWeb = false; // no tumblr live
+const storageAvailable = (type) => { //thanks mdn web docs!
+    let storage;
+    try {
+        storage = window[type];
+        const x = "__storage_test__";
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    } catch (e) {
+        return (
+            e instanceof DOMException && (
+                e.code === 22 ||
+                e.code === 1014 ||
+                e.name === "QuotaExceededError" ||
+                e.name === "NS_ERROR_DOM_QUOTA_REACHED"
+            ) &&
+            storage &&
+            storage.length !== 0
+        );
     }
-    obf.activityRedesignM3 = false; // ugly activity update
-    obf.liveStreaming = false; // more live shenanigans
-    obf.liveCustomMarqueeData = false;
-    obf.liveStreamingWebPayments = false;
-    obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
-    obf.domainsSettings = false; // turn off tumblr domains
-    obf.messagingRedesign = false; // disable messaging update
-    obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
-    obf.configurableTabbedDash = true; // new dashboard tab config
-    obf.crowdsignalPollsNpf = true; // poll functionality
-    obf.crowdsignalPollsCreate = true;
-    obf.allowAddingPollsToReblogs = true
+}
+
+var featureSet = ["adFreeCtaBanner"];
+
+if (storageAvailable("localStorage") && JSON.parse(localStorage.getItem("configPreferences")).length > 5) {
+    let pref = JSON.parse(localStorage.getItem("configPreferences"));
+    if (pref[5].value === "checked") {
+        featureSet.push({"name": "redpopDesktopVerticalNav", "value": false});
+    }
+    if (pref[6].value === "checked") {
+        featureSet.push([
+            {"name": "liveStreaming", "value": false},
+            {"name": "liveStreamingWeb", "value": false},
+            {"name": "liveCustomMarqueeData", "value": false},
+            {"name": "liveStreamingWebPayments", "value": false}
+        ]);
+    }
+    if (pref[7].value === "checked") {
+        featureSet.push({"name": "domainsSettings", "value": false});
+    }
+    if (pref[8].value === "checked") {
+        featureSet.push({"name": "activityRedesignM3", "value": false});
+    }
+    if (pref[9].value === "checked") {
+        featureSet.push({"name": "messagingRedesign", "value": false});
+    }
+    if (pref[10].value === "checked") {
+        featureSet.push({"name": "experimentalBlockEditorIsOnlyEditor", "value": false});
+    }
+    if (pref[11].value === "checked") {
+        featureSet.push({"name": "configurableTabbedDash", "value": true});
+    }
+    if (pref[12].value === "checked") {
+        featureSet.push([
+            {"name": "crowdsignalPollsNpf", "value": true},
+            {"name": "crowdsignalPollsCreate", "value": true},
+            {"name": "allowAddingPollsToReblogs", "value": true}
+        ]);
+    }
+} else {
+    featureSet = [
+        {"name": "redpopDesktopVerticalNav", "value": false},
+        {"name": "liveStreaming", "value": false},
+        {"name": "liveStreamingWeb", "value": false},
+        {"name": "liveCustomMarqueeData", "value": false},
+        {"name": "liveStreamingWebPayments", "value": false},
+        {"name": "domainsSettings", "value": false},
+        {"name": "activityRedesignM3", "value": false},
+        {"name": "messagingRedesign", "value": false},
+        {"name": "experimentalBlockEditorIsOnlyEditor", "value": false},
+        {"name": "configurableTabbedDash", "value": true},
+        {"name": "crowdsignalPollsNpf", "value": true},
+        {"name": "crowdsignalPollsCreate", "value": true},
+        {"name": "allowAddingPollsToReblogs", "value": true},
+        {"name": "adFreeCtaBanner", "value": false}
+    ]
+}
+
+const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
+    let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
+    for (let x of featureSet) {
+        console.log(x)
+        obf[x.name] = x.value;
+    }
     console.log(obf);
     return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
 };
@@ -42,11 +108,11 @@ if (!window.___INITIAL_STATE___) {
     let state;
     Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
         set(x) {
-            state = { ...x }; // copy state
+            state = { ...x };
             try {
-                state.obfuscatedFeatures = modifyOfuscatedFeatures(state.obfuscatedFeatures)
+                state.obfuscatedFeatures = modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet);
             } catch (e) {
-                console.error("Failed to modify features", e)
+                console.error("Failed to modify features", e);
             }
         },
         get() {
@@ -59,9 +125,9 @@ if (!window.___INITIAL_STATE___) {
 else {
     let obfuscatedFeatures;
     try {
-        obfuscatedFeatures = modifyOfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures)
+        obfuscatedFeatures = modifyObfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures, featureSet);
     } catch (e) {
-        console.error("Failed to modify features", e)
+        console.error("Failed to modify features", e);
     }
     Object.defineProperty(window.___INITIAL_STATE___, "obfuscatedFeatures", {
         get() {
@@ -94,35 +160,12 @@ waitFor("head").then(() => {
     document.head.appendChild(style);
 });
 
-function storageAvailable(type) { //thanks mdn web docs!
-    let storage;
-    try {
-        storage = window[type];
-        const x = "__storage_test__";
-        storage.setItem(x, x);
-        storage.removeItem(x);
-        return true;
-    } catch (e) {
-        return (
-            e instanceof DOMException && (
-                e.code === 22 ||
-                e.code === 1014 ||
-                e.name === "QuotaExceededError" ||
-                e.name === "NS_ERROR_DOM_QUOTA_REACHED"
-            ) &&
-            storage &&
-            storage.length !== 0
-        );
-    }
-}
-
 function updatePreferences(arr) {
     localStorage.setItem("configPreferences", JSON.stringify(arr))
 }
 
 $(document).ready(() => {
     getUtilities().then(({ keyToCss }) => {
-        window.___INITIAL_STATE = undefined;
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
         $styleElement.text(`
@@ -153,7 +196,7 @@ $(document).ready(() => {
                 justify-content: space-between;
                 color: rgb(var(--black));
             }
-            #__c li:first-of-type {
+            li.infoHeader {
                 background: rgba(var(--black),.07);
                 padding: 12px 12px;
                 font-weight: bold;
@@ -185,7 +228,7 @@ $(document).ready(() => {
                 console.log("navigating to following");
                 throw "navigating tabs";
             }
-            if (!$(keyToCss("menuRight")).length) {
+            if (!$(keyToCss("main")).length) {
                 console.log("page not loaded, retrying...");
                 throw "page not loaded";
             } else { console.log("unfucking dashboard...") }
@@ -204,9 +247,17 @@ $(document).ready(() => {
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" }
             ];
             if (storageAvailable("localStorage")) {
-                if (!localStorage.getItem("configPreferences")) {
+                if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
                     updatePreferences(configPreferences)
                 } else {
                     configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
@@ -243,9 +294,9 @@ $(document).ready(() => {
                     `);
             var $config = $(`
                         <div id="__c">
-                            <ul>
-                                <li>
-                                    <span>configuration</span>
+                            <ul id="__ct">
+                                <li class="infoHeader">
+                                    <span>general configuration</span>
                                 </li>
                                 <li>
                                     <span>hide dashboard tabs</span>
@@ -272,6 +323,47 @@ $(document).ready(() => {
                     `);
             $("html").append($info);
             $("html").append($config);
+            if (storageAvailable("localStorage")) {
+                var $advConfig = $(`
+                    <li class="infoHeader" style="flex-flow: column wrap">
+                        <span style="width: 100%;">advanced configuration</span>
+                        <span style="width: 100%; font-size: .8em;">requires a page reload</span>
+                    </li>
+                    <li>
+                        <span>revert vertical nav layout</span>
+                        <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
+                    </li>
+                    <li>
+                        <span>disable tumblr live</span>
+                        <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
+                    </li>
+                    <li>
+                        <span>disable tumblr domains</span>
+                        <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
+                    </li>
+                    <li>
+                        <span>revert activity feed redesign</span>
+                        <input class="configInput" type="checkbox" id="__c9" name="8" ${configPreferences[8].value}>
+                    </li>
+                    <li>
+                        <span>revert messaging redesign</span>
+                        <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
+                    </li>
+                    <li>
+                        <span>allow legacy post editor</span>
+                        <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
+                    </li>
+                    <li>
+                        <span>enable customizable dashboard tabs</span>
+                        <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
+                    </li>
+                    <li>
+                        <span>enable adding polls to reblogs</span>
+                        <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
+                    </li>
+                `);
+                $("#__ct").append($advConfig);
+            }
             $config.hide();
             $("#__cb").on("click", () => {
                 if ($config.is(":hidden")) {
@@ -280,15 +372,8 @@ $(document).ready(() => {
                 $config.toggle();
             });
             $(".configInput").on("change", function () {
-                if ($(this).attr("type") === "checkbox") {
-                    configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
-                    checkboxEvent($(this).attr("id"), $(this).is(":checked"));
-                } else {
-                    configPreferences[Number($(this).attr("name"))].value = $(this).val();
-                    if ($(keyToCss("main")).length) {
-                        $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
-                    }
-                }
+                configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
+                checkboxEvent($(this).attr("id"), $(this).is(":checked"));
                 updatePreferences(configPreferences);
             });
             $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).hide()
