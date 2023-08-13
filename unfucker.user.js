@@ -41,7 +41,7 @@ const modifyOfuscatedFeatures = (obfuscatedFeatures) => {
 if (!window.___INITIAL_STATE___) {
     Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
         set(x) {
-            let state = x; // copy state
+            let state = { ...x }; // copy state
             try {
                 state.obfuscatedFeatures = modifyOfuscatedFeatures(state.obfuscatedFeatures)
             } catch (e) {
