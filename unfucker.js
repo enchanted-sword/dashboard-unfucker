@@ -1,1 +1,1 @@
-//file was changed to https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js, navigate to that file with tampermonkey installed to install the script
+//filename was changed: go to https://github.com/enchanted-sword/dashboard-unfucker, select the version you want, and hit the "raw" button with tampermonkey installed to install the script

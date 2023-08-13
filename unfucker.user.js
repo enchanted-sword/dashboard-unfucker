@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.1.0
+// @version      3.2.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,6 +15,10 @@
 /* globals tumblr */
 
 'use strict';
+
+const version = "3.2.0";
+const type = "a";
+const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
 const storageAvailable = (type) => { //thanks mdn web docs!
     let storage;
@@ -38,9 +42,9 @@ const storageAvailable = (type) => { //thanks mdn web docs!
     }
 }
 
-var featureSet = ["adFreeCtaBanner"];
+var featureSet = [{"name": "adFreeCtaBanner", "value": "false"}];
 
-if (storageAvailable("localStorage") && JSON.parse(localStorage.getItem("configPreferences")).length > 5) {
+if (storageAvailable("localStorage") && JSON.parse(localStorage.getItem("configPreferences")).length === 13) {
     let pref = JSON.parse(localStorage.getItem("configPreferences"));
     if (pref[5].value === "checked") {
         featureSet.push({"name": "redpopDesktopVerticalNav", "value": false});
@@ -160,7 +164,7 @@ waitFor("head").then(() => {
     document.head.appendChild(style);
 });
 
-function updatePreferences(arr) {
+const updatePreferences = (arr) => {
     localStorage.setItem("configPreferences", JSON.stringify(arr))
 }
 
@@ -169,6 +173,7 @@ $(document).ready(() => {
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
         $styleElement.text(`
+            #__m { margin-bottom: 20px; }
             #__in {
                 padding: 8px;
                 font-weight: bold;
@@ -181,13 +186,13 @@ $(document).ready(() => {
                 font-size: 1.2em;
                 display: inline;
             }
-            #__c ul {
+            #__m ul {
                 margin: 4px;
                 padding: 0;
                 background: RGB(var(--white));
                 border-radius: 3px;
             }
-            #__c li {
+            #__m li {
                 list-style-type: none;
                 padding: 8px 12px;
                 border-bottom: 1px solid rgba(var(--black),.07);
@@ -201,7 +206,6 @@ $(document).ready(() => {
                 padding: 12px 12px;
                 font-weight: bold;
             }
-            ${keyToCss("liveMarqueeWrapper")} { display: none; }
         `);
 
         function checkboxEvent(id, value) {
@@ -215,6 +219,10 @@ $(document).ready(() => {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!value);
             } else if (id === "__c5") {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!value);
+            } else if (id === "__c7") {
+                $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]')
+                    .add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]'))
+                    .add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).toggle(!value);
             }
         }
 
@@ -222,13 +230,11 @@ $(document).ready(() => {
             if ($("#__c").length) {
                 console.log("page already processed")
                 return
-            }
-            if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
+            } else if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
                 window.tumblr.navigate("/dashboard/following");
                 console.log("navigating to following");
                 throw "navigating tabs";
-            }
-            if (!$(keyToCss("main")).length) {
+            } else if (!$(keyToCss("main")).length) {
                 console.log("page not loaded, retrying...");
                 throw "page not loaded";
             } else { console.log("unfucking dashboard...") }
@@ -277,115 +283,139 @@ $(document).ready(() => {
                 "explore",
                 "reblog"
             ];
-            var $info = $(`
+            var $menu = $(`
+                <div id="__m">
                     <div id="__in">
-                        <h1>dashboard unfucker v3.1.0</h1>
-                            <a href="https://github.com/enchanted-sword/dashboard-unfucker/tree/main">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark),.65);">
-                                    <use href="#managed-icon__embed"></use>
-                                </svg>
-                            </a>
-                            <button id="__cb">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
-                                    <use href="#managed-icon__settings"></use>
-                                </svg>
-                            </button>
-                        </div>
-                    `);
-            var $config = $(`
-                        <div id="__c">
-                            <ul id="__ct">
-                                <li class="infoHeader">
-                                    <span>general configuration</span>
-                                </li>
-                                <li>
-                                    <span>hide dashboard tabs</span>
-                                    <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
-                                </li>
-                                <li>
-                                    <span>hide recommended blogs</span>
-                                    <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
-                                </li>
-                                <li>
-                                    <span>hide tumblr radar</span>
-                                    <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
-                                </li>
-                                <li>
-                                    <span>hide explore</span>
-                                    <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
-                                </li>
-                                <li>
-                                    <span>hide tumblr shop</span>
-                                    <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
-                                </li>
-                            </ul>
-                        </div>
-                    `);
-            $("html").append($info);
-            $("html").append($config);
-            if (storageAvailable("localStorage")) {
-                var $advConfig = $(`
-                    <li class="infoHeader" style="flex-flow: column wrap">
-                        <span style="width: 100%;">advanced configuration</span>
-                        <span style="width: 100%; font-size: .8em;">requires a page reload</span>
-                    </li>
-                    <li>
-                        <span>revert vertical nav layout</span>
-                        <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
-                    </li>
-                    <li>
-                        <span>disable tumblr live</span>
-                        <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
-                    </li>
-                    <li>
-                        <span>disable tumblr domains</span>
-                        <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
-                    </li>
-                    <li>
-                        <span>revert activity feed redesign</span>
-                        <input class="configInput" type="checkbox" id="__c9" name="8" ${configPreferences[8].value}>
-                    </li>
-                    <li>
-                        <span>revert messaging redesign</span>
-                        <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
-                    </li>
-                    <li>
-                        <span>allow legacy post editor</span>
-                        <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
-                    </li>
-                    <li>
-                        <span>enable customizable dashboard tabs</span>
-                        <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
-                    </li>
-                    <li>
-                        <span>enable adding polls to reblogs</span>
-                        <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
-                    </li>
-                `);
-                $("#__ct").append($advConfig);
+                        <h1>dashboard unfucker v${version}${type}</span></h1>
+                        <button id="__ab">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
+                                <use href="#managed-icon__ellipsis"></use>
+                            </svg>
+                        </button>
+                        <button id="__cb">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
+                                <use href="#managed-icon__settings"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="__a" style="display: none;">
+                        <ul id="__am">
+                            <li class="infoHeader">
+                                <span>about</span>
+                            </li>
+                            <li style="flex-flow: column wrap">
+                                <span style="width: 100%;">version: <b>v${version}${type}</b></span><br>
+                                <span style="width: 100%;">type "<b>${type}</b>" ${type === "a"? "uses window property feature toggles. if you persistently encounter errors with the script, try type <b>\"b\"</b>" : "uses jQuery instead of window property feature toggles"}</span>
+                            </li>
+                            <li>
+                                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new">report a bug</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="${updateSrc}">update</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="__c" style="display: none;">
+                        <ul id="__ct">
+                            <li class="infoHeader">
+                                <span>general configuration</span>
+                            </li>
+                            <li>
+                                <span>hide dashboard tabs</span>
+                                <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
+                            </li>
+                            <li>
+                                <span>hide recommended blogs</span>
+                                <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
+                            </li>
+                            <li>
+                                <span>hide tumblr radar</span>
+                                <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
+                            </li>
+                            <li>
+                                <span>hide explore</span>
+                                <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
+                            </li>
+                            <li>
+                                <span>hide tumblr shop</span>
+                                <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
+                            </li>
+                        </ul>
+                        <ul id="__cta">
+                            <li class="infoHeader" style="flex-flow: column wrap">
+                                <span style="width: 100%;">advanced configuration</span>
+                                <span style="width: 100%; font-size: .8em;">requires a page reload</span>
+                            </li>
+                            <li>
+                                <span>revert vertical nav layout</span>
+                                <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
+                            </li>
+                            <li>
+                                <span>disable tumblr live</span>
+                                <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
+                            </li>
+                            <li>
+                                <span>disable tumblr domains</span>
+                                <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
+                            </li>
+                            <li>
+                                <span>revert activity feed redesign</span>
+                                <input class="configInput" type="checkbox" id="__c9" name="8" ${configPreferences[8].value}>
+                            </li>
+                            <li>
+                                <span>revert messaging redesign</span>
+                                <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
+                            </li>
+                            <li>
+                                <span>allow legacy post editor</span>
+                                <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
+                            </li>
+                            <li>
+                                <span>enable customizable dashboard tabs</span>
+                                <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
+                            </li>
+                            <li>
+                                <span>enable adding polls to reblogs</span>
+                                <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `)
+            $("html").append($menu);
+            if (!storageAvailable("localStorage") || type === "b") {
+                $("#__cta").hide();
             }
-            $config.hide();
             $("#__cb").on("click", () => {
-                if ($config.is(":hidden")) {
+                if ($("#__c").is(":hidden")) {
                     $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
                 } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-                $config.toggle();
+                $("#__c").toggle();
+            });
+            $("#__ab").on("click", () => {
+                if ($("#__a").is(":hidden")) {
+                    $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+                } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+                $("#__a").toggle();
             });
             $(".configInput").on("change", function () {
                 configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
                 checkboxEvent($(this).attr("id"), $(this).is(":checked"));
                 updatePreferences(configPreferences);
             });
-            $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]')).add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).hide()
             $(keyToCss("timelineHeader")).toggle(!$("#__c1").is(":checked"));
             $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!$("#__c4").is(":checked"));
             $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!$("#__c5").is(":checked"));
             if (match.includes(location.pathname.split("/")[1])) {
                 waitFor(keyToCss("sidebar")).then(() => {
-                    $(keyToCss("sidebar")).prepend($("<div style='margin-bottom: 20px;'>"));
-                    $(keyToCss("sidebar")).prepend($config);
-                    $(keyToCss("sidebar")).prepend($info);
-                    waitFor(keyToCss("searchSidebarItem")).then(() => {
+                    $(keyToCss("sidebar")).prepend($menu);
+                    waitFor(keyToCss("sidebarItem")).then(() => {
                         $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!$("#__c2").is(":checked"));
                         $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!$("#__c3").is(":checked"));
                     });
