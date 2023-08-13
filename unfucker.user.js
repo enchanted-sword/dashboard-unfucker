@@ -39,19 +39,18 @@ const modifyOfuscatedFeatures = (obfuscatedFeatures) => {
 };
 
 if (!window.___INITIAL_STATE___) {
+    let state;
     Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
         set(x) {
-            let state = { ...x }; // copy state
+            state = { ...x }; // copy state
             try {
                 state.obfuscatedFeatures = modifyOfuscatedFeatures(state.obfuscatedFeatures)
             } catch (e) {
                 console.error("Failed to modify features", e)
-            } finally {
-                window.unfucked = state; // save to proxy variable
             }
         },
         get() {
-            return window.unfucked; // return proxy variable
+            return state;
         },
         enumerable: true,
         configurable: true
@@ -63,12 +62,10 @@ else {
         obfuscatedFeatures = modifyOfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures)
     } catch (e) {
         console.error("Failed to modify features", e)
-    } finally {
-        window.unfucked = obfuscatedFeatures;
     }
     Object.defineProperty(window.___INITIAL_STATE___, "obfuscatedFeatures", {
         get() {
-            return window.unfucked; // return proxy variable
+            return obfuscatedFeatures;
         },
         enumerable: true,
         configurable: true
