@@ -286,7 +286,7 @@ $(document).ready(() => {
             var $menu = $(`
                 <div id="__m">
                     <div id="__in">
-                        <h1>dashboard unfucker v${version}${type}</span></h1>
+                        <h1>dashboard unfucker v${version}a</span></h1>
                         <button id="__ab">
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
                                 <use href="#managed-icon__ellipsis"></use>
@@ -304,8 +304,8 @@ $(document).ready(() => {
                                 <span>about</span>
                             </li>
                             <li style="flex-flow: column wrap">
-                                <span style="width: 100%;">version: <b>v${version}${type}</b></span><br>
-                                <span style="width: 100%;">type "<b>${type}</b>" ${type === "a"? "uses window property feature toggles. if you persistently encounter errors with the script, try type <b>\"b\"</b>" : "uses jQuery instead of window property feature toggles"}</span>
+                                <span style="width: 100%;">version: <b>v${version}a</b></span><br>
+                                <span style="width: 100%;">type "<b>a</b>" uses window property feature toggles. if you persistently encounter errors with the script, try type <b>\"b\"</b></span>
                             </li>
                             <li>
                                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>

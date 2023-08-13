@@ -16,7 +16,7 @@
 'use strict';
 
 const version = "3.2.0";
-const type = "b";
+const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
 
 const storageAvailable = (type) => { //thanks mdn web docs!
@@ -391,7 +391,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $menu = $(`
                 <div id="__m">
                     <div id="__in">
-                        <h1>dashboard unfucker v${version}${type}</span></h1>
+                        <h1>dashboard unfucker v${version}b</span></h1>
                         <button id="__ab">
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
                                 <use href="#managed-icon__ellipsis"></use>
@@ -409,8 +409,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                                 <span>about</span>
                             </li>
                             <li style="flex-flow: column wrap">
-                                <span style="width: 100%;">version: <b>v${version}${type}</b></span><br>
-                                <span style="width: 100%;">type "<b>${type}</b>" ${type === "a"? "uses window property feature toggles. if you persistently encounter errors with the script, try type <b>\"b\"</b>" : "uses jQuery instead of window property feature toggles"}</span>
+                                <span style="width: 100%;">version: <b>v${version}b</b></span><br>
+                                <span style="width: 100%;">type "<b>b</b>" uses jQuery instead of window property feature toggles</span>
                             </li>
                             <li>
                                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
@@ -450,6 +450,22 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                             <li>
                                 <span>hide tumblr shop</span>
                                 <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
+                            </li>
+                            <li>
+                                <span>hide tumblr live</span>
+                                <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
+                            </li>
+                            <li>
+                                <span>hide domains</span>
+                                <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
+                            </li>
+                            <li>
+                                <span>hide ad-free</span>
+                                <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
+                            </li>
+                            <li>
+                                <span>content positioning</span>
+                                <input class="configInput" type="range" id="c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
                             </li>
                         </ul>
                         <ul id="__cta">
