@@ -16,73 +16,56 @@
 
 'use strict';
 
+const modifyOfuscatedFeatures = (obfuscatedFeatures) => {
+    let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
+    if (obf.redpopDesktopVerticalNav) {
+        obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
+        obf.liveStreamingWeb = false; // no tumblr live
+    }
+    obf.activityRedesignM3 = false; // ugly activity update
+    obf.liveStreaming = false; // more live shenanigans
+    obf.liveCustomMarqueeData = false;
+    obf.liveStreamingWebPayments = false;
+    obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
+    obf.domainsSettings = false; // turn off tumblr domains
+    obf.messagingRedesign = false; // disable messaging update
+    obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
+    obf.configurableTabbedDash = true; // new dashboard tab config
+    obf.crowdsignalPollsNpf = true; // poll functionality
+    obf.crowdsignalPollsCreate = true;
+    obf.allowAddingPollsToReblogs = true
+    console.log(obf);
+    return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
+};
+
 if (!window.___INITIAL_STATE___) {
+    let state;
     Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
         set(x) {
-            let state = x; // copy state
+            state = { ...x }; // copy state
             try {
-                let obf = JSON.parse(atob(state.obfuscatedFeatures)); // convert from base64, parse from string
-                if (obf.redpopDesktopVerticalNav) {
-                    obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
-                    obf.liveStreamingWeb = false; // no tumblr live
-                }
-                obf.activityRedesignM3 = false; // ugly activity update
-                obf.liveStreaming = false; // more live shenanigans
-                obf.liveCustomMarqueeData = false;
-                obf.liveStreamingWebPayments = false;
-                obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
-                obf.domainsSettings = false; // turn off tumblr domains
-                obf.messagingRedesign = false; // disable messaging update
-                obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
-                obf.configurableTabbedDash = true; // new dashboard tab config
-                obf.crowdsignalPollsNpf = true; // poll functionality
-                obf.crowdsignalPollsCreate = true;
-                obf.allowAddingPollsToReblogs = true
-                console.log(obf);
-                state.obfuscatedFeatures = btoa(JSON.stringify(obf)); // compress back to string, convert to base64
+                state.obfuscatedFeatures = modifyOfuscatedFeatures(state.obfuscatedFeatures)
             } catch (e) {
                 console.error("Failed to modify features", e)
-            } finally {
-                window.unfucked = state; // save to proxy variable
             }
         },
         get() {
-            return window.unfucked; // return proxy variable
+            return state;
         },
         enumerable: true,
         configurable: true
     });
 }
 else {
-    let state;
+    let obfuscatedFeatures;
     try {
-        let obf = JSON.parse(atob(window.___INITIAL_STATE___.obfuscatedFeatures)); // convert from base64, parse from string
-        if (obf.redpopDesktopVerticalNav) {
-            obf.redpopDesktopVerticalNav = false; // disable vertical nav layout
-            obf.liveStreamingWeb = false; // no tumblr live
-        }
-        obf.activityRedesignM3 = false; // ugly activity update
-        obf.liveStreaming = false; // more live shenanigans
-        obf.liveCustomMarqueeData = false;
-        obf.liveStreamingWebPayments = false;
-        obf.adFreeCtaBanner = false; // no annoying popup when using an adblocker
-        obf.domainsSettings = false; // turn off tumblr domains
-        obf.messagingRedesign = false; // disable messaging update
-        obf.experimentalBlockEditorIsOnlyEditor = false; // allow old post editor
-        obf.configurableTabbedDash = true; // new dashboard tab config
-        obf.crowdsignalPollsNpf = true; // poll functionality
-        obf.crowdsignalPollsCreate = true;
-        obf.allowAddingPollsToReblogs = true
-        console.log(obf)
-        state = btoa(JSON.stringify(obf));
+        obfuscatedFeatures = modifyOfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures)
     } catch (e) {
         console.error("Failed to modify features", e)
-    } finally {
-        window.unfucked = state; // compress back to string, convert to base64
     }
     Object.defineProperty(window.___INITIAL_STATE___, "obfuscatedFeatures", {
         get() {
-            return window.unfucked; // return proxy variable
+            return obfuscatedFeatures;
         },
         enumerable: true,
         configurable: true
