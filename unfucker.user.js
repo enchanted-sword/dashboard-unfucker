@@ -58,13 +58,13 @@ if (!window.___INITIAL_STATE___) {
     });
 }
 else {
-    let state;
+    let obfuscatedFeatures;
     try {
-        state = modifyOfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures)
+        obfuscatedFeatures = modifyOfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures)
     } catch (e) {
         console.error("Failed to modify features", e)
     } finally {
-        window.unfucked = state;
+        window.unfucked = obfuscatedFeatures;
     }
     Object.defineProperty(window.___INITIAL_STATE___, "obfuscatedFeatures", {
         get() {
