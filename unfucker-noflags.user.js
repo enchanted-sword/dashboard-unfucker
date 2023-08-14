@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.0
+// @version      3.2.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "3.2.0";
+const version = "3.2.1";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
 
@@ -352,7 +352,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             { type: "range", value: "0" }
         ];
         if (storageAvailable("localStorage")) {
-            if (!localStorage.getItem("configPreferences")) {
+            if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < 9) {
                 updatePreferences(configPreferences)
             }
             else {
@@ -468,51 +468,10 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                                 <input class="configInput" type="range" id="c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
                             </li>
                         </ul>
-                        <ul id="__cta">
-                            <li class="infoHeader" style="flex-flow: column wrap">
-                                <span style="width: 100%;">advanced configuration</span>
-                                <span style="width: 100%; font-size: .8em;">requires a page reload</span>
-                            </li>
-                            <li>
-                                <span>revert vertical nav layout</span>
-                                <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
-                            </li>
-                            <li>
-                                <span>disable tumblr live</span>
-                                <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
-                            </li>
-                            <li>
-                                <span>disable tumblr domains</span>
-                                <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
-                            </li>
-                            <li>
-                                <span>revert activity feed redesign</span>
-                                <input class="configInput" type="checkbox" id="__c9" name="8" ${configPreferences[8].value}>
-                            </li>
-                            <li>
-                                <span>revert messaging redesign</span>
-                                <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
-                            </li>
-                            <li>
-                                <span>allow legacy post editor</span>
-                                <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
-                            </li>
-                            <li>
-                                <span>enable customizable dashboard tabs</span>
-                                <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
-                            </li>
-                            <li>
-                                <span>enable adding polls to reblogs</span>
-                                <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             `)
         $("html").append($menu);
-        if (!storageAvailable("localStorage") || type === "b") {
-            $("#__cta").hide();
-        }
         $("#__cb").on("click", () => {
             if ($("#__c").is(":hidden")) {
                 $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");

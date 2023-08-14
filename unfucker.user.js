@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.0
+// @version      3.2.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.2.0";
+const version = "3.2.1";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -42,7 +42,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
     }
 }
 
-var featureSet = [{"name": "adFreeCtaBanner", "value": "false"}];
+var featureSet = [{"name": "adFreeCtaBanner", "value": false}];
 
 if (storageAvailable("localStorage") && JSON.parse(localStorage.getItem("configPreferences")).length === 13) {
     let pref = JSON.parse(localStorage.getItem("configPreferences"));
@@ -219,10 +219,6 @@ $(document).ready(() => {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!value);
             } else if (id === "__c5") {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!value);
-            } else if (id === "__c7") {
-                $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]')
-                    .add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]'))
-                    .add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).toggle(!value);
             }
         }
 
@@ -419,6 +415,13 @@ $(document).ready(() => {
                         $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!$("#__c2").is(":checked"));
                         $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!$("#__c3").is(":checked"));
                     });
+                });
+            }
+            if ($("#__c7").is(":checked")) {
+                waitFor(keyToCss("liveMarquee")).then(() => {
+                    $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]')
+                        .add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]'))
+                        .add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).hide();
                 });
             }
             console.log("dashboard fixed!");
