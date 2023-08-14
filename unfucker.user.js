@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.1
+// @version      3.2.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.2.1";
+const version = "3.2.2";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -44,7 +44,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
 
 var featureSet = [{"name": "adFreeCtaBanner", "value": false}];
 
-if (storageAvailable("localStorage") && JSON.parse(localStorage.getItem("configPreferences")).length === 13) {
+if (storageAvailable("localStorage") && localStorage.getItem("configPreferences") && JSON.parse(localStorage.getItem("configPreferences")).length === 14) {
     let pref = JSON.parse(localStorage.getItem("configPreferences"));
     if (pref[5].value === "checked") {
         featureSet.push({"name": "redpopDesktopVerticalNav", "value": false});
@@ -78,6 +78,9 @@ if (storageAvailable("localStorage") && JSON.parse(localStorage.getItem("configP
             {"name": "crowdsignalPollsCreate", "value": true},
             {"name": "allowAddingPollsToReblogs", "value": true}
         ]);
+    }
+    if (pref[13].value === "checked") {
+        featureSet.push({"name": "tagSuggestionTwoStepDialog", "value": false});
     }
 } else {
     featureSet = [
@@ -256,6 +259,7 @@ $(document).ready(() => {
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" }
             ];
             if (storageAvailable("localStorage")) {
@@ -379,6 +383,10 @@ $(document).ready(() => {
                             <li>
                                 <span>enable adding polls to reblogs</span>
                                 <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
+                            </li>
+                            <li>
+                                <span>disable "post without tags" nag</span>
+                                <input class="configInput" type="checkbox" id="__c14" name="13" ${configPreferences[13].value}>
                             </li>
                         </ul>
                     </div>
