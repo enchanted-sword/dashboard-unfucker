@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.2
+// @version      3.2.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.2.2";
+const version = "3.2.3";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -44,18 +44,20 @@ const storageAvailable = (type) => { //thanks mdn web docs!
 
 var featureSet = [{"name": "adFreeCtaBanner", "value": false}];
 
-if (storageAvailable("localStorage") && localStorage.getItem("configPreferences") && JSON.parse(localStorage.getItem("configPreferences")).length === 14) {
+if (storageAvailable("localStorage") 
+    && localStorage.getItem("configPreferences") 
+    && JSON.parse(localStorage.getItem("configPreferences")).length === 14) {
     let pref = JSON.parse(localStorage.getItem("configPreferences"));
     if (pref[5].value === "checked") {
         featureSet.push({"name": "redpopDesktopVerticalNav", "value": false});
     }
     if (pref[6].value === "checked") {
-        featureSet.push([
+        featureSet.push(
             {"name": "liveStreaming", "value": false},
             {"name": "liveStreamingWeb", "value": false},
             {"name": "liveCustomMarqueeData", "value": false},
             {"name": "liveStreamingWebPayments", "value": false}
-        ]);
+        );
     }
     if (pref[7].value === "checked") {
         featureSet.push({"name": "domainsSettings", "value": false});
@@ -73,11 +75,11 @@ if (storageAvailable("localStorage") && localStorage.getItem("configPreferences"
         featureSet.push({"name": "configurableTabbedDash", "value": true});
     }
     if (pref[12].value === "checked") {
-        featureSet.push([
+        featureSet.push(
             {"name": "crowdsignalPollsNpf", "value": true},
             {"name": "crowdsignalPollsCreate", "value": true},
             {"name": "allowAddingPollsToReblogs", "value": true}
-        ]);
+        );
     }
     if (pref[13].value === "checked") {
         featureSet.push({"name": "tagSuggestionTwoStepDialog", "value": false});
@@ -97,6 +99,7 @@ if (storageAvailable("localStorage") && localStorage.getItem("configPreferences"
         {"name": "crowdsignalPollsNpf", "value": true},
         {"name": "crowdsignalPollsCreate", "value": true},
         {"name": "allowAddingPollsToReblogs", "value": true},
+        {"name": "tagSuggestionTwoStepDialog", "value": false},
         {"name": "adFreeCtaBanner", "value": false}
     ]
 }
@@ -111,39 +114,26 @@ const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
 };
 
-if (!window.___INITIAL_STATE___) {
-    let state;
-    Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
-        set(x) {
-            state = { ...x };
-            try {
-                state.obfuscatedFeatures = modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet);
-            } catch (e) {
-                console.error("Failed to modify features", e);
-            }
-        },
-        get() {
-            return state;
-        },
-        enumerable: true,
-        configurable: true
-    });
-}
-else {
-    let obfuscatedFeatures;
-    try {
-        obfuscatedFeatures = modifyObfuscatedFeatures(window.___INITIAL_STATE___.obfuscatedFeatures, featureSet);
-    } catch (e) {
-        console.error("Failed to modify features", e);
-    }
-    Object.defineProperty(window.___INITIAL_STATE___, "obfuscatedFeatures", {
-        get() {
-            return obfuscatedFeatures;
-        },
-        enumerable: true,
-        configurable: true
-    });
-}
+let state = window.___INITIAL_STATE___;
+
+Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
+    set(x) {
+        state = x;
+    },
+    get() {
+        try {
+            return {
+                ...state,
+                obfuscatedFeatures: modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet)
+            };
+        } catch (e) {
+            console.error("Failed to modify features", e);
+        }
+        return state;
+    },
+    enumerable: true,
+    configurable: true,
+});
 
 var $ = window.jQuery;
 
@@ -209,6 +199,7 @@ $(document).ready(() => {
                 padding: 12px 12px;
                 font-weight: bold;
             }
+            ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle) { display: none !important; }
         `);
 
         function checkboxEvent(id, value) {
@@ -426,11 +417,18 @@ $(document).ready(() => {
                 });
             }
             if ($("#__c7").is(":checked")) {
-                waitFor(keyToCss("liveMarquee")).then(() => {
-                    $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]')
-                        .add($(keyToCss("navItem")).has('use[href="#managed-icon__coins"]'))
-                        .add($(keyToCss("listTimelineObject")).has($(keyToCss("liveMarquee")))).hide();
-                });
+                $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').hide();
+                $("#__s").text(`
+                    ${$("#__s").text()}
+                    ${keyToCss("navItem")}:has(use[href="#managed-icon__coins"]) { display: none !important; } 
+                    ${keyToCss("listTimelineObject")}:has(${keyToCss("liveMarquee")}) { display: none !important; }
+                `); //it's q3 2023 and mozilla STILL hasn't implemented :has() support!!!
+            }
+            if ($("#__c8").is(":checked")) {
+                $("#__s").text(`
+                    ${$("#__s").text()}
+                    ${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }
+                `);
             }
             console.log("dashboard fixed!");
         }
