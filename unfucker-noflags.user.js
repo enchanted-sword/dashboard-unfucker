@@ -539,7 +539,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         }
         $header.append($nav);
         $header.append($create);
-        $main.prepend($content)
+        $(keyToCss("navSubHeader")).addClass(keyToClasses("heading").join(" "));
+        $main.prepend($content);
         var $navItems = $nav.children();
         var $home = $navItems.has('use[href="#managed-icon__home"]');
         var $inbox = $navItems.has('use[href="#managed-icon__mail"]');
@@ -692,30 +693,30 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 <li>
                     <a href="/blog/${blog.name}">
                         <span>Posts</span>
-                        <span class="${keyToClasses("count")}">${blog.posts}</span>
+                        <span class="${keyToClasses("count").join(" ")}">${blog.posts? blog.posts: ""}</span>
                     </a>
                 </li>
                 <li>
                     <a href="/blog/${blog.name}/followers">
                         <span>Followers</span>
-                        <span class="${keyToClasses("count")}">${blog.followers}</span>
+                        <span class="${keyToClasses("count").join(" ")}">${blog.followers? blog.followers : ""}</span>
                     </a>
                 </li>
-                <li>__s
-                    <a id="__${blog.name}-activity" href="/blog/${blog.name}/activity">
+                <li id="__${blog.name}-activity">
+                    <a href="/blog/${blog.name}/activity">
                         <span>Activity</span>
                     </a>
                 </li>
                 <li>
                     <a href="/blog/${blog.name}/drafts">
                         <span>Drafts</span>
-                        <span class="${keyToClasses("count")}">${blog.drafts}</span>
+                        <span class="${keyToClasses("count").join(" ")}">${blog.drafts? blog.drafts : ""}</span>
                     </a>
                 </li>
                 <li>
                     <a href="/blog/${blog.name}/queue">
                         <span>Queue</span>
-                        <span class="${keyToClasses("count")}">${blog.queue}</span>
+                        <span class="${keyToClasses("count").join(" ")}">${blog.queue? blog.queue : ""}</span>
                     </a>
                 </li>
                 <li>
