@@ -508,7 +508,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
         if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
             $main.css("margin-left", $("#__c9").val());
-        }
+        } else $main.css("margin-left", "100px");
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
