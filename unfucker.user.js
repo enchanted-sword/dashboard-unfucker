@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.4
+// @version      3.3.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.2.4";
+const version = "3.3.0";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -142,7 +142,7 @@ const updatePreferences = (arr) => {
 }
 
 $(document).ready(() => {
-    getUtilities().then(({ keyToCss }) => {
+    getUtilities().then(({ keyToCss, keyToClasses }) => {
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
         $styleElement.text(`
@@ -430,6 +430,26 @@ $(document).ready(() => {
                 window.setTimeout($unfuck, 400)
             });
         }));
+
+        const $iconify = () => {
+            let links = $(keyToCss("blogLink")).has(keyToCss("brokenBlog"));
+            if (links.length === 0) return
+            for (let i = 0; i < links.length; ++i) {
+                let link = links.eq(i);
+                let wrapper = link.find(keyToCss("avatarWrapperInner"));
+                let blog = link.attr("title");
+                wrapper.find(keyToCss("brokenBlog")).removeClass();
+                wrapper.append($(`
+                    <div class="${keyToClasses("placeholder").join(" ")}" style="padding-bottom: 100%;">
+                        <img class="${keyToClasses("image").join(" ")} ${keyToClasses("visible").join(" ")}" sizes="64px" alt="Avatar" style="width: 64px; height: 64px;" loading="eager" src="https://api.tumblr.com/v2/blog/${blog}/avatar/64">
+                    </div>
+                `)) 
+            }
+        }
+    
+        $(window).on("scroll", () => {
+            $iconify();
+        });
     });
 
     async function getUtilities() {
@@ -440,6 +460,6 @@ $(document).ready(() => {
         const cssMap = await tumblr.getCssMap();
         const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
         const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
-        return { keyToCss };
+        return { keyToCss, keyToClasses };
     }
 });

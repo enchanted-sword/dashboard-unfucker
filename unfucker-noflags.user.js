@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.2
+// @version      3.3.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,9 +15,10 @@
 
 'use strict';
 
-const version = "3.2.2";
+const version = "3.3.0";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
+const pathname = location.pathname.split("/")[1];
 
 const storageAvailable = (type) => { //thanks mdn web docs!
     let storage;
@@ -332,7 +333,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             console.log("no need to unfuck");
             if (!$("#__h").length) { $("#__s").remove() }
             return
-        } else if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
+        } else if (["/dashboard", "/"].includes(pathname) && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
             window.tumblr.navigate("/dashboard/following");
             console.log("navigating to following");
             throw "navigating tabs";
@@ -491,7 +492,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             }
             else {
                 configPreferences[Number($(this).attr("name"))].value = $(this).val();
-                if ($(keyToCss("main")).length) {
+                if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
                     $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
                 }
             }
@@ -505,13 +506,15 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             .add($(keyToCss("listTimelineObject")).has(keyToCss("liveMarqueeTitle"))).toggle(!$("#__c6").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!$("#__c7").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
-        $main.css("margin", $("#__c9").val());
+        if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
+            $main.css("margin-left", $("#__c9").val());
+        }
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
         $bar.append($header)
         $header.append($logo);
-        if (match.includes(location.pathname.split("/")[1])) {
+        if (match.includes(pathname)) {
             waitFor(keyToCss("searchSidebarItem")).then(() => {
                 var $search = $(keyToCss("searchSidebarItem")).eq(0);
                 $search.insertAfter($logo);
@@ -519,7 +522,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!$("#__c3").is(":checked"));
             });
             $content = $(keyToCss("main")).eq(0);
-            if (["/dashboard", "/"].includes(location.pathname)) {
+            if (["/dashboard", "/"].includes(pathname)) {
                 waitFor(keyToCss("timelineOptionsWrapper")).then(() => {
                     if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
                         var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
@@ -534,7 +537,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`).eq(0);
             newSearch();
         }
-        if (["search", "tagged"].includes(location.pathname.split("/")[1])) {
+        if (["search", "tagged"].includes(pathname)) {
             $content.css("max-width", "fit-content");
         }
         $header.append($nav);
@@ -780,12 +783,14 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $paletteWrapper.insertAfter($subnav.children("li").has("span:contains('Keyboard shortcuts')"));
         $paletteWrapper.append($palette);
         $palette.children("span").eq(0).prepend($paletteIcon);
-        if (["blog", "likes", "following"].includes(location.pathname.split("/")[1])) { document.getElementById("account_button").click(); }
+        if (["blog", "likes", "following"].includes(pathname)) { document.getElementById("account_button").click(); }
         $header.append($("<nav>"));
         waitFor(keyToCss("sidebar")).then(() => {
             $(keyToCss("sidebar")).prepend($menu);
         });
         console.log("dashboard fixed!");
+
+
     }
 
     $unfuck();
@@ -795,6 +800,26 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             window.setTimeout($unfuck, 400)
         });
     }));
+
+    const $iconify = () => {
+        let links = $(keyToCss("blogLink")).has(keyToCss("brokenBlog"));
+        if (links.length === 0) return
+        for (let i = 0; i < links.length; ++i) {
+            let link = links.eq(i);
+            let wrapper = link.find(keyToCss("avatarWrapperInner"));
+            let blog = link.attr("title");
+            wrapper.find(keyToCss("brokenBlog")).removeClass();
+            wrapper.append($(`
+                <div class="${keyToClasses("placeholder").join(" ")}" style="padding-bottom: 100%;">
+                    <img class="${keyToClasses("image").join(" ")} ${keyToClasses("visible").join(" ")}" sizes="64px" alt="Avatar" style="width: 64px; height: 64px;" loading="eager" src="https://api.tumblr.com/v2/blog/${blog}/avatar/64">
+                </div>
+            `)) 
+        }
+    }
+
+    $(window).on("scroll", () => {
+        $iconify();
+    });
 });
 
 async function getUtilities() {
