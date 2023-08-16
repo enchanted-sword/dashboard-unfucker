@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.2.3
+// @version      3.2.4
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.2.3";
+const version = "3.2.4";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -42,55 +42,11 @@ const storageAvailable = (type) => { //thanks mdn web docs!
     }
 }
 
-var featureSet = [{"name": "adFreeCtaBanner", "value": false}];
-
-if (storageAvailable("localStorage") 
-    && localStorage.getItem("configPreferences") 
-    && JSON.parse(localStorage.getItem("configPreferences")).length === 14) {
-    let pref = JSON.parse(localStorage.getItem("configPreferences"));
-    if (pref[5].value === "checked") {
-        featureSet.push({"name": "redpopDesktopVerticalNav", "value": false});
-    }
-    if (pref[6].value === "checked") {
-        featureSet.push(
-            {"name": "liveStreaming", "value": false},
-            {"name": "liveStreamingWeb", "value": false},
-            {"name": "liveCustomMarqueeData", "value": false},
-            {"name": "liveStreamingWebPayments", "value": false}
-        );
-    }
-    if (pref[7].value === "checked") {
-        featureSet.push({"name": "domainsSettings", "value": false});
-    }
-    if (pref[8].value === "checked") {
-        featureSet.push({"name": "activityRedesignM3", "value": false});
-    }
-    if (pref[9].value === "checked") {
-        featureSet.push({"name": "messagingRedesign", "value": false});
-    }
-    if (pref[10].value === "checked") {
-        featureSet.push({"name": "experimentalBlockEditorIsOnlyEditor", "value": false});
-    }
-    if (pref[11].value === "checked") {
-        featureSet.push({"name": "configurableTabbedDash", "value": true});
-    }
-    if (pref[12].value === "checked") {
-        featureSet.push(
-            {"name": "crowdsignalPollsNpf", "value": true},
-            {"name": "crowdsignalPollsCreate", "value": true},
-            {"name": "allowAddingPollsToReblogs", "value": true}
-        );
-    }
-    if (pref[13].value === "checked") {
-        featureSet.push({"name": "tagSuggestionTwoStepDialog", "value": false});
-    }
-} else {
-    featureSet = [
+var featureSet = [
         {"name": "redpopDesktopVerticalNav", "value": false},
+        {"name": "redpopVirtualScroller", "value": false},
         {"name": "liveStreaming", "value": false},
-        {"name": "liveStreamingWeb", "value": false},
         {"name": "liveCustomMarqueeData", "value": false},
-        {"name": "liveStreamingWebPayments", "value": false},
         {"name": "domainsSettings", "value": false},
         {"name": "activityRedesignM3", "value": false},
         {"name": "messagingRedesign", "value": false},
@@ -101,13 +57,37 @@ if (storageAvailable("localStorage")
         {"name": "allowAddingPollsToReblogs", "value": true},
         {"name": "tagSuggestionTwoStepDialog", "value": false},
         {"name": "adFreeCtaBanner", "value": false}
-    ]
+    ];
+
+if (storageAvailable("localStorage")
+    && localStorage.getItem("configPreferences")
+    && JSON.parse(localStorage.getItem("configPreferences")).length === 15) {
+    featureSet = [{"name": "adFreeCtaBanner", "value": false}]
+    let pref = JSON.parse(localStorage.getItem("configPreferences"));
+    featureSet = [
+        {"name": "redpopDesktopVerticalNav", "value": !pref[5].value},
+        {"name": "redpopVirtualScroller", "value": !pref[6].value},
+        {"name": "liveStreaming", "value": !pref[7].value},
+        {"name": "liveStreamingWeb", "value": !pref[7].value},
+        {"name": "liveCustomMarqueeData", "value": !pref[7].value},
+        {"name": "liveStreamingWebPayments", "value": !pref[7].value},
+        {"name": "domainsSettings", "value": !pref[8].value},
+        {"name": "activityRedesignM3", "value": !pref[9].value},
+        {"name": "messagingRedesign", "value": !pref[10].value},
+        {"name": "experimentalBlockEditorIsOnlyEditor", "value": !pref[11].value},
+        {"name": "configurableTabbedDash", "value": pref[12].value?true:false},
+        {"name": "crowdsignalPollsNpf", "value": pref[13].value?true:false},
+        {"name": "crowdsignalPollsCreate", "value": pref[13].value?true:false},
+        {"name": "allowAddingPollsToReblogs", "value": pref[13].value?true:false},
+        {"name": "tagSuggestionTwoStepDialog", "value": !pref[14].value},
+        {"name": "adFreeCtaBanner", "value": false}
+    ];
 }
 
-const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
+const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet, flag) => {
     let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
     for (let x of featureSet) {
-        console.log(x)
+        console.log(x);
         obf[x.name] = x.value;
     }
     console.log(obf);
@@ -251,11 +231,13 @@ $(document).ready(() => {
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" }
             ];
             if (storageAvailable("localStorage")) {
                 if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
-                    updatePreferences(configPreferences)
+                    updatePreferences(configPreferences);
+                    console.log("initialized preferences");
                 } else {
                     configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
                 }
@@ -348,36 +330,40 @@ $(document).ready(() => {
                                 <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
                             </li>
                             <li>
-                                <span>disable tumblr live</span>
+                                <span>disable "virtual scroller" experiment</span>
                                 <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
                             </li>
                             <li>
-                                <span>disable tumblr domains</span>
+                                <span>disable tumblr live</span>
                                 <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
                             </li>
                             <li>
-                                <span>revert activity feed redesign</span>
+                                <span>disable tumblr domains</span>
                                 <input class="configInput" type="checkbox" id="__c9" name="8" ${configPreferences[8].value}>
                             </li>
                             <li>
-                                <span>revert messaging redesign</span>
+                                <span>revert activity feed redesign</span>
                                 <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
                             </li>
                             <li>
-                                <span>allow legacy post editor</span>
+                                <span>revert messaging redesign</span>
                                 <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
                             </li>
                             <li>
-                                <span>enable customizable dashboard tabs</span>
+                                <span>allow legacy post editor</span>
                                 <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
                             </li>
                             <li>
-                                <span>enable adding polls to reblogs</span>
+                                <span>enable customizable dashboard tabs</span>
                                 <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
                             </li>
                             <li>
-                                <span>disable "post without tags" nag</span>
+                                <span>enable adding polls to reblogs</span>
                                 <input class="configInput" type="checkbox" id="__c14" name="13" ${configPreferences[13].value}>
+                            </li>
+                            <li>
+                                <span>disable "post without tags" nag</span>
+                                <input class="configInput" type="checkbox" id="__c15" name="14" ${configPreferences[14].value}>
                             </li>
                         </ul>
                     </div>
@@ -420,7 +406,7 @@ $(document).ready(() => {
                 $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').hide();
                 $("#__s").text(`
                     ${$("#__s").text()}
-                    ${keyToCss("navItem")}:has(use[href="#managed-icon__coins"]) { display: none !important; } 
+                    ${keyToCss("navItem")}:has(use[href="#managed-icon__coins"]) { display: none !important; }
                     ${keyToCss("listTimelineObject")}:has(${keyToCss("liveMarquee")}) { display: none !important; }
                 `); //it's q3 2023 and mozilla STILL hasn't implemented :has() support!!!
             }
