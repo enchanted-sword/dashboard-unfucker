@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.3.0";
+const version = "3.4.0";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
