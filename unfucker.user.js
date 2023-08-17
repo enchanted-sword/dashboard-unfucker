@@ -45,8 +45,12 @@ const storageAvailable = (type) => { //thanks mdn web docs!
 var featureSet = [
         {"name": "redpopDesktopVerticalNav", "value": false},
         {"name": "redpopVirtualScroller", "value": false},
-        {"name": "liveStreaming", "value": false},
         {"name": "liveCustomMarqueeData", "value": false},
+        {"name": "liveStreaming", "value": false},
+        {"name": "liveStreamingUserAllowed", "value": false},
+        {"name": "liveStreamingUserEnabled", "value": false},
+        {"name": "liveStreamingWeb", "value": false},
+        {"name": "liveSteamingWebPayments", "value": false},
         {"name": "domainsSettings", "value": false},
         {"name": "activityRedesignM3", "value": false},
         {"name": "messagingRedesign", "value": false},
@@ -69,10 +73,12 @@ if (storageAvailable("localStorage")
     featureSet = [
         {"name": "redpopDesktopVerticalNav", "value": !pref[5].value},
         {"name": "redpopVirtualScroller", "value": !pref[6].value},
-        {"name": "liveStreaming", "value": !pref[7].value},
-        {"name": "liveStreamingWeb", "value": !pref[7].value},
         {"name": "liveCustomMarqueeData", "value": !pref[7].value},
-        {"name": "liveStreamingWebPayments", "value": !pref[7].value},
+        {"name": "liveStreaming", "value": !pref[7].value},
+        {"name": "liveStreamingUserAllowed", "value": !pref[7].value},
+        {"name": "liveStreamingUserEnabled", "value": !pref[7].value},
+        {"name": "liveStreamingWeb", "value": !pref[7].value},
+        {"name": "liveSteamingWebPayments", "value": !pref[7].value},
         {"name": "domainsSettings", "value": !pref[8].value},
         {"name": "activityRedesignM3", "value": !pref[9].value},
         {"name": "messagingRedesign", "value": !pref[10].value},
@@ -410,14 +416,6 @@ $(document).ready(() => {
                         $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!$("#__c3").is(":checked"));
                     });
                 });
-            }
-            if ($("#__c7").is(":checked")) {
-                $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').hide();
-                $("#__s").text(`
-                    ${$("#__s").text()}
-                    ${keyToCss("navItem")}:has(use[href="#managed-icon__coins"]) { display: none !important; }
-                    ${keyToCss("listTimelineObject")}:has(${keyToCss("liveMarquee")}) { display: none !important; }
-                `); //it's q3 2023 and mozilla STILL hasn't implemented :has() support!!!
             }
             if ($("#__c8").is(":checked")) {
                 $("#__s").text(`
