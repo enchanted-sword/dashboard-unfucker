@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.3.0";
+const version = "3.4.0";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -45,41 +45,51 @@ const storageAvailable = (type) => { //thanks mdn web docs!
 var featureSet = [
         {"name": "redpopDesktopVerticalNav", "value": false},
         {"name": "redpopVirtualScroller", "value": false},
-        {"name": "liveStreaming", "value": false},
         {"name": "liveCustomMarqueeData", "value": false},
+        {"name": "liveStreaming", "value": false},
+        {"name": "liveStreamingUserAllowed", "value": false},
+        {"name": "liveStreamingUserEnabled", "value": false},
+        {"name": "liveStreamingWeb", "value": false},
+        {"name": "liveSteamingWebPayments", "value": false},
         {"name": "domainsSettings", "value": false},
         {"name": "activityRedesignM3", "value": false},
         {"name": "messagingRedesign", "value": false},
         {"name": "experimentalBlockEditorIsOnlyEditor", "value": false},
+        {"name": "tumblrEditorForceTextPostType", "value": false},
         {"name": "configurableTabbedDash", "value": true},
         {"name": "crowdsignalPollsNpf", "value": true},
         {"name": "crowdsignalPollsCreate", "value": true},
         {"name": "allowAddingPollsToReblogs", "value": true},
         {"name": "tagSuggestionTwoStepDialog", "value": false},
+        {"name": "redpopUnreadNotificationsOnTab", "value": false},
         {"name": "adFreeCtaBanner", "value": false}
     ];
 
 if (storageAvailable("localStorage")
     && localStorage.getItem("configPreferences")
-    && JSON.parse(localStorage.getItem("configPreferences")).length === 15) {
+    && JSON.parse(localStorage.getItem("configPreferences")).length === 16) {
     featureSet = [{"name": "adFreeCtaBanner", "value": false}]
     let pref = JSON.parse(localStorage.getItem("configPreferences"));
     featureSet = [
         {"name": "redpopDesktopVerticalNav", "value": !pref[5].value},
         {"name": "redpopVirtualScroller", "value": !pref[6].value},
-        {"name": "liveStreaming", "value": !pref[7].value},
-        {"name": "liveStreamingWeb", "value": !pref[7].value},
         {"name": "liveCustomMarqueeData", "value": !pref[7].value},
-        {"name": "liveStreamingWebPayments", "value": !pref[7].value},
+        {"name": "liveStreaming", "value": !pref[7].value},
+        {"name": "liveStreamingUserAllowed", "value": !pref[7].value},
+        {"name": "liveStreamingUserEnabled", "value": !pref[7].value},
+        {"name": "liveStreamingWeb", "value": !pref[7].value},
+        {"name": "liveSteamingWebPayments", "value": !pref[7].value},
         {"name": "domainsSettings", "value": !pref[8].value},
         {"name": "activityRedesignM3", "value": !pref[9].value},
         {"name": "messagingRedesign", "value": !pref[10].value},
         {"name": "experimentalBlockEditorIsOnlyEditor", "value": !pref[11].value},
+        {"name": "tumblrEditorForceTextPostType", "value": !pref[11].value},
         {"name": "configurableTabbedDash", "value": pref[12].value?true:false},
         {"name": "crowdsignalPollsNpf", "value": pref[13].value?true:false},
         {"name": "crowdsignalPollsCreate", "value": pref[13].value?true:false},
         {"name": "allowAddingPollsToReblogs", "value": pref[13].value?true:false},
         {"name": "tagSuggestionTwoStepDialog", "value": !pref[14].value},
+        {"name": "redpopUnreadNotificationsOnTab", "value": !pref[15].value},
         {"name": "adFreeCtaBanner", "value": false}
     ];
 }
@@ -232,6 +242,7 @@ $(document).ready(() => {
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" }
             ];
             if (storageAvailable("localStorage")) {
@@ -365,6 +376,10 @@ $(document).ready(() => {
                                 <span>disable "post without tags" nag</span>
                                 <input class="configInput" type="checkbox" id="__c15" name="14" ${configPreferences[14].value}>
                             </li>
+                            <li>
+                                <span>re-add unread post notifications to the corner of the home icon</span>
+                                <input class="configInput" type="checkbox" id="__c16" name="15" ${configPreferences[15].value}>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -402,14 +417,6 @@ $(document).ready(() => {
                     });
                 });
             }
-            if ($("#__c7").is(":checked")) {
-                $(keyToCss("menuContainer")).has('use[href="#managed-icon__live-video"]').hide();
-                $("#__s").text(`
-                    ${$("#__s").text()}
-                    ${keyToCss("navItem")}:has(use[href="#managed-icon__coins"]) { display: none !important; }
-                    ${keyToCss("listTimelineObject")}:has(${keyToCss("liveMarquee")}) { display: none !important; }
-                `); //it's q3 2023 and mozilla STILL hasn't implemented :has() support!!!
-            }
             if ($("#__c8").is(":checked")) {
                 $("#__s").text(`
                     ${$("#__s").text()}
@@ -443,10 +450,10 @@ $(document).ready(() => {
                     <div class="${keyToClasses("placeholder").join(" ")}" style="padding-bottom: 100%;">
                         <img class="${keyToClasses("image").join(" ")} ${keyToClasses("visible").join(" ")}" sizes="64px" alt="Avatar" style="width: 64px; height: 64px;" loading="eager" src="https://api.tumblr.com/v2/blog/${blog}/avatar/64">
                     </div>
-                `)) 
+                `));
             }
         }
-    
+
         $(window).on("scroll", () => {
             $iconify();
         });
