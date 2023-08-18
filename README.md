@@ -10,7 +10,8 @@ reverting the activity feed and messaging updates, re-enabling the use of the le
 
 Version B uses jQuery to simply move elements around on the page so that it resembles the non-vertical nav layout. This method isn't as thorough, but it should work for all users.
 
-It's a userscript designed for Tampermonkey, but feel free to port it to other JavaScript injection methods as you please.
+It's a userscript designed for Tampermonkey, but feel free to port it to other JavaScript injection methods as you please. From what I can tell, it works 
+for some people with Violentmonkey, but Greasemonkey seems to be a no-go. It also seems to work with some adblockers' built-in JS injectors.
 
 To install, simply click on either `unfucker.user.js` or `unfucker-noflags.user.js` and click the `raw` button with Tampermonkey installed.
 
@@ -23,4 +24,3 @@ To install, simply click on either `unfucker.user.js` or `unfucker-noflags.user.
 ## Known issues
 - The script apparently conflicts with HTTPS Everywhere extension on Firefox.
 - The script apparently conflicts with New XKit. However, it works just fine with XKit Rewritten.
-- On Firefox, some elements related to Tumblr Live and Domains do not hide correctly. This will be fixed whenever Mozilla finally implements the `:has()` pseudo-selector.
