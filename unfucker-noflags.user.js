@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.3.0
+// @version      3.3.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "3.3.0";
+const version = "3.3.1";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
 const pathname = location.pathname.split("/")[1];
