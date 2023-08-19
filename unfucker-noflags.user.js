@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.3.1
+// @version      3.3.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "3.3.1";
+const version = "3.3.2";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
 const pathname = location.pathname.split("/")[1];
@@ -507,8 +507,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!$("#__c7").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
         if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
-            $main.css("margin-left", $("#__c9").val());
-        } else $main.css("margin-left", "100px");
+            $(keyToCss("main")).css("margin-left", $("#__c9").val());
+        } else $(keyToCss("main")).css("margin-left", "100px");
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
