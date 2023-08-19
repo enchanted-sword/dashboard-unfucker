@@ -676,7 +676,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             else { $("#settings_caret").css("transform", "rotate(0deg)") }
             $settingsSubmenu.toggle();
         });
-        var blogs = window.___INITIAL_STATE___.queries.queries[0].state.data.user.blogs;
+        var blogs = unsafeWindow.___INITIAL_STATE___.queries.queries[0].state.data.user.blogs;
         var $blogs = $(keyToCss("blogTile"));
         for (let i = 0; i < blogs.length; ++i) {
             var $blog = $blogs.eq(i);
@@ -696,13 +696,13 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 <li>
                     <a href="/blog/${blog.name}">
                         <span>Posts</span>
-                        <span class="${keyToClasses("count").join(" ")}">${blog.posts? blog.posts: ""}</span>
+                        <span class="${keyToClasses("count")[3]}">${blog.posts? blog.posts: ""}</span>
                     </a>
                 </li>
                 <li>
                     <a href="/blog/${blog.name}/followers">
                         <span>Followers</span>
-                        <span class="${keyToClasses("count").join(" ")}">${blog.followers? blog.followers : ""}</span>
+                        <span class="${keyToClasses("count")[3]}">${blog.followers? blog.followers : ""}</span>
                     </a>
                 </li>
                 <li id="__${blog.name}-activity">
@@ -713,13 +713,13 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
                 <li>
                     <a href="/blog/${blog.name}/drafts">
                         <span>Drafts</span>
-                        <span class="${keyToClasses("count").join(" ")}">${blog.drafts? blog.drafts : ""}</span>
+                        <span class="${keyToClasses("count")[3]}">${blog.drafts? blog.drafts : ""}</span>
                     </a>
                 </li>
                 <li>
                     <a href="/blog/${blog.name}/queue">
                         <span>Queue</span>
-                        <span class="${keyToClasses("count").join(" ")}">${blog.queue? blog.queue : ""}</span>
+                        <span class="${keyToClasses("count")[3]}">${blog.queue? blog.queue : ""}</span>
                     </a>
                 </li>
                 <li>
@@ -795,7 +795,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
 
     $unfuck();
 
-    window.tumblr.on('navigation', () => requestAnimationFrame(function () {
+    unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(function () {
         $unfuck().catch((e) => {
             window.setTimeout($unfuck, 400)
         });
@@ -824,12 +824,12 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
 
 async function getUtilities() {
     let retries = 0;
-    while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined" || typeof tumblr.languageData === "undefined")) {
+    while (retries++ < 1000 && (typeof unsafeWindow.tumblr === "undefined" || typeof unsafeWindow.tumblr.getCssMap === "undefined" || typeof unsafeWindow.tumblr.languageData === "undefined")) {
         await new Promise((resolve) => setTimeout(resolve));
     }
-    const cssMap = await tumblr.getCssMap();
+    const cssMap = await unsafeWindow.tumblr.getCssMap();
     const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
     const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
-    const tr = (string) => `${window.tumblr.languageData.translations[string] || string}`
+    const tr = (string) => `${unsafeWindow.tumblr.languageData.translations[string] || string}`
     return { keyToClasses, keyToCss, tr };
 }
