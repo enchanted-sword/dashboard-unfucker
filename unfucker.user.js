@@ -7,7 +7,7 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
 // @downloadURL  https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
 // @updateURL    https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
-// @grant        none
+// @grant        unsafeWindow
 // @require      https://code.jquery.com/jquery-3.6.4.min.js
 // @run-at       document-start
 // ==/UserScript==
@@ -104,9 +104,9 @@ const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet, flag) => {
     return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
 };
 
-let state = window.___INITIAL_STATE___;
+let state = unsafeWindow.___INITIAL_STATE___;
 
-Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
+Object.defineProperty(unsafeWindow, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
         state = x;
     },
@@ -228,7 +228,7 @@ $(document).ready(() => {
                 });
             }
             var configPreferences = [
-                { type: "checkbox", value: "checked" },
+                { type: "checkbox", value: "" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
@@ -432,7 +432,7 @@ $(document).ready(() => {
             });
         });
 
-        window.tumblr.on('navigation', () => requestAnimationFrame(() => {
+        unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(() => {
             $unfuck().catch((e) => {
                 window.setTimeout($unfuck, 400)
             });
@@ -461,10 +461,10 @@ $(document).ready(() => {
 
     async function getUtilities() {
         let retries = 0;
-        while (retries++ < 1000 && (typeof tumblr === "undefined" || typeof tumblr.getCssMap === "undefined")) {
+        while (retries++ < 1000 && (typeof unsafeWindow.tumblr === "undefined" || typeof unsafeWindow.tumblr.getCssMap === "undefined")) {
             await new Promise((resolve) => setTimeout(resolve));
         }
-        const cssMap = await tumblr.getCssMap();
+        const cssMap = await unsafeWindow.tumblr.getCssMap();
         const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
         const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
         return { keyToCss, keyToClasses };
