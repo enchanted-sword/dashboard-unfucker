@@ -16,6 +16,7 @@ To install, simply click on either `unfucker.user.js` or `unfucker-noflags.user.
 
 ## Troubleshooting
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
+- If you're missing the dashboard tabs header (the navbar with following, for you, followed tags, etc.), prior to versions 3.5.0a and 4.0.0b it was disabled default, and can be reenabled via the first option in config menu.
 - If it injects, but ends up wonky, chances are you just need to do a full reload of the page (ctrl + shift + r).
 - If you've updated script versions but it doesn't fix a version-specific bug, it's likely because of browser caching, closing and reopening the browser usually fixes it.
 - If the main content divider takes up the full width of the screen, that isn't caused by this script, that's the XKit Panorama feature, which can be disabled in the XKit config menu.
