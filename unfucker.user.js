@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.6.0
+// @version      3.6.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,9 +16,10 @@
 
 'use strict';
 
-const version = "3.6.0";
+const version = "3.6.1";
 const type = "a";
-const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
+const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
+const pathname = location.pathname.split("/")[1];
 
 const storageAvailable = (type) => { //thanks mdn web docs!
     let storage;
@@ -155,6 +156,43 @@ const updatePreferences = (arr) => {
 
 $(document).ready(() => {
     getUtilities().then(({ keyToCss, keyToClasses }) => {
+        if (["dashboard", ""].includes(pathname)) {
+            const postSelector = "[tabindex='-1'][data-id] article";
+            const newNodes = [];
+            const target = document.getElementById("root");
+            const fixHeader = posts => {
+                for (const post of posts) {
+                    let $post = $(post);
+                    let $header = $post.find(`header${keyToCss("header")}`);
+                    if (!$header.find(keyToCss("rebloggedFromName")).length
+                        && !$header.find(keyToCss("avatar")).length) {
+                        $label = $post.find(keyToCss("label")).eq(0).clone();
+                        $label.insertAfter($header.find(keyToCss("reblogIcon")));
+                        $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
+                    }
+                }
+            }
+            const sortPosts = () => {
+                const nodes = newNodes.splice(0);
+                if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null))) {
+                  const posts = [
+                    ...nodes.filter(node => node.matches(postSelector)),
+                    ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
+                  ].filter((value, index, array) => index === array.indexOf(value));
+                  fixHeader(posts);
+                }
+                else return
+            }
+            const observer = new MutationObserver(mutations => {
+                const nodes = mutations
+                    .flatMap(({ addedNodes }) => [...addedNodes])
+                    .filter(node => node instanceof Element)
+                    .filter(node => node.isConnected);
+                newNodes.push(...nodes);
+                sortPosts();
+              })
+              observer.observe(target, { childList: true, subtree: true });
+        }
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
         $styleElement.text(`
