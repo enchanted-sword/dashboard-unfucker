@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.0.0
+// @version      4.1.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,11 +15,15 @@
 
 'use strict';
 
-const version = "4.0.0";
+const version = "4.1.0";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
 const pathname = location.pathname.split("/")[1];
 var $ = window.jQuery;
+const target = document.getElementById("root");
+const postSelector = "[tabindex='-1'][data-id] article";
+const newNodes = [];
+const apiKey = unsafeWindow.___INITIAL_STATE___.apiFetchStore.API_TOKEN;
 
 const storageAvailable = (type) => { //thanks mdn web docs!
   let storage;
@@ -50,6 +54,72 @@ const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
 const updatePreferences = (arr) => localStorage.setItem("configPreferences", JSON.stringify(arr));
 
 getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
+  if (["dashboard", ""].includes(pathname)) {
+    const newAvatar = (blog) => $(`
+      <div class="${keyToClasses("stickyContainer").join(" ")}" data-testid="sticky-avatar-container">
+        <div class="${keyToClasses("avatar")[15]}">
+          <div class="${keyToClasses("avatarWrapper")[3]}" role="figure" aria-label="${tr("avatar")}">
+            <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper")[0]}">
+              <span class="${keyToClasses("targetWrapper")[0]}">
+                <a href="https://${blog}.tumblr.com/" title="${blog}" target="_blank" rel="noopener" role="link" class="${keyToClasses("blogLink")[0]}" tabindex="0">
+                  <div class="${keyToClasses("avatar")[12]}" style="width: 64px; height: 64px;">
+                    <div class="${keyToClasses("avatarWrapperInner")[0]} ${keyToClasses("square")[3]}">
+                      <div class="${keyToClasses("placeholder").join(" ")}" style="padding-bottom: 100%;">
+                        <img
+                          class="${keyToClasses("image")[9]} ${keyToClasses("visible")[4]}"
+                          src="https://api.tumblr.com/v2/blog/${blog}/avatar"
+                          sizes="64px" alt="${tr("Avatar")}" style="width: 64px; height: 64px;" loading="eager">
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+    `);
+    const iconify = posts => {
+      for (const post of posts) {
+        let $post = $(post)
+        let $header = $post.find(`header${keyToCss("header")}`);
+        const parent = $post.find(keyToCss("blogLink")).eq(0).text();
+        const $avatar = newAvatar(parent);
+        if ($header.find(keyToCss("rebloggedFromName")).length) {
+          $header.find(keyToCss("reblogged")).hide();
+          $header.find(keyToCss("reblogIcon")).insertBefore($header.find(keyToCss("rebloggedFromName")));
+          $post.prepend($avatar);
+        } else if ($header.find(keyToCss("avatar")).length) {
+          $header.find(keyToCss("avatar")).hide();
+        } else {
+          $header.find(keyToCss("reblogged")).hide();
+          $header.find(keyToCss("reblogIcon")).appendTo($header.find(keyToCss("attribution")));
+          $post.prepend($avatar);
+        }
+        
+      }
+    }
+    const sortPosts = () => {
+      const nodes = newNodes.splice(0);
+      if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null))) {
+        const posts = [
+          ...nodes.filter(node => node.matches(postSelector)),
+          ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
+        ].filter((value, index, array) => index === array.indexOf(value));
+        iconify(posts);
+      }
+      else return
+    }
+    const observer = new MutationObserver(mutations => {
+      const nodes = mutations
+        .flatMap(({ addedNodes }) => [...addedNodes])
+        .filter(node => node instanceof Element)
+        .filter(node => node.isConnected);
+      newNodes.push(...nodes);
+      sortPosts();
+    })
+    observer.observe(target, { childList: true, subtree: true });
+  }
   const $styleElement = $(`<style id="__s">
   #__h {
     display: flex;
@@ -219,7 +289,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         display: none !important;
       }
       ${keyToCss('container')} { margin: 0 }
-      ${keyToCss('bar')} { margin-bottom: 32px; }
+      ${keyToCss('bar')} { margin-bottom: 32px !important; }
       ${keyToCss('main')} {
         margin-right: 16px;
         padding: 0;
@@ -245,6 +315,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       }
       ${keyToCss('container')}${keyToCss('mainContentIs4ColumnMasonry')} { margin: 0 auto !important; }
       ${keyToCss("bluespaceLayout")} > ${keyToCss("newDesktopLayout")} { margin-top: 32px; }
+      ${keyToCss("reblogRedesignEnabled")} { border-radius: var(--border-radius-small) !important; }
     }
   </style>`);
   $styleElement.appendTo("html");
