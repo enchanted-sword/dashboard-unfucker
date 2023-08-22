@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.1.2
+// @version      4.1.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,10 +15,9 @@
 
 'use strict';
 
-const version = "4.1.2";
+const version = "4.1.3";
 const type = "b"
-const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
-const pathname = location.pathname.split("/")[1];
+const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
 var $ = window.jQuery;
 
 const storageAvailable = (type) => { //thanks mdn web docs!
@@ -121,7 +120,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         newNodes.push(...nodes);
         sortPosts();
       })
-      if (["dashboard", ""].includes(pathname)) {
+      if (["dashboard", ""].includes(location.pathname.split("/")[1])) {
         observer.observe(target, { childList: true, subtree: true });
       }
       const $styleElement = $(`<style id="__s">
@@ -422,6 +421,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         }
       }
       const $unfuck = async function () {
+        const pathname = location.pathname.split("/")[1];
         if ($(keyToCss("headerWrapper")).length) {
           console.log("no need to unfuck");
           if (!$("#__h").length) { $("#__s").remove() }
@@ -642,7 +642,8 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         $(document).on("click", () => {
           if (!$(`${keyToCss("subNav")}:hover`).length
           && !$subnav.eq(0).attr("hidden")) {
-            document.getElementById("account_button").click();
+            try { document.getElementById("account_button").click(); }
+            catch { throw "page not loaded"}
           }
         });
         $subnav.prepend($heading);

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.6.1
+// @version      3.6.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,10 +16,9 @@
 
 'use strict';
 
-const version = "3.6.1";
+const version = "3.6.2";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
-const pathname = location.pathname.split("/")[1];
 
 const storageAvailable = (type) => { //thanks mdn web docs!
     let storage;
@@ -156,7 +155,7 @@ const updatePreferences = (arr) => {
 
 $(document).ready(() => {
     getUtilities().then(({ keyToCss, keyToClasses }) => {
-        if (["dashboard", ""].includes(pathname)) {
+        if (["dashboard", ""].includes(location.pathname.split("/")[1])) {
             const postSelector = "[tabindex='-1'][data-id] article";
             const newNodes = [];
             const target = document.getElementById("root");
