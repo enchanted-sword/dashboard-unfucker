@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.1.0
+// @version      4.1.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "4.1.0";
+const version = "4.1.1";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js"
 const pathname = location.pathname.split("/")[1];
@@ -57,16 +57,16 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
   if (["dashboard", ""].includes(pathname)) {
     const newAvatar = (blog) => $(`
       <div class="${keyToClasses("stickyContainer").join(" ")}" data-testid="sticky-avatar-container">
-        <div class="${keyToClasses("avatar")[15]}">
-          <div class="${keyToClasses("avatarWrapper")[3]}" role="figure" aria-label="${tr("avatar")}">
-            <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper")[0]}">
-              <span class="${keyToClasses("targetWrapper")[0]}">
-                <a href="https://${blog}.tumblr.com/" title="${blog}" target="_blank" rel="noopener" role="link" class="${keyToClasses("blogLink")[0]}" tabindex="0">
-                  <div class="${keyToClasses("avatar")[12]}" style="width: 64px; height: 64px;">
-                    <div class="${keyToClasses("avatarWrapperInner")[0]} ${keyToClasses("square")[3]}">
-                      <div class="${keyToClasses("placeholder").join(" ")}" style="padding-bottom: 100%;">
+        <div class="__avatarOuter">
+          <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
+            <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper")}">
+              <span class="${keyToClasses("targetWrapper")}">
+                <a href="https://${blog}.tumblr.com/" title="${blog}" target="_blank" rel="noopener" role="link" class="${keyToClasses("blogLink").join(" ")}" tabindex="0">
+                  <div class="__avatarInner" style="width: 64px; height: 64px;">
+                    <div class="__avatarWrapperInner">
+                      <div class="__placeholder" style="padding-bottom: 100%;">
                         <img
-                          class="${keyToClasses("image")[9]} ${keyToClasses("visible")[4]}"
+                          class="__avatarImage"
                           src="https://api.tumblr.com/v2/blog/${blog}/avatar"
                           sizes="64px" alt="${tr("Avatar")}" style="width: 64px; height: 64px;" loading="eager">
                       </div>
@@ -83,18 +83,23 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       for (const post of posts) {
         let $post = $(post)
         let $header = $post.find(`header${keyToCss("header")}`);
-        const parent = $post.find(keyToCss("blogLink")).eq(0).text();
-        const $avatar = newAvatar(parent);
+        let parent = $post.find(keyToCss("blogLink")).eq(0).text();
         if ($header.find(keyToCss("rebloggedFromName")).length) {
           $header.find(keyToCss("reblogged")).hide();
           $header.find(keyToCss("reblogIcon")).insertBefore($header.find(keyToCss("rebloggedFromName")));
-          $post.prepend($avatar);
+          $post.prepend(newAvatar(parent));
         } else if ($header.find(keyToCss("avatar")).length) {
           $header.find(keyToCss("avatar")).hide();
+          parent = $post.find(`[aria-label="${tr("Reblog")}"]`).attr("href").split("/")[2];
+          $post.prepend(newAvatar(parent));
         } else {
           $header.find(keyToCss("reblogged")).hide();
-          $header.find(keyToCss("reblogIcon")).appendTo($header.find(keyToCss("attribution")));
-          $post.prepend($avatar);
+          $reblogIcon = $header.find(keyToCss("reblogIcon"))
+          $reblogIcon.appendTo($header.find(keyToCss("attribution")));
+          $post.prepend(newAvatar(parent));
+          $label = $post.find(keyToCss("label")).eq(0).clone();
+          $label.insertAfter($reblogIcon);
+          $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
         }
         
       }
@@ -288,8 +293,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       ${keyToCss('mainContentWrapper')} {
         display: none !important;
       }
-      ${keyToCss('container')} { margin: 0 }
-      ${keyToCss('bar')} { margin-bottom: 32px !important; }
+      ${keyToCss('container')} { margin: 0; }
       ${keyToCss('main')} {
         margin-right: 16px;
         padding: 0;
@@ -297,8 +301,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       }
       ${keyToCss('tabsHeader')} {
         width: 540px;
-        position: relative;
-        left: 105px;
+        margin: 0 !important;
       }
       ${keyToCss("timelineOptions")} { overflow-x: auto !important; }
       ${keyToCss('stickyContainer')} > ${keyToCss('avatar')} { top: calc(70px + var(--dashboard-tabs-header-height, 0px)) !important; }
@@ -316,6 +319,33 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       ${keyToCss('container')}${keyToCss('mainContentIs4ColumnMasonry')} { margin: 0 auto !important; }
       ${keyToCss("bluespaceLayout")} > ${keyToCss("newDesktopLayout")} { margin-top: 32px; }
       ${keyToCss("reblogRedesignEnabled")} { border-radius: var(--border-radius-small) !important; }
+      .__avatarOuter {
+        pointer-events: auto;
+        top: calc(69px + var(--dashboard-tabs-header-height,0px));
+        transition: top .25s;
+        position: -webkit-sticky;
+        position: sticky;
+      }
+      .__avatarWrapper { position: relative; }
+      .__avatarInner { position: relative; }
+      .__avatarWrapperInner {
+        border-radius: var(--border-radius-small);
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .__placeholder {
+        width: 100%;
+        line-height: 0;
+        position: relative;
+      }
+      .__avatarImage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        object-fit: cover;
+        visibility: visible;
+      }
     }
   </style>`);
   $styleElement.appendTo("html");
