@@ -24,5 +24,5 @@ To install, simply click on either `unfucker.user.js` or `unfucker-noflags.user.
 ## Known issues / Incompatibilities
 - The script apparently conflicts with HTTPS Everywhere extension on Firefox.
 - The script apparently conflicts with New XKit. However, it works just fine with XKit Rewritten.
-- The script is currently incompatibile with the Firemonkey extension
+- The script is currently incompatibile with the Firemonkey extension.
 - When first enabling the legacy editor toggle for text posts, an error popup will appear in the new post window. However, this popup can be safely dismissed and the editor will work normally.
