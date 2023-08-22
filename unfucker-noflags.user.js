@@ -599,7 +599,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!$("#__c7").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
         if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
-          $(keyToCss("main")).css("margin-left", `${$("#__c9").value}px`);
+          $(keyToCss("main")).css("margin-left", `${$("#__c9").val()}px`);
         } else $(keyToCss("main")).css("margin-left", "100px");
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
