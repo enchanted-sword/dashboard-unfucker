@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      3.5.0
+// @version      3.6.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.5.0";
+const version = "3.6.0";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js"
 
@@ -62,12 +62,13 @@ var featureSet = [
         {"name": "allowAddingPollsToReblogs", "value": true},
         {"name": "tagSuggestionTwoStepDialog", "value": false},
         {"name": "redpopUnreadNotificationsOnTab", "value": false},
+        {"name": "reblogRedesignNew", "value": false},
         {"name": "adFreeCtaBanner", "value": false}
     ];
 
 if (storageAvailable("localStorage")
     && localStorage.getItem("configPreferences")
-    && JSON.parse(localStorage.getItem("configPreferences")).length === 16) {
+    && JSON.parse(localStorage.getItem("configPreferences")).length === 17) {
     featureSet = [{"name": "adFreeCtaBanner", "value": false}]
     let pref = JSON.parse(localStorage.getItem("configPreferences"));
     featureSet = [
@@ -90,11 +91,12 @@ if (storageAvailable("localStorage")
         {"name": "allowAddingPollsToReblogs", "value": pref[13].value?true:false},
         {"name": "tagSuggestionTwoStepDialog", "value": !pref[14].value},
         {"name": "redpopUnreadNotificationsOnTab", "value": !pref[15].value},
+        {"name": "reblogRedesignNew", "value": !pref[16].value},
         {"name": "adFreeCtaBanner", "value": false}
     ];
 }
 
-const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet, flag) => {
+const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
     for (let x of featureSet) {
         console.log(x);
@@ -229,6 +231,7 @@ $(document).ready(() => {
             }
             var configPreferences = [
                 { type: "checkbox", value: "" },
+                { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
                 { type: "checkbox", value: "checked" },
@@ -379,6 +382,10 @@ $(document).ready(() => {
                             <li>
                                 <span>re-add unread post notifications to the corner of the home icon</span>
                                 <input class="configInput" type="checkbox" id="__c16" name="15" ${configPreferences[15].value}>
+                            </li>
+                            <li>
+                                <span>re-add icons to reblogs</span>
+                                <input class="configInput" type="checkbox" id="__c17" name="16" ${configPreferences[16].value}>
                             </li>
                         </ul>
                     </div>
