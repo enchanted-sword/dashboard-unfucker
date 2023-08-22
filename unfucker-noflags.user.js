@@ -91,10 +91,10 @@ const storageAvailable = (type) => { //thanks mdn web docs!
             $post.prepend(newAvatar(parent));
           } else {
             $header.find(keyToCss("reblogged")).hide();
-            $reblogIcon = $header.find(keyToCss("reblogIcon"));
+            let $reblogIcon = $header.find(keyToCss("reblogIcon"));
             $reblogIcon.appendTo($header.find(keyToCss("attribution")));
             $post.prepend(newAvatar(parent));
-            $label = $post.find(keyToCss("label")).eq(0).clone();
+            let $label = $post.find(keyToCss("label")).eq(0).clone();
             $label.insertAfter($reblogIcon);
             $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)");
           }
@@ -554,7 +554,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         </li>
         <li>
         <span>content positioning</span>
-        <input class="configInput" type="range" id="c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
+        <input class="configInput" type="range" id="__c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
         </li>
         <li>
         <span>re-add avatars beside posts</span>
@@ -599,7 +599,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         $(keyToCss("navItem")).has('use[href="#managed-icon__earth"]').toggle(!$("#__c7").is(":checked"));
         $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!$("#__c8").is(":checked"));
         if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
-          $(keyToCss("main")).css("margin-left", $("#__c9").val());
+          $(keyToCss("main")).css("margin-left", `${$("#__c9").value}px`);
         } else $(keyToCss("main")).css("margin-left", "100px");
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
