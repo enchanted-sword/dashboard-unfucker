@@ -860,7 +860,6 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         }
         $(`button[aria-label="${tr("Show Blog Statistics")}"`).eq(0).trigger("click");
         $(`[title="${tr("Settings")}"]`).hide();
-        if (["blog", "likes", "following"].includes(pathname)) { document.getElementById("account_button").click(); }
         $header.append($("<nav>"));
         waitFor(keyToCss("sidebar")).then(() => {
           $(keyToCss("sidebar")).prepend($menu);
