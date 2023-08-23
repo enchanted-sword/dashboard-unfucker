@@ -475,6 +475,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $heading = $(`<div class="${keyToClasses("heading").join(" ")}"><h3>Account</h3></div>`);
         var $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
         var $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
+        var $ownAvatar = newAvatar($(keyToCss("displayName")).eq(0).text());
+        $ownAvatar = $ownAvatar.children().eq(0);
         const $menu = $(`
         <div id="__m">
         <div id="__in">
@@ -606,6 +608,8 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
           observer.observe(target, { childList: true, subtree: true });
         } else observer.disconnect;
         $create.detach();
+        $(keyToCss("bar")).prepend($ownAvatar);
+        $ownAvatar.css({position: "absolute", top: "0", left: "-85px"});
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
         $bar.append($header)
