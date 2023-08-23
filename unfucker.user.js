@@ -36,12 +36,12 @@ let featureSet = [
     {"name": "experimentalBlockEditorIsOnlyEditor", "value": false},
     {"name": "tumblrEditorForceTextPostType", "value": false},
     {"name": "configurableTabbedDash", "value": true},
-    {"name": "crowdsignalPollsNpf", "value": true},
-    {"name": "crowdsignalPollsCreate", "value": true},
     {"name": "allowAddingPollsToReblogs", "value": true},
     {"name": "tagSuggestionTwoStepDialog", "value": false},
     {"name": "redpopUnreadNotificationsOnTab", "value": false},
     {"name": "reblogRedesignNew", "value": false},
+    {"name": "crowdsignalPollsNpf", "value": true},
+    {"name": "crowdsignalPollsCreate", "value": true},
     {"name": "adFreeCtaBanner", "value": false}
 ];
 
@@ -86,12 +86,12 @@ if (storageAvailable("localStorage")
         {"name": "experimentalBlockEditorIsOnlyEditor", "value": !pref[11].value},
         {"name": "tumblrEditorForceTextPostType", "value": !pref[11].value},
         {"name": "configurableTabbedDash", "value": pref[12].value?true:false},
-        {"name": "crowdsignalPollsNpf", "value": pref[13].value?true:false},
-        {"name": "crowdsignalPollsCreate", "value": pref[13].value?true:false},
         {"name": "allowAddingPollsToReblogs", "value": pref[13].value?true:false},
         {"name": "tagSuggestionTwoStepDialog", "value": !pref[14].value},
         {"name": "redpopUnreadNotificationsOnTab", "value": !pref[15].value},
         {"name": "reblogRedesignNew", "value": !pref[16].value},
+        {"name": "crowdsignalPollsNpf", "value": true},
+        {"name": "crowdsignalPollsCreate", "value": true},
         {"name": "adFreeCtaBanner", "value": false}
     ];
 }
