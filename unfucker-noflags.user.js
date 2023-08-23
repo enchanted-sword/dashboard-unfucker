@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.1.4
+// @version      4.1.5
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "4.1.4";
+const version = "4.1.5";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
 var $ = window.jQuery;
