@@ -84,15 +84,21 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
           const parent = $post.find(`[aria-label="${tr("Reblog")}"]`).attr("href").split("/")[2];
           if ($header.find(keyToCss("rebloggedFromName")).length) {
             $header.find(keyToCss("reblogged")).hide();
-            $header.find(keyToCss("reblogIcon")).insertBefore($header.find(keyToCss("rebloggedFromName")));
+            let $rebloggedFrom = $header.find(keyToCss("rebloggedFromName"));
+            let $reblogIcon = $header.find(keyToCss("reblogIcon"));
+            $reblogIcon.css("margin-left", "2px");
+            $reblogIcon.insertBefore($rebloggedFrom);
+            $rebloggedFrom.css("margin-left", "5px");
           } else if ($header.find(keyToCss("avatar")).length) {
             $header.find(keyToCss("avatar")).hide();
           } else {
             $header.find(keyToCss("reblogged")).hide();
             let $reblogIcon = $header.find(keyToCss("reblogIcon"));
+            $reblogIcon.css("margin-left", "2px");
             $reblogIcon.appendTo($header.find(keyToCss("attribution")));
             let $label = $post.find(keyToCss("label")).eq(0).clone();
             $label.insertAfter($reblogIcon);
+            $label.css({display: "inline", marginLeft: "5px"});
             $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)");
           }
           if (isDashboard()) $post.prepend(newAvatar(parent));

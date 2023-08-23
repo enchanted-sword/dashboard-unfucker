@@ -158,6 +158,7 @@ $(document).ready(() => {
                     && !$header.find(keyToCss("avatar")).length) {
                     $label = $post.find(keyToCss("label")).eq(0).clone();
                     $label.insertAfter($header.find(keyToCss("reblogIcon")));
+                    $label.css({display: "inline", marginLeft: "5px"});
                     $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
                 }
             }
