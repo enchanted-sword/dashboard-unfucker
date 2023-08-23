@@ -10,10 +10,12 @@ reverting the activity feed and messaging updates, re-enabling the use of the le
 
 Version B uses CSS and jQuery to simply move elements around on the page so that it resembles the non-vertical nav layout. This method isn't as thorough, but it should work for all users.
 
-The script was originally designed for Tampermonkey. Certain versions of the script may work with Violentmonkey and Greasemonkey, but due to the volume of problems they seem to encounter, neither are officially supported at the current time, although this may change in the future. If you want to use a non-userscript injection method, such as an adblocker, simply replace all instances of `unsafeWindow` with `window`.
+The script was originally designed for Tampermonkey. Certain versions of the script may work with Violentmonkey and Greasemonkey, but due to the volume of problems they seem to encounter, neither are officially supported at the current time, although this will hopefully change in the future. If you want to use a non-userscript injection method, such as an adblocker, simply replace all instances of `unsafeWindow` with `window`.
 
-To install, simply click on either `unfucker.user.js` or `unfucker-noflags.user.js` and click the `raw` button with Tampermonkey installed.
-
+## Installation
+- Install the [Tampermonkey](https://www.tampermonkey.net/index.php) extension for your browser.
+- Click on either `unfucker.user.js` or `unfucker-noflags.user.js` to navigate to the script page. the former is the recommended option.
+- Click on the `raw` button on the script page to open the Tampermonkey install page, and hit "Confirm Installation" to install.
 ## Troubleshooting
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
 - If you're missing the dashboard tabs header (the navbar with following, for you, followed tags, etc.), prior to versions 3.5.0a and 4.0.0b it was disabled default, and can be reenabled via the first option in config menu.
