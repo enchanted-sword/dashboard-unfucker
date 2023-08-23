@@ -41,14 +41,15 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         );
       }
     }
-    const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
+const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
       if ($(selector).length) {
         resolve()
       } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
-    });
-    const updatePreferences = (arr) => localStorage.setItem("configPreferences", JSON.stringify(arr));
+});
+const updatePreferences = (arr) => localStorage.setItem("configPreferences", JSON.stringify(arr));
+const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
     
-    getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
+getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       const postSelector = "[tabindex='-1'][data-id] article";
       const newNodes = [];
       const target = document.getElementById("root");
@@ -76,29 +77,25 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         </div>
       </div>
       `);
-      const iconify = posts => {
+      const fixHeader = posts => {
         for (const post of posts) {
-          let $post = $(post)
+          let $post = $(post);
           let $header = $post.find(`header${keyToCss("header")}`);
-          let parent = $post.find(keyToCss("blogLink")).eq(0).text();
+          const parent = $post.find(`[aria-label="${tr("Reblog")}"]`).attr("href").split("/")[2];
           if ($header.find(keyToCss("rebloggedFromName")).length) {
             $header.find(keyToCss("reblogged")).hide();
             $header.find(keyToCss("reblogIcon")).insertBefore($header.find(keyToCss("rebloggedFromName")));
-            $post.prepend(newAvatar(parent));
           } else if ($header.find(keyToCss("avatar")).length) {
             $header.find(keyToCss("avatar")).hide();
-            parent = $post.find(`[aria-label="${tr("Reblog")}"]`).attr("href").split("/")[2];
-            $post.prepend(newAvatar(parent));
           } else {
             $header.find(keyToCss("reblogged")).hide();
             let $reblogIcon = $header.find(keyToCss("reblogIcon"));
             $reblogIcon.appendTo($header.find(keyToCss("attribution")));
-            $post.prepend(newAvatar(parent));
             let $label = $post.find(keyToCss("label")).eq(0).clone();
             $label.insertAfter($reblogIcon);
             $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)");
           }
-          
+          if (isDashboard()) $post.prepend(newAvatar(parent));
         }
       }
       const sortPosts = () => {
@@ -108,7 +105,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
             ...nodes.filter(node => node.matches(postSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
-          iconify(posts);
+          fixHeader(posts);
         }
         else return
       }
@@ -120,9 +117,6 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         newNodes.push(...nodes);
         sortPosts();
       })
-      if (["dashboard", ""].includes(location.pathname.split("/")[1])) {
-        observer.observe(target, { childList: true, subtree: true });
-      }
       const $styleElement = $(`<style id="__s">
       #__h {
         display: flex;
@@ -410,10 +404,8 @@ const storageAvailable = (type) => { //thanks mdn web docs!
           $(keyToCss("navItem")).has('use[href="#managed-icon__sparkle"]').toggle(!value);
           break;
           case "__c10":
-            if (["dashboard", ""].includes(pathname)) {
-              value? observer.observe(target, { childList: true, subtree: true })
-                : observer.disconnect();
-            }
+            value? observer.observe(target, { childList: true, subtree: true })
+              : observer.disconnect();
             break;
           default:
           console.error("checkboxEvent: invalid id");
@@ -426,7 +418,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
           console.log("no need to unfuck");
           if (!$("#__h").length) { $("#__s").remove() }
           return
-        } else if (["dashboard", ""].includes(pathname)
+        } else if (isDashboard()
         && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
           window.tumblr.navigate("/dashboard/following");
           console.log("navigating to following");
@@ -557,7 +549,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         <input class="configInput" type="range" id="__c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
         </li>
         <li>
-        <span>re-add avatars beside posts</span>
+        <span>revert post header changes</span>
         <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
         </li>
         </ul>
@@ -601,6 +593,9 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
           $(keyToCss("main")).css("margin-left", `${$("#__c9").val()}px`);
         } else $(keyToCss("main")).css("margin-left", "100px");
+        if ($("#__c10").val() && isDashboard()) {
+          observer.observe(target, { childList: true, subtree: true });
+        } else observer.disconnect;
         $create.detach();
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
@@ -618,7 +613,7 @@ const storageAvailable = (type) => { //thanks mdn web docs!
             })
             $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!$("#__c3").is(":checked"));
           });
-          if (["dashboard", ""].includes(pathname)) {
+          if (isDashboard()) {
             waitFor(keyToCss("timelineOptionsItemWrapper")).then(() => {
               if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
                 var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
@@ -863,8 +858,8 @@ const storageAvailable = (type) => { //thanks mdn web docs!
       unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(() => {
         $unfuck().catch((e) => { window.setTimeout($unfuck, 400); });
       }));
-    });
-    async function getUtilities() {
+});
+async function getUtilities() {
       let retries = 0;
       while (retries++ < 1000
         && (typeof unsafeWindow.tumblr === "undefined"
@@ -877,4 +872,4 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
         const tr = (string) => `${unsafeWindow.tumblr.languageData.translations[string] || string}`
         return { keyToClasses, keyToCss, tr };
-      }
+}
