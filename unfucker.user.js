@@ -19,6 +19,31 @@
 const version = "3.6.2";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
+var $ = window.jQuery;
+let state = unsafeWindow.___INITIAL_STATE___;
+let featureSet = [
+    {"name": "redpopDesktopVerticalNav", "value": false},
+    {"name": "redpopVirtualScroller", "value": false},
+    {"name": "liveCustomMarqueeData", "value": false},
+    {"name": "liveStreaming", "value": false},
+    {"name": "liveStreamingUserAllowed", "value": false},
+    {"name": "liveStreamingUserEnabled", "value": false},
+    {"name": "liveStreamingWeb", "value": false},
+    {"name": "liveSteamingWebPayments", "value": false},
+    {"name": "domainsSettings", "value": false},
+    {"name": "activityRedesignM3", "value": false},
+    {"name": "messagingRedesign", "value": false},
+    {"name": "experimentalBlockEditorIsOnlyEditor", "value": false},
+    {"name": "tumblrEditorForceTextPostType", "value": false},
+    {"name": "configurableTabbedDash", "value": true},
+    {"name": "crowdsignalPollsNpf", "value": true},
+    {"name": "crowdsignalPollsCreate", "value": true},
+    {"name": "allowAddingPollsToReblogs", "value": true},
+    {"name": "tagSuggestionTwoStepDialog", "value": false},
+    {"name": "redpopUnreadNotificationsOnTab", "value": false},
+    {"name": "reblogRedesignNew", "value": false},
+    {"name": "adFreeCtaBanner", "value": false}
+];
 
 const storageAvailable = (type) => { //thanks mdn web docs!
     let storage;
@@ -41,31 +66,6 @@ const storageAvailable = (type) => { //thanks mdn web docs!
         );
     }
 }
-
-var featureSet = [
-        {"name": "redpopDesktopVerticalNav", "value": false},
-        {"name": "redpopVirtualScroller", "value": false},
-        {"name": "liveCustomMarqueeData", "value": false},
-        {"name": "liveStreaming", "value": false},
-        {"name": "liveStreamingUserAllowed", "value": false},
-        {"name": "liveStreamingUserEnabled", "value": false},
-        {"name": "liveStreamingWeb", "value": false},
-        {"name": "liveSteamingWebPayments", "value": false},
-        {"name": "domainsSettings", "value": false},
-        {"name": "activityRedesignM3", "value": false},
-        {"name": "messagingRedesign", "value": false},
-        {"name": "experimentalBlockEditorIsOnlyEditor", "value": false},
-        {"name": "tumblrEditorForceTextPostType", "value": false},
-        {"name": "configurableTabbedDash", "value": true},
-        {"name": "crowdsignalPollsNpf", "value": true},
-        {"name": "crowdsignalPollsCreate", "value": true},
-        {"name": "allowAddingPollsToReblogs", "value": true},
-        {"name": "tagSuggestionTwoStepDialog", "value": false},
-        {"name": "redpopUnreadNotificationsOnTab", "value": false},
-        {"name": "reblogRedesignNew", "value": false},
-        {"name": "adFreeCtaBanner", "value": false}
-    ];
-
 if (storageAvailable("localStorage")
     && localStorage.getItem("configPreferences")
     && JSON.parse(localStorage.getItem("configPreferences")).length === 17) {
@@ -95,7 +95,6 @@ if (storageAvailable("localStorage")
         {"name": "adFreeCtaBanner", "value": false}
     ];
 }
-
 const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
     for (let x of featureSet) {
@@ -105,9 +104,6 @@ const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     console.log(obf);
     return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
 };
-
-let state = unsafeWindow.___INITIAL_STATE___;
-
 Object.defineProperty(unsafeWindow, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
         state = x;
@@ -126,13 +122,9 @@ Object.defineProperty(unsafeWindow, "___INITIAL_STATE___", { // thanks twilight-
     enumerable: true,
     configurable: true,
 });
-
-var $ = window.jQuery;
-
 const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
     if ($(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
 });
-
 waitFor("head").then(() => {
     const style = document.createElement("style");
     style.innerHTML = `
@@ -148,50 +140,48 @@ waitFor("head").then(() => {
     `;
     document.head.appendChild(style);
 });
-
 const updatePreferences = (arr) => {
     localStorage.setItem("configPreferences", JSON.stringify(arr))
 }
+const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
 
 $(document).ready(() => {
     getUtilities().then(({ keyToCss, keyToClasses }) => {
-        if (["dashboard", ""].includes(location.pathname.split("/")[1])) {
-            const postSelector = "[tabindex='-1'][data-id] article";
-            const newNodes = [];
-            const target = document.getElementById("root");
-            const fixHeader = posts => {
-                for (const post of posts) {
-                    let $post = $(post);
-                    let $header = $post.find(`header${keyToCss("header")}`);
-                    if (!$header.find(keyToCss("rebloggedFromName")).length
-                        && !$header.find(keyToCss("avatar")).length) {
-                        $label = $post.find(keyToCss("label")).eq(0).clone();
-                        $label.insertAfter($header.find(keyToCss("reblogIcon")));
-                        $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
-                    }
+        const postSelector = "[tabindex='-1'][data-id] article";
+        const newNodes = [];
+        const target = document.getElementById("root");
+        const fixHeader = posts => {
+            for (const post of posts) {
+                let $post = $(post);
+                let $header = $post.find(`header${keyToCss("header")}`);
+                if (!$header.find(keyToCss("rebloggedFromName")).length
+                    && !$header.find(keyToCss("avatar")).length) {
+                    $label = $post.find(keyToCss("label")).eq(0).clone();
+                    $label.insertAfter($header.find(keyToCss("reblogIcon")));
+                    $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
                 }
             }
-            const sortPosts = () => {
-                const nodes = newNodes.splice(0);
-                if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null))) {
-                  const posts = [
-                    ...nodes.filter(node => node.matches(postSelector)),
-                    ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
-                  ].filter((value, index, array) => index === array.indexOf(value));
-                  fixHeader(posts);
-                }
-                else return
-            }
-            const observer = new MutationObserver(mutations => {
-                const nodes = mutations
-                    .flatMap(({ addedNodes }) => [...addedNodes])
-                    .filter(node => node instanceof Element)
-                    .filter(node => node.isConnected);
-                newNodes.push(...nodes);
-                sortPosts();
-              })
-              observer.observe(target, { childList: true, subtree: true });
         }
+        const sortPosts = () => {
+            const nodes = newNodes.splice(0);
+            if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null))) {
+              const posts = [
+                ...nodes.filter(node => node.matches(postSelector)),
+                ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
+              ].filter((value, index, array) => index === array.indexOf(value));
+              fixHeader(posts);
+            }
+            else return
+        }
+        const observer = new MutationObserver(mutations => {
+            const nodes = mutations
+                .flatMap(({ addedNodes }) => [...addedNodes])
+                .filter(node => node instanceof Element)
+                .filter(node => node.isConnected);
+            newNodes.push(...nodes);
+            sortPosts();
+          })
+        observer.observe(target, { childList: true, subtree: true });    
         var $styleElement = $("<style id='__s'>");
         $styleElement.appendTo("html");
         $styleElement.text(`
@@ -232,16 +222,26 @@ $(document).ready(() => {
         `);
 
         function checkboxEvent(id, value) {
-            if (id === "__c1") {
-                $(keyToCss("timelineHeader")).toggle(!value);
-            } else if (id === "__c2") {
-                $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!value);
-            } else if (id === "__c3") {
-                $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!value);
-            } else if (id === "__c4") {
-                $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!value);
-            } else if (id === "__c5") {
-                $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!value);
+            switch (id) {
+                case "__c1":
+                    $(keyToCss("timelineHeader")).toggle(!value);
+                    break;
+                case "__c2":
+                    $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!value);
+                    break;
+                case "__c3":
+                    $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!value);
+                    break;
+                case "__c4":
+                    $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!value);
+                    break;
+                case "__c5":
+                    $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!value);
+                    break;
+                case "__c6":
+                    $("#__c11,#__c17").trigger("click");
+                    $("#__cta").children().has("#__c11,#__c17").toggle(value);
+                    break;
             }
         }
 
@@ -249,7 +249,7 @@ $(document).ready(() => {
             if ($("#__c").length) {
                 console.log("page already processed")
                 return
-            } else if (["/dashboard", "/"].includes(location.pathname) && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
+            } else if (isDashboard() && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
                 window.tumblr.navigate("/dashboard/following");
                 console.log("navigating to following");
                 throw "navigating tabs";
@@ -421,7 +421,7 @@ $(document).ready(() => {
                                 <input class="configInput" type="checkbox" id="__c16" name="15" ${configPreferences[15].value}>
                             </li>
                             <li>
-                                <span>re-add icons to reblogs</span>
+                                <span>revert post header changes</span>
                                 <input class="configInput" type="checkbox" id="__c17" name="16" ${configPreferences[16].value}>
                             </li>
                         </ul>
@@ -481,26 +481,6 @@ $(document).ready(() => {
                 window.setTimeout($unfuck, 400)
             });
         }));
-
-        const $iconify = () => {
-            let links = $(keyToCss("blogLink")).has(keyToCss("brokenBlog"));
-            if (links.length === 0) return
-            for (let i = 0; i < links.length; ++i) {
-                let link = links.eq(i);
-                let wrapper = link.find(keyToCss("avatarWrapperInner"));
-                let blog = link.attr("title");
-                wrapper.find(keyToCss("brokenBlog")).removeClass();
-                wrapper.append($(`
-                    <div class="${keyToClasses("placeholder").join(" ")}" style="padding-bottom: 100%;">
-                        <img class="${keyToClasses("image").join(" ")} ${keyToClasses("visible").join(" ")}" sizes="64px" alt="Avatar" style="width: 64px; height: 64px;" loading="eager" src="https://api.tumblr.com/v2/blog/${blog}/avatar/64">
-                    </div>
-                `));
-            }
-        }
-
-        $(window).on("scroll", () => {
-            $iconify();
-        });
     });
 
     async function getUtilities() {
