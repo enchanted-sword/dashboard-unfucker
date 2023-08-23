@@ -335,13 +335,16 @@ $(document).ready(() => {
                                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
                             </li>
                             <li>
-                                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new">report a bug</a>
+                                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
                             </li>
                             <li>
                                 <a target="_blank" href="${updateSrc}">update</a>
                             </li>
                             <li>
                                 <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="https://www.paypal.com/paypalme/dragongirled">support my work!</a>
                             </li>
                         </ul>
                     </div>
