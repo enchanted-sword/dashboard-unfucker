@@ -465,6 +465,11 @@ $(document).ready(() => {
                     });
                 });
             }
+            if (!$("#__c6").is(":checked")) {
+                $("#__cta").children().has("#__c11,#__c17").hide();
+                if ($("#__c11").is(":checked")) $("#__c11").trigger("click");
+                if ($("#__c17").is(":checked")) $("#__c17").trigger("click");
+            }
             if ($("#__c8").is(":checked")) {
                 $("#__s").text(`
                     ${$("#__s").text()}
