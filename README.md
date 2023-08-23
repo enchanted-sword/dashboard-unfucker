@@ -10,7 +10,7 @@ reverting the activity feed and messaging updates, re-enabling the use of the le
 
 Version B uses CSS and jQuery to simply move elements around on the page so that it resembles the non-vertical nav layout. This method isn't as thorough, but it should work for all users.
 
-The script was originally designed for Tampermonkey, but it's also compatible with Violentmonkey, and Greasemonkey. If you want to use a non-userscript injection method, such as an adblocker, simply replace all instances of `unsafeWindow` with `window`.
+The script was originally designed for Tampermonkey. Certain versions of the script may work with Violentmonkey and Greasemonkey, but due to the volume of problems they seem to encounter, neither are officially supported at the current time, although this may change in the future. If you want to use a non-userscript injection method, such as an adblocker, simply replace all instances of `unsafeWindow` with `window`.
 
 To install, simply click on either `unfucker.user.js` or `unfucker-noflags.user.js` and click the `raw` button with Tampermonkey installed.
 
