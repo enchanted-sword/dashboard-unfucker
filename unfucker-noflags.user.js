@@ -476,7 +476,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $heading = $(`<div class="${keyToClasses("heading").join(" ")}"><h3>Account</h3></div>`);
         var $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
         var $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
-        const ownName = $(keyToCss("displayName")).eq(0).text();
+        const ownName = $("#account_subnav").find($(keyToCss("displayName"))).eq(0).text();
         var $ownAvatar = $(`
           <div class="__avatarOuter" style="position: absolute; top: 0; left: -85px;">
             <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
