@@ -155,9 +155,9 @@ $(document).ready(() => {
                 let $post = $(post);
                 let $header = $post.find(`header${keyToCss("header")}`);
                 if (!$header.find(keyToCss("rebloggedFromName")).length
-                    && !$header.find(keyToCss("avatar")).length) {
-                        $header.find($(keyToCss("followButton"))).eq(0).hide();
-                    $label = $post.find(keyToCss("label")).eq(0).clone();
+                    && $header.find(keyToCss("reblogIcon")).length) {
+                    $header.find($(keyToCss("followButton"))).eq(0).hide();
+                    let $label = $post.find(keyToCss("label")).eq(0).clone();
                     $label.insertAfter($header.find(keyToCss("reblogIcon")));
                     $label.css({display: "inline", marginLeft: "5px"});
                     $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
