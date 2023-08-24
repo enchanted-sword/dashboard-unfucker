@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.1.6
+// @version      4.1.7
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -96,6 +96,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             let $reblogIcon = $header.find(keyToCss("reblogIcon"));
             $reblogIcon.css("margin-left", "2px");
             $reblogIcon.appendTo($header.find(keyToCss("attribution")));
+            $header.find($(keyToCss("followButton"))).eq(0).hide();
             let $label = $post.find(keyToCss("label")).eq(0).clone();
             $label.insertAfter($reblogIcon);
             $label.css({display: "inline", marginLeft: "5px"});
