@@ -14,8 +14,7 @@ The script was originally designed for Tampermonkey. Certain versions of the scr
 
 ## Installation
 - Install the [Tampermonkey](https://www.tampermonkey.net/index.php) extension for your browser.
-- Click on either `unfucker.user.js` or `unfucker-noflags.user.js` to navigate to the script page. the former is the recommended option.
-- Click on the `raw` button on the script page to open the Tampermonkey install page, and hit "Confirm Installation" to install.
+- Click on either [unfucker.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/unfucker.user.js) or [unfucker-noflags.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/unfucker-noflags.user.js) (the former is the recommended option) to install.
 ## Troubleshooting
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
 - If you're missing the dashboard tabs header (the navbar with following, for you, followed tags, etc.), prior to versions 3.5.0a and 4.0.0b it was disabled default, and can be reenabled via the first option in config menu.
