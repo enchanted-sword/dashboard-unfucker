@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.1.5
+// @version      4.1.6
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -475,8 +475,29 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         var $heading = $(`<div class="${keyToClasses("heading").join(" ")}"><h3>Account</h3></div>`);
         var $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
         var $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
-        var $ownAvatar = newAvatar($(keyToCss("displayName")).eq(0).text());
-        $ownAvatar = $ownAvatar.children().eq(0);
+        const ownName = $(keyToCss("displayName")).eq(0).text();
+        var $ownAvatar = $(`
+          <div class="__avatarOuter" style="position: absolute; top: 0; left: -85px;">
+            <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
+              <span data-testid="controlled-popover-wrapper" class="${keyToClasses("targetWrapper")}">
+                <span class="${keyToClasses("targetWrapper")}">
+                  <a href="https://${ownName}.tumblr.com/" title="${ownName}" target="_blank" rel="noopener" role="link" class="${keyToClasses("blogLink").join(" ")}" tabindex="0">
+                    <div class="__avatarInner" style="width: 64px; height: 64px;">
+                      <div class="__avatarWrapperInner">
+                        <div class="__placeholder" style="padding-bottom: 100%;">
+                          <img
+                            class="__avatarImage"
+                            src="https://api.tumblr.com/v2/blog/${ownName}/avatar"
+                            sizes="64px" alt="${tr("Avatar")}" style="width: 64px; height: 64px;" loading="eager">
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </span>
+              </span>
+            </div>
+          </div>`
+        );
         const $menu = $(`
         <div id="__m">
         <div id="__in">
@@ -609,7 +630,6 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         } else observer.disconnect;
         $create.detach();
         $(keyToCss("bar")).prepend($ownAvatar);
-        $ownAvatar.css({position: "absolute", top: "0", left: "-85px"});
         $(keyToCss("bluespaceLayout")).prepend($bar);
         $logo.detach()
         $bar.append($header)
@@ -867,9 +887,9 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         console.log("dashboard fixed!");
       }
       requestAnimationFrame(() => { $unfuck() });
-      unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(() => {
-        $unfuck().catch((e) => { window.setTimeout($unfuck, 400); });
-      }));
+      unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(() => 
+        window.setTimeout($unfuck().catch((e) => window.setTimeout($unfuck, 400)), 400)
+      ));
 });
 async function getUtilities() {
       let retries = 0;
