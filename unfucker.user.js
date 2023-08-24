@@ -16,7 +16,7 @@
 
 'use strict';
 
-const version = "3.6.4";
+const version = "3.6.5";
 const type = "a";
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
 var $ = window.jQuery;

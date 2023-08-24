@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "4.1.5";
+const version = "4.1.7";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
 var $ = window.jQuery;
