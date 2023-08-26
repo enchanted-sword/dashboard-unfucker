@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.2.0
+// @version      4.2.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "4.1.7";
+const version = "4.2.1";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
 const match = [
@@ -827,7 +827,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
     let $settingsSubmenu = settingsSubmenu();
     let $subnav = $("#account_subnav");
     let $blogs = $(keyToCss("blogTile"));
-    let $bar = $(`${keyToCss("main")} ${keyToCss("bar")}`);
+    let $bar = $(`${keyToCss("postColumn")} > ${keyToCss("bar")}`);
     let $timelineHeader = $(keyToCss("timelineHeader"));
     let $navItems = $navigationLinks.children();
     let $main = $(keyToCss("main"));
