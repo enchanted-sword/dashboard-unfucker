@@ -2,19 +2,22 @@
 Unfucks the twitterification of tumblr's dashboard by reverting it to the old layout as closely as possible
 
 There are two versions:
-- Version A: unfucker.user.js
-- Version B: unfucker-noflags.user.js
+- The default version (recommended)
+- The no-flags version
+- The icon-only version
 
-Version A uses window property flags to completely disable the vertical nav layout update for your browser, as well as offering other features such as 
-reverting the activity feed and messaging updates, re-enabling the use of the legacy post editor, and more. However, this process is finicky, and does not appear to work for all users.
+The default version uses window property flags to completely disable the vertical nav layout update for your browser, as well as offering other features such as 
+reverting the activity feed and messaging updates, re-enabling the use of the legacy post editor, and more. This version is the recommended version, but if it consistently fails to execute, you may have to use the no-flags version.
 
-Version B uses CSS and jQuery to simply move elements around on the page so that it resembles the non-vertical nav layout. This method isn't as thorough, but it should work for all users.
+The no-flags version uses CSS and jQuery to simply move elements around on the page so that it resembles the non-vertical nav layout. This method isn't as thorough, but it should work for all users.
+
+And lastly, the icon-only version only re-adds the icons to posts on the dashboard and reverts the post header changes.
 
 The script was originally designed for Tampermonkey. Certain versions of the script may work with Violentmonkey and Greasemonkey, but due to the volume of problems they seem to encounter, neither are officially supported at the current time, although this will hopefully change in the future. If you want to use a non-userscript injection method, such as an adblocker, simply replace all instances of `unsafeWindow` with `window`.
 
 ## Installation
 - Install the [Tampermonkey](https://www.tampermonkey.net/index.php) extension for your browser.
-- Click on either [unfucker.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/unfucker.user.js) or [unfucker-noflags.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/unfucker-noflags.user.js) (the former is the recommended option) to install.
+- Click on either [unfucker.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/unfucker.user.js), [unfucker-noflags.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/unfucker-noflags.user.js), [icons-only.user.js](https://github.com/enchanted-sword/dashboard-unfucker/raw/main/icons-only.user.js) or to install.
 ## Troubleshooting
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
 - If you're missing the dashboard tabs header (the navbar with following, for you, followed tags, etc.), prior to versions 3.5.0a and 4.0.0b it was disabled default, and can be reenabled via the first option in config menu.
