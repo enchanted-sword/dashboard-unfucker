@@ -146,7 +146,7 @@ const updatePreferences = (arr) => {
 const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
 
 $(document).ready(() => {
-    getUtilities().then(({ keyToCss, keyToClasses }) => {
+    getUtilities().then(({ keyToCss }) => {
         const postSelector = "[tabindex='-1'][data-id] article";
         const newNodes = [];
         const target = document.getElementById("root");
