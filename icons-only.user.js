@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         tumblr icon fix
-// @version      1.0
+// @version      1.1
 // @description  re-adds icons besides posts and fixes post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
