@@ -42,6 +42,7 @@ getUtilities().then(({ keyToCss, tr }) => {
       }
       ${keyToCss("timelineHeader")} {
         left: -85px;
+        width: calc(100% + 85px);
       }
       .__stickyContainer {
         color: RGB(var(--white-on-dark));
@@ -87,6 +88,11 @@ getUtilities().then(({ keyToCss, tr }) => {
         object-fit: cover;
         visibility: visible;
       }
+      .__anonymous {
+        background-image: url(/pop/src/assets/images/avatar/anonymous_avatar_40-3af33dc0.png);
+        background-size: 100% 100%;
+        border-radius: var(--border-radius-small);
+      }
     </style>
   `);
   const newAvatar = (blog) => $(`
@@ -120,7 +126,15 @@ getUtilities().then(({ keyToCss, tr }) => {
     for (const post of posts) {
       let $post = $(post);
       let $header = $post.find(`header${keyToCss("header")}`);
-      const parent = $post.find(`[aria-label="${tr("Reblog")}"]`).attr("href").split("/")[2];
+      let parent = "";
+      if (location.pathname.split("/").includes("inbox")
+        || location.pathname.split("/").includes("messages")) {
+        parent = $header.find(keyToCss("blogLink")).eq(1).text()
+          || "anon";
+      } else {
+        parent = $header.find(keyToCss("blogLink")).eq(0).text()
+        || $post.find(`[aria-label="${tr("Reblog")}"]`)?.attr("href").split("/")[2];
+      }
       if ($header.find(keyToCss("rebloggedFromName")).length) {
         $header.find(keyToCss("reblogged")).hide();
         let $rebloggedFrom = $header.find(keyToCss("rebloggedFromName"));
@@ -138,10 +152,22 @@ getUtilities().then(({ keyToCss, tr }) => {
         $header.find($(keyToCss("followButton"))).eq(0).hide();
         let $label = $post.find(keyToCss("label")).eq(0).clone();
         $label.insertAfter($reblogIcon);
-        $label.css({ display: "inline", marginLeft: "5px" });
+        $label.css({display: "inline", marginLeft: "5px"});
         $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)");
       }
-      if (["dashboard", ""].includes(location.pathname.split("/")[1])) $post.prepend(newAvatar(parent));
+      if (parent !== "anon") $post.prepend(newAvatar(parent));
+      else {
+        $header.find(keyToCss("attribution")).css("font-weight", "bold");
+        $post.prepend(
+          $(`
+            <div class="__stickyContainer" data-testid="sticky-avatar-container">
+              <div class="__avatarOuter">
+                <figure class="__anonymous" aria-label="${tr("Anonymous avatar")}" style="width: 64px; height: 64px;"></figure>
+              </div>
+            </div>
+          `)
+        );
+      }
     }
   };
   const sortPosts = () => {
