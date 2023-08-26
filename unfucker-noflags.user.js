@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.2.1
+// @version      4.2.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -15,7 +15,7 @@
 
 'use strict';
 
-const version = "4.2.1";
+const version = "4.2.2";
 const type = "b"
 const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
 const match = [
@@ -670,7 +670,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       return;
     } else if (isDashboard()
       && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
-      window.tumblr.navigate("/dashboard/following");
+      unsafeWindow.tumblr.navigate("/dashboard/following");
       console.log("navigating to following");
       throw "navigating tabs";
     } else if (!$(keyToCss("navigationLinks")).length) {
@@ -903,9 +903,9 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       if (isDashboard()) { //reorder tabs for accounts made after 8 may 2023
         waitFor(keyToCss("timelineOptionsItemWrapper")).then(() => {
           if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
-            var $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
-            var $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
-            $forYou.insertAfter($following);
+            let $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
+            let $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
+            $following.insertBefore($forYou);
           }
         });
       }
