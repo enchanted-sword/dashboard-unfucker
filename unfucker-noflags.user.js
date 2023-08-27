@@ -341,7 +341,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
     </style>
   `);
 
-  const newAvatar = (blog) => $(`
+  const newAvatar = blog => $(`
     <div class="__stickyContainer" data-testid="sticky-avatar-container">
       <div class="__avatarOuter">
         <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
@@ -365,6 +365,31 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
             </span>
           </span>
         </div>
+      </div>
+    </div>
+  `);
+  const ownAvatar = ownName => $(`
+    <div class="__avatarOuter" style="position: absolute; top: 0; left: -85px;">
+      <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
+        <span data-testid="controlled-popover-wrapper" class="__targetWrapper">
+          <span class="__targetWrapper">
+            <a href="https://${ownName}.tumblr.com/" title="${ownName}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
+              <div class="__avatarInner" style="width: 64px; height: 64px;">
+                <div class="__avatarWrapperInner">
+                  <div class="__placeholder" style="padding-bottom: 100%;">
+                    <img
+                    class="__avatarImage"
+                    src="https://api.tumblr.com/v2/blog/${ownName}/avatar"
+                    sizes="64px" 
+                    alt="${tr("Avatar")}" 
+                    style="width: 64px; height: 64px;" 
+                    loading="eager">
+                  </div>
+                </div>
+              </div>
+            </a>
+          </span>
+        </span>
       </div>
     </div>
   `);
@@ -663,23 +688,39 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
       console.error("checkboxEvent: invalid id");
     }
   };
-  const unfuck = async function () {
-    if ($(keyToCss("headerWrapper")).length) { //initial status checks to determine whether to inject or not
+  const initialChecks = () => {
+    if ($("#__m").length) { //initial status checks to determine whether to inject or not
       console.log("no need to unfuck");
-      if (!$("#__h").length) { $("#__s").remove() }
-      return;
-    } else if (isDashboard()
-      && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
-      unsafeWindow.tumblr.navigate("/dashboard/following");
-      console.log("navigating to following");
-      throw "navigating tabs";
+      return false;
     } else if (!$(keyToCss("navigationLinks")).length) {
       console.error("page not loaded, retrying...");
       throw "page not loaded";
-    } else { console.log("unfucking dashboard...") };
-
-    const pathname = location.pathname.split("/")[1];
-    let configPreferences = [
+      return false;
+    } else {
+      console.log("unfucking dashboard...");
+      return true;
+    };
+  };
+  const followingAsDefault = async function () {
+    waitFor($(keyToCss("timeline"))).then(() => {
+      if (isDashboard()
+        && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
+        unsafeWindow.tumblr.navigate("/dashboard/following");
+        console.log("navigating to following");
+        throw "navigating tabs";
+      } else if (isDashboard) {
+        waitFor(keyToCss("timelineOptionsItemWrapper")).then(() => {
+          if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length) {
+            let $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
+            let $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
+            $following.insertBefore($forYou);
+          }
+        });
+      }
+    });
+  };
+  const getPreferences = () => {
+    let preferences = [
       { type: "checkbox", value: "" },
       { type: "checkbox", value: "checked" },
       { type: "checkbox", value: "checked" },
@@ -694,255 +735,139 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
     if (storageAvailable("localStorage")) {
       if (!localStorage.getItem("configPreferences")
       || JSON.parse(localStorage.getItem("configPreferences")).length < 10) {
-        updatePreferences(configPreferences)
-      } else { configPreferences = JSON.parse(localStorage.getItem("configPreferences")); }
+        updatePreferences(preferences)
+      } else { preferences = JSON.parse(localStorage.getItem("configPreferences")); }
     };
-    const ownName = $("#account_subnav").find($(keyToCss("displayName"))).eq(0).text();
-    const blogs = unsafeWindow.___INITIAL_STATE___.queries.queries[0].state.data.user.blogs;
-    let $navigationLinks = $(keyToCss("navigationLinks"));
-    let $content = {};
-    let $headerWrapper = $("<nav>", { class: keyToClasses("headerWrapper").join(" "), id: "__hw" });
-    let $header = $("<header>", { id: "__h" });
-    let $logoContainer = $(keyToCss("logoContainer"));
-    let $createPost = $(keyToCss("createPost"));
-    let $heading = $(`<div class="${keyToClasses("heading").join(" ")}"><h3>Account</h3></div>`);
-    let $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
-    let $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
-    let $ownAvatar = $(`
-      <div class="__avatarOuter" style="position: absolute; top: 0; left: -85px;">
-        <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
-          <span data-testid="controlled-popover-wrapper" class="__targetWrapper">
-            <span class="__targetWrapper">
-              <a href="https://${ownName}.tumblr.com/" title="${ownName}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
-                <div class="__avatarInner" style="width: 64px; height: 64px;">
-                  <div class="__avatarWrapperInner">
-                    <div class="__placeholder" style="padding-bottom: 100%;">
-                      <img
-                      class="__avatarImage"
-                      src="https://api.tumblr.com/v2/blog/${ownName}/avatar"
-                      sizes="64px" 
-                      alt="${tr("Avatar")}" 
-                      style="width: 64px; height: 64px;" 
-                      loading="eager">
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </span>
-          </span>
-        </div>
+    return preferences;
+  };
+  const configMenu = (version, updateSrc, pref) => $(`
+    <div id="__m">
+      <div id="__in">
+        <h1>dashboard unfucker v${version}b</h1>
+        <button id="__ab">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
+            <use href="#managed-icon__ellipsis"></use>
+          </svg>
+        </button>
+        <button id="__cb">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
+            <use href="#managed-icon__settings"></use>
+          </svg>
+        </button>
       </div>
-    `);
-    let $menu = $(`
-      <div id="__m">
-        <div id="__in">
-          <h1>dashboard unfucker v${version}b</h1>
-          <button id="__ab">
-            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
-              <use href="#managed-icon__ellipsis"></use>
-            </svg>
-          </button>
-          <button id="__cb">
-            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
-              <use href="#managed-icon__settings"></use>
-            </svg>
-          </button>
-        </div>
-        <div id="__a" style="display: none;">
-          <ul id="__am">
-            <li class="infoHeader">
-              <span>about</span>
-            </li>
-            <li style="flex-flow: column wrap">
-              <span style="width: 100%;">version: <b>v${version}b</b></span><br>
-              <span style="width: 100%;">type "<b>b</b>" uses jQuery instead of window property feature toggles</span>
-            </li>
-            <li>
-              <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
-            </li>
-            <li>
-              <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
-            </li>
-            <li>
-              <a target="_blank" href="${updateSrc}">update</a>
-            </li>
-            <li>
-              <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
-            </li>
-            <li>
-              <a target="_blank" href="https://www.paypal.com/paypalme/dragongirled">support my work!</a>
-            </li>
-          </ul>
-        </div>
-        <div id="__c" style="display: none;">
-          <ul id="__ct">
-            <li class="infoHeader">
-              <span>general configuration</span>
-            </li>
-            <li>
-              <span>hide dashboard tabs</span>
-              <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
-            </li>
-            <li>
-              <span>hide recommended blogs</span>
-              <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
-            </li>
-            <li>
-              <span>hide tumblr radar</span>
-              <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
-            </li>
-            <li>
-              <span>hide explore</span>
-              <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
-            </li>
-            <li>
-              <span>hide tumblr shop</span>
-              <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
-            </li>
-            <li>
-              <span>hide tumblr live</span>
-              <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
-            </li>
-            <li>
-              <span>hide domains</span>
-              <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
-            </li>
-            <li>
-              <span>hide ad-free</span>
-              <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
-            </li>
-            <li>
-              <span>content positioning</span>
-              <input class="configInput" type="range" id="__c9" name="8" min="-500" max="500" step="1" value="${configPreferences[8].value}">
-            </li>
-            <li>
-              <span>revert post header changes</span>
-              <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
-            </li>
-          </ul>
-        </div>
+      <div id="__a" style="display: none;">
+        <ul id="__am">
+          <li class="infoHeader">
+            <span>about</span>
+          </li>
+          <li style="flex-flow: column wrap">
+            <span style="width: 100%;">version: <b>v${version}b</b></span><br>
+            <span style="width: 100%;">type "<b>b</b>" uses jQuery instead of window property feature toggles</span>
+          </li>
+          <li>
+            <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
+          </li>
+          <li>
+            <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
+          </li>
+          <li>
+            <a target="_blank" href="${updateSrc}">update</a>
+          </li>
+          <li>
+            <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
+          </li>
+          <li>
+            <a target="_blank" href="https://www.paypal.com/paypalme/dragongirled">support my work!</a>
+          </li>
+        </ul>
       </div>
-    `);
-    let $settings = newSettings();
-    let $settingsSubmenu = settingsSubmenu();
-    let $subnav = $("#account_subnav");
-    let $blogs = $(keyToCss("blogTile"));
-    let $bar = $(`${keyToCss("postColumn")} > ${keyToCss("bar")}`);
-    let $timelineHeader = $(keyToCss("timelineHeader"));
-    let $navItems = $navigationLinks.children();
-    let $main = $(keyToCss("main"));
-    let $bluespaceLayout = $(keyToCss("bluespaceLayout"));
-    let $navSubHeader = $(keyToCss("navSubHeader"));
-    let $tabsHeader = $(keyToCss("tabsHeader"));
+      <div id="__c" style="display: none;">
+        <ul id="__ct">
+          <li class="infoHeader">
+            <span>general configuration</span>
+          </li>
+          <li>
+            <span>hide dashboard tabs</span>
+            <input class="configInput" type="checkbox" id="__c1" name="0" ${pref[0].value}>
+          </li>
+          <li>
+            <span>hide recommended blogs</span>
+            <input class="configInput" type="checkbox" id="__c2" name="1" ${pref[1].value}>
+          </li>
+          <li>
+            <span>hide tumblr radar</span>
+            <input class="configInput" type="checkbox" id="__c3" name="2" ${pref[2].value}>
+          </li>
+          <li>
+            <span>hide explore</span>
+            <input class="configInput" type="checkbox" id="__c4" name="3" ${pref[3].value}>
+          </li>
+          <li>
+            <span>hide tumblr shop</span>
+            <input class="configInput" type="checkbox" id="__c5" name="4" ${pref[4].value}>
+          </li>
+          <li>
+            <span>hide tumblr live</span>
+            <input class="configInput" type="checkbox" id="__c6" name="5" ${pref[5].value}>
+          </li>
+          <li>
+            <span>hide domains</span>
+            <input class="configInput" type="checkbox" id="__c7" name="6" ${pref[6].value}>
+          </li>
+          <li>
+            <span>hide ad-free</span>
+            <input class="configInput" type="checkbox" id="__c8" name="7" ${pref[7].value}>
+          </li>
+          <li>
+            <span>content positioning</span>
+            <input class="configInput" type="range" id="__c9" name="8" min="-500" max="500" step="1" value="${pref[8].value}">
+          </li>
+          <li>
+            <span>revert post header changes</span>
+            <input class="configInput" type="checkbox" id="__c10" name="9" ${pref[9].value}>
+          </li>
+        </ul>
+      </div>
+    </div>
+  `);
+  const initializePreferences = (pref, pathname) => {
+    const $timelineHeader = $(keyToCss("timelineHeader"));
+    const $navItems = $(keyToCss("navigationLinks")).children();
+    const $main = $(keyToCss("main"));
 
-    $("html").append($menu); //menu functions
-    $("#__cb").on("click", () => {
-      if ($("#__c").is(":hidden")) {
-        $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-      } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-      $("#__c").toggle();
-    });
-    $("#__ab").on("click", () => {
-      if ($("#__a").is(":hidden")) {
-        $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-      } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-      $("#__a").toggle();
-    });
-    $(".configInput").on("change", function () {
-      if ($(this).attr("type") === "checkbox") {
-        configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
-        checkboxEvent($(this).attr("id"), $(this).is(":checked"));
-      }
-      else {
-        configPreferences[Number($(this).attr("name"))].value = $(this).val();
-        if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
-          $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
-        }
-      }
-      updatePreferences(configPreferences);
-    });
-
-    $(document).on("click", () => { //add popover functionality to account subnav
-      if (!$(`${keyToCss("subNav")}:hover`).length
-        && !$subnav.eq(0).attr("hidden")) {
-        try { document.getElementById("account_button").click(); }
-        catch { throw "element not loaded"}
-      }
-    });
-
-    $timelineHeader.toggle(!configPreferences[0].value); //initialize preferences
-    $navItems.has('use[href="#managed-icon__explore"]').toggle(!configPreferences[3].value);
-    $navItems.has('use[href="#managed-icon__shop"]').toggle(!configPreferences[4].value);
+    $timelineHeader.toggle(!pref[0].value);
+    waitFor(keyToCss("recommendedBlogs")).then(() => {
+      $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!pref[1].value);
+    })
+    waitFor(keyToCss("radar")).then(() => {
+      $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!pref[2].value);
+    })
+    $navItems.has('use[href="#managed-icon__explore"]').toggle(!pref[3].value);
+    $navItems.has('use[href="#managed-icon__shop"]').toggle(!pref[4].value);
     $navItems.has('use[href="#managed-icon__live-video"]')
       .add($navItems.has('use[href="#managed-icon__coins"]'))
       .add($(keyToCss("listTimelineObject"))
-      .has(keyToCss("liveMarqueeTitle"))).toggle(!configPreferences[5].value);
-    $navItems.has('use[href="#managed-icon__earth"]').toggle(!configPreferences[6].value);
-    $navItems.has('use[href="#managed-icon__sparkle"]').toggle(!configPreferences[7].value);
+      .has(keyToCss("liveMarqueeTitle"))).toggle(!pref[5].value);
+    $navItems.has('use[href="#managed-icon__earth"]').toggle(!pref[6].value);
+    $navItems.has('use[href="#managed-icon__sparkle"]').toggle(!pref[7].value);
     if ($main.length 
       && matchPathname() 
       && !["search", "tagged"].includes(pathname)) {
-      $main.css("margin-left", `${configPreferences[8].value}px`);
+      $main.css("margin-left", `${pref[8].value}px`);
     } 
-    if (configPreferences[9].value && headerFixTarget()) {
+    if (pref[9].value && headerFixTarget()) {
       fixHeader($(postSelector));
       observer.observe(target, { childList: true, subtree: true });
     } else observer.disconnect;
-    if (matchPathname()) { //run on non-permalink pages
-      $tabsHeader.insertAfter($bar);
-      $content = $(keyToCss("main"));
-      waitFor(keyToCss("sidebar")).then(() => { //wait for sidebar to load
-        $(keyToCss("sidebar")).prepend($menu);
-        let $search = $(keyToCss("searchSidebarItem"));
-        $search.insertAfter($logoContainer);
-        waitFor(keyToCss("recommendedBlogs")).then(() => { //loads slower than other items
-          $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!configPreferences[1].value);
-        })
-        $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!configPreferences[2].value);
-      });
-      if (isDashboard()) { //reorder tabs for accounts made after 8 may 2023
-        waitFor(keyToCss("timelineOptionsItemWrapper")).then(() => {
-          if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length ? true : false) {
-            let $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
-            let $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
-            $following.insertBefore($forYou);
-          }
-        });
-      }
-    } else { //permalink pages
-      $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`);
-      $("#__h").append(newSearch());
-    };
-    if (["search", "tagged"].includes(pathname)) {
-      $content.css("max-width", "fit-content");
-    };
-    $bar.prepend($ownAvatar);
-    $bluespaceLayout.prepend($headerWrapper);
-    $headerWrapper.append($header)
-    $header.append($logoContainer);
-    $header.append($navigationLinks);
-    $header.append($createPost);
-    $navSubHeader.addClass(keyToClasses("heading").join(" "));
-    $subnav.prepend($heading);
-    $heading.append($(keyToCss("logoutButton")));
-    $(`[href="/likes"] ${keyToCss("childWrapper")}`).prepend($likeIcon);
-    $(`[href="/following"] ${keyToCss("childWrapper")}`).prepend($followingIcon);
-    $settings.insertAfter($(keyToCss("navItem")).has("span:contains('Following')"));
-    $settingsSubmenu.insertAfter($settings);
-    $settingsSubmenu.hide();
-    $settings.on("click", () => {
-      if ($settingsSubmenu.is(":hidden")) {
-        $("#settings_caret").css("transform", "rotate(180deg)");
-      }
-      else { $("#settings_caret").css("transform", "rotate(0deg)") }
-      $settingsSubmenu.toggle();
-    });
+  };
+  const addAccountStats = blogs => {
+    const $blogs = $(keyToCss("blogTile"));
     for (let i = 0; i < blogs.length; ++i) {
-      let $blog = $blogs.eq(i);
-      let blog = blogs[i];
-      let $button = newCaret();
+      const $blog = $blogs.eq(i);
+      const blog = blogs[i];
+      const $button = newCaret();
       $blog.find(keyToCss("actionButtons")).append($button);
-      var $accountStats = accountStats(blog);
+      const $accountStats = accountStats(blog);
       $accountStats.insertAfter($blog);
       if (blog.isGroupChannel) {
         var $members = $(`
@@ -965,25 +890,124 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $(keyToCss("accountStats")).eq(i + 1).toggle();
       });
     }
-    $(`button[aria-label="${tr("Show Blog Statistics")}"`).eq(0).trigger("click");
+  }
+  const reorderPage = (ownName, pathname, blogs, $menu) => {
+    let $content = {};
+    const $navigationLinks = $(keyToCss("navigationLinks"));
+    const $headerWrapper = $("<nav>", { class: keyToClasses("headerWrapper").join(" "), id: "__hw" });
+    const $header = $("<header>", { id: "__h" });
+    const $logoContainer = $(keyToCss("logoContainer"));
+    const $createPost = $(keyToCss("createPost"));
+    const $heading = $(`<div class="${keyToClasses("heading").join(" ")}"><h3>Account</h3></div>`);
+    const $likeIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="18" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__like-filled"></use></svg>`);
+    const $followingIcon = $(`<svg xmlns="http://www.w3.org/2000/svg" height="21" width="20" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);"><use href="#managed-icon__following"></use></svg>`);
+    const $settings = newSettings();
+    const $settingsSubmenu = settingsSubmenu();
+    const $subnav = $("#account_subnav");
+    const $bar = $(`${keyToCss("postColumn")} > ${keyToCss("bar")}`);
+    const $bluespaceLayout = $(keyToCss("bluespaceLayout"));
+    const $navSubHeader = $(keyToCss("navSubHeader"));
+    const $tabsHeader = $(keyToCss("tabsHeader"));
+
+    addAccountStats(blogs);
+    if (matchPathname()) {
+      $tabsHeader.insertAfter($bar);
+      $content = $(keyToCss("main"));
+      waitFor(keyToCss("sidebar")).then(() => {
+        $(keyToCss("sidebar")).prepend($menu);
+        let $search = $(keyToCss("searchSidebarItem"));
+        $search.insertAfter($logoContainer);
+      });
+    } else {
+      $content = $(`${keyToCss("mainContentWrapper")} ${keyToCss("container")}`);
+      $("#__h").append(newSearch());
+    };
+    if (["search", "tagged"].includes(pathname)) {
+      $content.css("max-width", "fit-content");
+    };
+    $bar.prepend(ownAvatar(ownName));
+    $bluespaceLayout.prepend($headerWrapper);
+    $headerWrapper.append($header)
+    $header.append($logoContainer);
+    $header.append($navigationLinks);
+    $header.append($createPost);
+    $navSubHeader.addClass(keyToClasses("heading").join(" "));
+    $subnav.prepend($heading);
+    $heading.append($(keyToCss("logoutButton")));
+    $(`[href="/likes"] ${keyToCss("childWrapper")}`).prepend($likeIcon);
+    $(`[href="/following"] ${keyToCss("childWrapper")}`).prepend($followingIcon);
+    $settings.insertAfter($(keyToCss("navItem")).has("span:contains('Following')"));
+    $settingsSubmenu.insertAfter($settings);
+    $settingsSubmenu.hide();
+    $settings.on("click", () => {
+      if ($settingsSubmenu.is(":hidden")) {
+        $("#settings_caret").css("transform", "rotate(180deg)");
+      }
+      else { $("#settings_caret").css("transform", "rotate(0deg)") }
+      $settingsSubmenu.toggle();
+    });
     $(`[title="${tr("Settings")}"]`).hide();
+    $(document).on("click", () => {
+      if (!$(`${keyToCss("subNav")}:hover`).length
+        && !$subnav.eq(0).attr("hidden")) {
+        try { document.getElementById("account_button").click(); }
+        catch { throw "element not loaded"}
+      };
+    });
+    $(`button[aria-label="${tr("Show Blog Statistics")}"`).eq(0).trigger("click");
+  }
+  const unfuck = async function () {
+    if (!initialChecks()) return;
+
+    let configPreferences = getPreferences();
+    const pathname = location.pathname.split("/")[1];
+    const ownName = $("#account_subnav").find($(keyToCss("displayName"))).eq(0).text();
+    const blogs = unsafeWindow.___INITIAL_STATE___.queries.queries[0].state.data.user.blogs;
+
+    requestAnimationFrame(() => {
+      followingAsDefault();
+      initializePreferences(configPreferences, pathname);
+      $menu = configMenu(version, updateSrc, configPreferences);
+      $("html").append($menu);
+      $("#__cb").on("click", () => {
+        if ($("#__c").is(":hidden")) {
+          $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+        } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+        $("#__c").toggle();
+      });
+      $("#__ab").on("click", () => {
+        if ($("#__a").is(":hidden")) {
+          $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+        } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+        $("#__a").toggle();
+      });
+      $(".configInput").on("change", function () {
+        if ($(this).attr("type") === "checkbox") {
+          configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
+          checkboxEvent($(this).attr("id"), $(this).is(":checked"));
+        }
+        else {
+          configPreferences[Number($(this).attr("name"))].value = $(this).val();
+          if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
+            $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
+          };
+        };
+        updatePreferences(configPreferences);
+      });
+      reorderPage(ownName, pathname, blogs, $menu);
+      $styleElement.appendTo("html");
+    });
     console.log("dashboard fixed!");
   };
 
-  $styleElement.appendTo("html");
-  requestAnimationFrame(() => unfuck());
-  unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(() => 
-    window.setTimeout(
-      unfuck()
-      .then(() => {
-        window.setTimeout(() => {
-          if (!$("#__hw").length) unfuck();
-        }, 400)
-      })
-      .catch((e) => 
-        window.setTimeout(unfuck, 400)
-      ),
-      400
-    )
+  unfuck();
+  unsafeWindow.tumblr.on('navigation', () => window.setTimeout(
+    unfuck().then(() => {
+      window.setTimeout(() => {
+        if (!$("#__hw").length) unfuck();
+      }, 400)
+    }).catch((e) => 
+      window.setTimeout(unfuck, 400)
+    ), 400
   ));
 });
