@@ -974,7 +974,13 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
   requestAnimationFrame(() => unfuck());
   unsafeWindow.tumblr.on('navigation', () => requestAnimationFrame(() => 
     window.setTimeout(
-      unfuck().catch((e) => 
+      unfuck()
+      .then(() => {
+        window.setTimeout(() => {
+          if (!$("#__hw").length) unfuck();
+        }, 400)
+      })
+      .catch((e) => 
         window.setTimeout(unfuck, 400)
       ),
       400
