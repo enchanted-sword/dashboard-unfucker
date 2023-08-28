@@ -19,6 +19,7 @@ var $ = window.jQuery;
 const main = async function () {
   const version = "3.6.6";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
+  var $ = window.jQuery;
   const match = [
     "",
     "dashboard",
