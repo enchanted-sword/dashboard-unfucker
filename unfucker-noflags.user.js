@@ -1011,7 +1011,7 @@ const main = async function () {
     ));
   });
 };
-const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce"));
+const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
 const script = $(`
   <script nonce="${nonce}">
     const unfuckDashboard = ${main.toString()};
