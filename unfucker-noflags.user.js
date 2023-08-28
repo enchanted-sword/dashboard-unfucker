@@ -838,10 +838,10 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
     $timelineHeader.toggle(!pref[0].value);
     waitFor(keyToCss("recommendedBlogs")).then(() => {
       $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!pref[1].value);
-    })
+    });
     waitFor(keyToCss("radar")).then(() => {
       $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!pref[2].value);
-    })
+    });
     $navItems.has('use[href="#managed-icon__explore"]').toggle(!pref[3].value);
     $navItems.has('use[href="#managed-icon__shop"]').toggle(!pref[4].value);
     $navItems.has('use[href="#managed-icon__live-video"]')
@@ -890,7 +890,7 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
         $(keyToCss("accountStats")).eq(i + 1).toggle();
       });
     }
-  }
+  };
   const reorderPage = (ownName, pathname, blogs, $menu) => {
     let $content = {};
     const $navigationLinks = $(keyToCss("navigationLinks"));
@@ -963,37 +963,37 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
     const pathname = location.pathname.split("/")[1];
     const ownName = $("#account_subnav").find($(keyToCss("displayName"))).eq(0).text();
     const blogs = unsafeWindow.___INITIAL_STATE___.queries.queries[0].state.data.user.blogs;
+    const $menu = configMenu(version, updateSrc, configPreferences);
 
+    $("html").append($menu);
+    $("#__cb").on("click", () => {
+      if ($("#__c").is(":hidden")) {
+        $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+      } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+      $("#__c").toggle();
+    });
+    $("#__ab").on("click", () => {
+      if ($("#__a").is(":hidden")) {
+        $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+      } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+      $("#__a").toggle();
+    });
+    $(".configInput").on("change", function () {
+      if ($(this).attr("type") === "checkbox") {
+        configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
+        checkboxEvent($(this).attr("id"), $(this).is(":checked"));
+      }
+      else {
+        configPreferences[Number($(this).attr("name"))].value = $(this).val();
+        if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
+          $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
+        };
+      };
+      updatePreferences(configPreferences);
+    });
     requestAnimationFrame(() => {
       followingAsDefault();
       initializePreferences(configPreferences, pathname);
-      $menu = configMenu(version, updateSrc, configPreferences);
-      $("html").append($menu);
-      $("#__cb").on("click", () => {
-        if ($("#__c").is(":hidden")) {
-          $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-        } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-        $("#__c").toggle();
-      });
-      $("#__ab").on("click", () => {
-        if ($("#__a").is(":hidden")) {
-          $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-        } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-        $("#__a").toggle();
-      });
-      $(".configInput").on("change", function () {
-        if ($(this).attr("type") === "checkbox") {
-          configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
-          checkboxEvent($(this).attr("id"), $(this).is(":checked"));
-        }
-        else {
-          configPreferences[Number($(this).attr("name"))].value = $(this).val();
-          if ($(keyToCss("main")).length && !["search", "tagged"].includes(pathname)) {
-            $(keyToCss("main")).css("margin-left", `${$(this).val()}px`);
-          };
-        };
-        updatePreferences(configPreferences);
-      });
       reorderPage(ownName, pathname, blogs, $menu);
       $styleElement.appendTo("html");
     });

@@ -317,11 +317,11 @@ $(document).ready(() => {
         { type: "checkbox", value: "checked" }
       ];
       if (storageAvailable("localStorage")) {
-        if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
-          updatePreferences(configPreferences);
+        if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < preferences.length) {
+          updatePreferences(preferences);
           console.log("initialized preferences");
         } else {
-          configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+          preferences = JSON.parse(localStorage.getItem("configPreferences"));
         };
       };
       return preferences;
@@ -477,39 +477,40 @@ $(document).ready(() => {
       if (!initialChecks()) return;
 
       let configPreferences = getPreferences();
+      const $menu = configMenu(version, updateSrc, configPreferences);
 
+      $("html").append($menu);
       observer.observe(target, { childList: true, subtree: true });
+      $("#__cb").on("click", () => {
+        if ($("#__c").is(":hidden")) {
+          $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+        } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+        $("#__c").toggle();
+      });
+      $("#__ab").on("click", () => {
+        if ($("#__a").is(":hidden")) {
+          $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
+        } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
+        $("#__a").toggle();
+      });
+      $(".configInput").on("change", function () {
+        configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
+        checkboxEvent($(this).attr("id"), $(this).is(":checked"));
+        updatePreferences(configPreferences);
+      });
       requestAnimationFrame(() => {
         initializePreferences(configPreferences);
         followingAsDefault();
         if (matchPathname()) {
           waitFor(keyToCss("sidebar")).then(() => {
-            $(keyToCss("sidebar")).prepend(configMenu(version, updateSrc, configPreferences));
+            $(keyToCss("sidebar")).prepend($menu);
           });
         };
         if (!storageAvailable("localStorage")) {
           $("#__cta").hide();
         }
-        $("#__cb").on("click", () => {
-          if ($("#__c").is(":hidden")) {
-            $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-          $("#__c").toggle();
-        });
-        $("#__ab").on("click", () => {
-          if ($("#__a").is(":hidden")) {
-            $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-          $("#__a").toggle();
-        });
-        $(".configInput").on("change", function () {
-          configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
-          checkboxEvent($(this).attr("id"), $(this).is(":checked"));
-          updatePreferences(configPreferences);
-        });
+        $styleElement.appendTo("html");
       });
-
-      $styleElement.appendTo("html");
       console.log("dashboard fixed!");
     }
     
