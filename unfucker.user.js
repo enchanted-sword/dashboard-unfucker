@@ -91,7 +91,7 @@ const main = async function () {
       }
     });
     return elem;
-  }
+  };
   const matchPathname = () => match.includes(location.pathname.split("/")[1]);
   const storageAvailable = type => { //thanks mdn web docs!
     let storage;
@@ -501,19 +501,16 @@ const main = async function () {
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !pref[3].value);
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !pref[4].value);
         });
-        if (!$("#__c6").matches(":checked")) {
+        if (!pref[6].value && matchPathname()) {
           hide($("#__c11").parentElement);
           hide($("#__c17").parentElement);
           if ($("#__c11").matches(":checked")) $("#__c11").click();
           if ($("#__c17").matches(":checked")) $("#__c17").click();
         }
-        if ($("#__c8").matches(":checked")) {
-          $("#__s").innerText =`
-            ${$("#__s").innerText}
-            ${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }
-          `;
+        if (pref[7].value) {
+          $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
         };
-        if ($("#__c17").matches(":checked")) {
+        if (pref[16].value) {
           fixHeader(Array.from($a(postSelector)));
           observer.observe(target, { childList: true, subtree: true });
         };
@@ -524,40 +521,41 @@ const main = async function () {
         let configPreferences = getPreferences();
         const menu = configMenu(version, updateSrc, configPreferences);
 
-        document.documentElement.appendChild(menu);
-        $("#__cb").addEventListener("click", () => {
-          if ($("#__c").style.display === "none") {
-            $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)"); 
-          toggle($("#__c"));
-        });
-        $("#__ab").addEventListener("click", () => {
-          if ($("#__a").style.display === "none") {
-            $("#__ab svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
-          toggle($("#__a"));
-        });
-        $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", (event) => {
-          configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
-          checkboxEvent(event.target.id, event.target.matches(":checked"));
-          updatePreferences(configPreferences);
-        })});
         requestAnimationFrame(() => {
           document.head.appendChild(styleElement);
-          initializePreferences(configPreferences);
           followingAsDefault();
           if (matchPathname()) {
             waitFor(keyToCss("sidebar")).then(() => {
-              hide($(keyToCss("sidebarContent")));
+              waitFor(keyToCss("sidebarContent")).then(() => {
+                hide($(keyToCss("sidebarContent")));
+              });
               $(keyToCss("sidebar")).insertBefore(menu, $(`${keyToCss("sidebar")} aside`));
+              $("#__cb").addEventListener("click", () => {
+                if ($("#__c").style.display === "none") {
+                  $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
+                } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)"); 
+                toggle($("#__c"));
+              });
+              $("#__ab").addEventListener("click", () => {
+                if ($("#__a").style.display === "none") {
+                  $("#__ab svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
+                } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
+                toggle($("#__a"));
+              });
+              $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", (event) => {
+                configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
+                checkboxEvent(event.target.id, event.target.matches(":checked"));
+                updatePreferences(configPreferences);
+              })});
+              if (!storageAvailable("localStorage")) {
+                hide($("#__cta"));
+              };
             });
           };
-          if (!storageAvailable("localStorage")) {
-            hide($("#__cta"));
-          }
+          initializePreferences(configPreferences);
         });
         console.log("dashboard fixed!");
-      }
+      };
       
       unfuck();
       window.tumblr.on('navigation', () => window.setTimeout(
