@@ -248,18 +248,63 @@ const main = async function () {
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle) { display: none !important; }
         </style>
       `);
+      const getPreferences = () => {
+        let preferences = [
+          { type: "checkbox", value: "" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" },
+          { type: "checkbox", value: "checked" }
+        ];
+        if (storageAvailable("localStorage")) {
+          if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < preferences.length) {
+            updatePreferences(preferences);
+            console.log("initialized preferences");
+          } else {
+            preferences = JSON.parse(localStorage.getItem("configPreferences"));
+          };
+        };
+        return preferences;
+      };
+      const fetchNpf = post => { //shoutout to xkit rewritten for showing me this method
+        const fiberKey = Object.keys(post).find(key => key.startsWith("__reactFiber"));
+        let fiber = post[fiberKey];
+        
+        while (fiber !== null) {
+          const { timelineObject } = fiber.memoizedProps || {};
+          if (timelineObject !== undefined) {
+            return timelineObject;
+          } else {
+            fiber = fiber.return;
+          };
+        }
+      }
       const fixHeader = posts => {
         for (const post of posts) {
           const header = post.querySelector(`:scope header${keyToCss("header")}`);
           if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
           && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
+            const { trail } = fetchNpf(post);
+            const rebloggedFromName = trail[trail.length - 1].blog.name
             hide(header.querySelector(`:scope ${keyToCss("followButton")}`));
-            let label = post.querySelector(`:scope ${keyToCss("label")}`).cloneNode(true);
+            let label = find(post.querySelectorAll(`:scope ${keyToCss("label")}`), `a[href="/${rebloggedFromName}"]`).cloneNode(true);
             header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
             css(label, { "display": "inline", "marginLeft": "5px" });
             css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
-          }
-        }
+          };
+        };
       };
       const sortPosts = () => {
         const nodes = newNodes.splice(0);
@@ -330,36 +375,6 @@ const main = async function () {
             });
           }
         });
-      };
-      const getPreferences = () => {
-        let preferences = [
-          { type: "checkbox", value: "" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" }
-        ];
-        if (storageAvailable("localStorage")) {
-          if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < preferences.length) {
-            updatePreferences(preferences);
-            console.log("initialized preferences");
-          } else {
-            preferences = JSON.parse(localStorage.getItem("configPreferences"));
-          };
-        };
-        return preferences;
       };
       const configMenu = (version, updateSrc, configPreferences) => $str(`
         <div id="__m">
