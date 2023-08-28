@@ -34,28 +34,24 @@ const main = async function () {
     "reblog"
   ];
   let state = window.___INITIAL_STATE___;
-  let featureSet = [
-    {"name": "redpopDesktopVerticalNav", "value": false},
-    {"name": "redpopVirtualScroller", "value": false},
-    {"name": "liveCustomMarqueeData", "value": false},
-    {"name": "liveStreaming", "value": false},
-    {"name": "liveStreamingUserAllowed", "value": false},
-    {"name": "liveStreamingUserEnabled", "value": false},
-    {"name": "liveStreamingWeb", "value": false},
-    {"name": "liveSteamingWebPayments", "value": false},
-    {"name": "domainsSettings", "value": false},
-    {"name": "activityRedesignM3", "value": false},
-    {"name": "messagingRedesign", "value": false},
-    {"name": "experimentalBlockEditorIsOnlyEditor", "value": false},
-    {"name": "tumblrEditorForceTextPostType", "value": false},
-    {"name": "configurableTabbedDash", "value": true},
-    {"name": "allowAddingPollsToReblogs", "value": true},
-    {"name": "tagSuggestionTwoStepDialog", "value": false},
-    {"name": "redpopUnreadNotificationsOnTab", "value": false},
-    {"name": "reblogRedesignNew", "value": false},
-    {"name": "crowdsignalPollsNpf", "value": true},
-    {"name": "crowdsignalPollsCreate", "value": true},
-    {"name": "adFreeCtaBanner", "value": false}
+  let configPreferences = [
+    { type: "checkbox", value: "" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "checked" }
   ];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
@@ -115,13 +111,11 @@ const main = async function () {
     }
   };
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
-    let obf = JSON.parse(atob(obfuscatedFeatures)); // convert from base64, parse from string
+    let obf = JSON.parse(atob(obfuscatedFeatures));
     for (let x of featureSet) {
-      console.log(x);
       obf[x.name] = x.value;
     }
-    console.log(obf);
-    return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
+    return btoa(JSON.stringify(obf));
   };
   const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
     if ($a(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
@@ -141,35 +135,37 @@ const main = async function () {
     return { keyToCss, keyToClasses };
   };
 
-  if (storageAvailable("localStorage")
-    && localStorage.getItem("configPreferences")
-    && JSON.parse(localStorage.getItem("configPreferences")).length === 17) {
-    featureSet = [{"name": "adFreeCtaBanner", "value": false}]
-    let pref = JSON.parse(localStorage.getItem("configPreferences"));
-    featureSet = [
-      {"name": "redpopDesktopVerticalNav", "value": !pref[5].value},
-      {"name": "redpopVirtualScroller", "value": !pref[6].value},
-      {"name": "liveCustomMarqueeData", "value": !pref[7].value},
-      {"name": "liveStreaming", "value": !pref[7].value},
-      {"name": "liveStreamingUserAllowed", "value": !pref[7].value},
-      {"name": "liveStreamingUserEnabled", "value": !pref[7].value},
-      {"name": "liveStreamingWeb", "value": !pref[7].value},
-      {"name": "liveSteamingWebPayments", "value": !pref[7].value},
-      {"name": "domainsSettings", "value": !pref[8].value},
-      {"name": "activityRedesignM3", "value": !pref[9].value},
-      {"name": "messagingRedesign", "value": !pref[10].value},
-      {"name": "experimentalBlockEditorIsOnlyEditor", "value": !pref[11].value},
-      {"name": "tumblrEditorForceTextPostType", "value": !pref[11].value},
-      {"name": "configurableTabbedDash", "value": pref[12].value?true:false},
-      {"name": "allowAddingPollsToReblogs", "value": pref[13].value?true:false},
-      {"name": "tagSuggestionTwoStepDialog", "value": !pref[14].value},
-      {"name": "redpopUnreadNotificationsOnTab", "value": !pref[15].value},
-      {"name": "reblogRedesignNew", "value": !pref[16].value},
-      {"name": "crowdsignalPollsNpf", "value": true},
-      {"name": "crowdsignalPollsCreate", "value": true},
-      {"name": "adFreeCtaBanner", "value": false}
-    ];
+  if (storageAvailable("localStorage")) {
+    if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
+      updatePreferences(configPreferences);
+      console.log("initialized preferences");
+    } else {
+      configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+    };
   };
+  const featureSet = [
+    {"name": "redpopDesktopVerticalNav", "value": !configPreferences[5].value},
+    {"name": "redpopVirtualScroller", "value": !configPreferences[6].value},
+    {"name": "liveCustomMarqueeData", "value": !configPreferences[7].value},
+    {"name": "liveStreaming", "value": !configPreferences[7].value},
+    {"name": "liveStreamingUserAllowed", "value": !configPreferences[7].value},
+    {"name": "liveStreamingUserEnabled", "value": !configPreferences[7].value},
+    {"name": "liveStreamingWeb", "value": !configPreferences[7].value},
+    {"name": "liveSteamingWebPayments", "value": !configPreferences[7].value},
+    {"name": "domainsSettings", "value": !configPreferences[8].value},
+    {"name": "activityRedesignM3", "value": !configPreferences[9].value},
+    {"name": "messagingRedesign", "value": !configPreferences[10].value},
+    {"name": "experimentalBlockEditorIsOnlyEditor", "value": !configPreferences[11].value},
+    {"name": "tumblrEditorForceTextPostType", "value": !configPreferences[11].value},
+    {"name": "configurableTabbedDash", "value": configPreferences[12].value?true:false},
+    {"name": "allowAddingPollsToReblogs", "value": configPreferences[13].value?true:false},
+    {"name": "tagSuggestionTwoStepDialog", "value": !configPreferences[14].value},
+    {"name": "redpopUnreadNotificationsOnTab", "value": !configPreferences[15].value},
+    {"name": "reblogRedesignNew", "value": !configPreferences[16].value},
+    {"name": "crowdsignalPollsNpf", "value": true},
+    {"name": "crowdsignalPollsCreate", "value": true},
+    {"name": "adFreeCtaBanner", "value": false}
+  ];
   Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
       state = x;
@@ -248,36 +244,6 @@ const main = async function () {
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle) { display: none !important; }
         </style>
       `);
-      const getPreferences = () => {
-        let preferences = [
-          { type: "checkbox", value: "" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" },
-          { type: "checkbox", value: "checked" }
-        ];
-        if (storageAvailable("localStorage")) {
-          if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < preferences.length) {
-            updatePreferences(preferences);
-            console.log("initialized preferences");
-          } else {
-            preferences = JSON.parse(localStorage.getItem("configPreferences"));
-          };
-        };
-        return preferences;
-      };
       const fetchNpf = post => { //shoutout to xkit rewritten for showing me this method
         const fiberKey = Object.keys(post).find(key => key.startsWith("__reactFiber"));
         let fiber = post[fiberKey];
@@ -500,32 +466,32 @@ const main = async function () {
           </div>
         </div>
       `);
-      const initializePreferences = (pref) => {
+      const initializePreferences = () => {
         if(isDashboard()) {
           waitFor(keyToCss("timelineHeader")).then(() => {
-            toggle($(keyToCss("timelineHeader")), !pref[0].value);
+            toggle($(keyToCss("timelineHeader")), !configPreferences[0].value);
           });
           waitFor(keyToCss("recommendedBlogs")).then(() => {
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !pref[1].value);
+            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences[1].value);
           });
           waitFor(keyToCss("radar")).then(() => {
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !pref[2].value);
+            toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences[2].value);
           });
         };
         waitFor(keyToCss("menuRight")).then(() => {
-          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !pref[3].value);
-          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !pref[4].value);
+          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences[3].value);
+          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences[4].value);
         });
-        if (!pref[6].value && matchPathname()) {
+        if (!configPreferences[6].value && matchPathname()) {
           hide($("#__c11").parentElement);
           hide($("#__c17").parentElement);
           if ($("#__c11").matches(":checked")) $("#__c11").click();
           if ($("#__c17").matches(":checked")) $("#__c17").click();
         }
-        if (pref[7].value) {
+        if (configPreferences[7].value) {
           $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
         };
-        if (pref[16].value) {
+        if (configPreferences[16].value) {
           fixHeader(Array.from($a(postSelector)));
           observer.observe(target, { childList: true, subtree: true });
         };
@@ -533,7 +499,6 @@ const main = async function () {
       const unfuck = async function () {
         if (!initialChecks()) return;
 
-        let configPreferences = getPreferences();
         const menu = configMenu(version, updateSrc, configPreferences);
 
         requestAnimationFrame(() => {
@@ -567,11 +532,13 @@ const main = async function () {
               };
             });
           };
-          initializePreferences(configPreferences);
+          initializePreferences();
         });
         console.log("dashboard fixed!");
       };
       
+      console.log(featureSet);
+      console.log(JSON.parse(atob(state.obfuscatedFeatures)));
       unfuck();
       window.tumblr.on('navigation', () => window.setTimeout(
         unfuck().then(() => {
