@@ -51,7 +51,9 @@ const main = async function () {
     { type: "checkbox", value: "checked" },
     { type: "checkbox", value: "checked" },
     { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" }
+    { type: "checkbox", value: "checked" },
+    { type: "checkbox", value: "" },
+    { type: "checkbox", value: "" }
   ];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
@@ -272,6 +274,18 @@ const main = async function () {
           };
         };
       };
+      const recountNotes = posts => {
+        for (const post of posts) {
+          const { id } = fetchNpf(post);
+          post.id = `post${id}`;
+          waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
+            const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
+            const number = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")[0];
+            const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
+            blackText.innerText = number;
+          });
+        };
+      };
       const sortPosts = () => {
         const nodes = newNodes.splice(0);
         if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null))) {
@@ -279,7 +293,8 @@ const main = async function () {
             ...nodes.filter(node => node.matches(postSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
-          fixHeader(posts);
+          if (configPreferences[16].value) fixHeader(posts);
+          if (configPreferences[17].value) recountNotes(posts);
         }
         else return
       };
@@ -313,6 +328,11 @@ const main = async function () {
             toggle($("#__c11").parentElement, value);
             toggle($("#__c17").parentElement, value);
           break;
+          case "__c19":
+            if (configPreferences[18].value) {
+              document.getElementById("__bs").innerText = `${keyToCss("badgeContainer")} { display: none; }`;
+            } else { document.getElementById("__bs").innerText = "" };
+            break;
         }
       };  
       const initialChecks = () => {
@@ -362,10 +382,6 @@ const main = async function () {
               <li class="infoHeader">
                 <span>about</span>
               </li>
-              <li style="flex-flow: column wrap">
-                <span style="width: 100%;">version: <b>v${version}a</b></span><br>
-                <span style="width: 100%;">type "<b>a</b>" uses window property feature toggles. if you persistently encounter errors with the script, try type <b>\"b\"</b></span>
-              </li>
               <li>
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
               </li>
@@ -407,6 +423,10 @@ const main = async function () {
               <li>
                 <span>hide tumblr shop</span>
                 <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
+              </li>
+              <li>
+                <span>hide badges</span>
+                <input class="configInput" type="checkbox" id="__c19" name="18" ${configPreferences[18].value}>
               </li>
               </ul>
               <ul id="__cta">
@@ -462,6 +482,10 @@ const main = async function () {
                 <span>revert post header changes</span>
                 <input class="configInput" type="checkbox" id="__c17" name="16" ${configPreferences[16].value}>
               </li>
+              <li>
+                <span>display full note counts</span>
+                <input class="configInput" type="checkbox" id="__c18" name="17" ${configPreferences[17].value}>
+              </li>
             </ul>
           </div>
         </div>
@@ -491,9 +515,20 @@ const main = async function () {
         if (configPreferences[7].value) {
           $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
         };
+        if (configPreferences[16].value || configPreferences[17].value) {
+          observer.observe(target, { childList: true, subtree: true });
+        }
         if (configPreferences[16].value) {
           fixHeader(Array.from($a(postSelector)));
-          observer.observe(target, { childList: true, subtree: true });
+        };
+        if (configPreferences[17].value) {
+          recountNotes(Array.from($a(postSelector)));
+        };
+        const badgeStyle = document.createElement("style");
+        badgeStyle.id = "__bs";
+        document.head.appendChild(badgeStyle);
+        if (configPreferences[18].value) {
+          badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
       };
       const unfuck = async function () {
