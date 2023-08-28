@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.0
+// @version      4.0.0 beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.0.0";
+  const version = "4.0.0 beta";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
@@ -365,7 +365,7 @@ const main = async function () {
       const configMenu = (version, updateSrc, configPreferences) => $str(`
         <div id="__m">
           <div id="__in">
-            <h1>dashboard unfucker v${version}a</h1>
+            <h1>dashboard unfucker v${version}</h1>
             <button id="__ab">
               <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" role="presentation" style="--icon-color-primary: rgba(var(--white-on-dark), 0.65);">
                 <use href="#managed-icon__ellipsis"></use>
