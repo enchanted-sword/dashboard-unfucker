@@ -19,7 +19,6 @@ var $ = window.jQuery;
 const main = async function () {
   const version = "4.2.2";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
-  var $ = window.jQuery;
   const match = [
     "",
     "dashboard",

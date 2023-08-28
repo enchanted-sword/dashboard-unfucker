@@ -19,7 +19,6 @@ var $ = window.jQuery;
 const main = async function () {
   const version = "3.6.6";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
-  var $ = window.jQuery;
   const match = [
     "",
     "dashboard",
@@ -96,7 +95,7 @@ const main = async function () {
     localStorage.setItem("configPreferences", JSON.stringify(arr))
   };
   const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
-  async function getUtilities() {
+  const getUtilities = async function () {
     let retries = 0;
     while (retries++ < 1000 && (typeof window.tumblr === "undefined" || typeof window.tumblr.getCssMap === "undefined")) {
       await new Promise((resolve) => setTimeout(resolve));
@@ -530,10 +529,12 @@ const main = async function () {
   });
 };
 const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+const jQuerySource = $(`<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>`)
 const script = $(`
   <script nonce="${nonce}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard();
   </script>
 `);
+$("head").append(jQuerySource);
 $("head").append(script);
