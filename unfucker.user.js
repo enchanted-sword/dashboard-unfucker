@@ -7,8 +7,8 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
 // @downloadURL  https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
 // @updateURL    https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
-// @grant        none
 // @require      https://code.jquery.com/jquery-3.6.4.min.js
+// @grant        none
 // @run-at       document-start
 // ==/UserScript==
 
@@ -57,6 +57,41 @@ const main = async function () {
     {"name": "crowdsignalPollsCreate", "value": true},
     {"name": "adFreeCtaBanner", "value": false}
   ];
+  const $a = selector => document.querySelectorAll(selector);
+  const $ = selector => document.querySelector(selector);
+  const $str = str => {
+    let elem = document.createElement("div");
+    elem.innerHTML = str;
+    elem = elem.firstElementChild;
+    return elem;
+  };
+  const hide = elem => {elem.style.display = "none"};
+  const show = elem => {elem.style.display = null};
+  const toggle = (elem, toggle = "ignore") => {
+    if (toggle === "ignore") {
+      elem.style.display === "none" ?
+        show(elem) 
+        : hide(elem);
+    } else {
+      toggle === true ?
+        show(elem) 
+        : hide(elem);
+    }
+  };
+  const css = (elem, properties = {}) => {
+    for (let property in properties) {
+      elem.style[property] = properties[property];
+    };
+  };
+  const find = (nodeList, selector) => {
+    let elem;
+    nodeList.forEach(currentValue => {
+      if (currentValue.querySelector(`:scope ${selector}`)) {
+        elem = currentValue;
+      }
+    });
+    return elem;
+  }
   const matchPathname = () => match.includes(location.pathname.split("/")[1]);
   const storageAvailable = type => { //thanks mdn web docs!
     let storage;
@@ -89,7 +124,7 @@ const main = async function () {
     return btoa(JSON.stringify(obf)); // compress back to string, convert to base64
   };
   const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
-    if ($(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
+    if ($a(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
   });
   const updatePreferences = (arr) => {
     localStorage.setItem("configPreferences", JSON.stringify(arr))
@@ -154,27 +189,28 @@ const main = async function () {
     configurable: true,
   });
   waitFor("head").then(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-    #adBanner + div:not(#glass-container) > div:first-child {
-      z-index: 100;
-      border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
-      position: -webkit-sticky !important;
-      position: sticky !important;
-      top: 0 !important;
-      min-height: unset !important;
-      background-color: RGB(var(--navy));
-    }
-    `;
+    const style = $str(`
+      <style>
+        #adBanner + div:not(#glass-container) > div:first-child {
+          z-index: 100;
+          border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
+          position: -webkit-sticky !important;
+          position: sticky !important;
+          top: 0 !important;
+          min-height: unset !important;
+          background-color: RGB(var(--navy));
+        }
+      </style>
+    `);
     document.head.appendChild(style);
   });
 
-  $(document).ready(() => {
+  document.addEventListener("DOMContentLoaded", () => {
     getUtilities().then(({ keyToCss }) => {
       const postSelector = "[tabindex='-1'][data-id] article";
       const newNodes = [];
       const target = document.getElementById("root");
-      const $styleElement = $(`
+      const styleElement = $str(`
         <style id='__s'>
           #__m { margin-bottom: 20px; }
           #__in {
@@ -214,15 +250,14 @@ const main = async function () {
       `);
       const fixHeader = posts => {
         for (const post of posts) {
-          let $post = $(post);
-          let $header = $post.find(`header${keyToCss("header")}`);
-          if (!$header.find(keyToCss("rebloggedFromName")).length
-          && $header.find(keyToCss("reblogIcon")).length) {
-            $header.find($(keyToCss("followButton"))).eq(0).hide();
-            let $label = $post.find(keyToCss("label")).eq(0).clone();
-            $label.insertAfter($header.find(keyToCss("reblogIcon")));
-            $label.css({display: "inline", marginLeft: "5px"});
-            $label.find(keyToCss("attribution")).css("color", "rgba(var(--black),.65)")
+          const header = post.querySelector(`:scope header${keyToCss("header")}`);
+          if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
+          && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
+            hide(header.querySelector(`:scope ${keyToCss("followButton")}`));
+            let label = post.querySelector(`:scope ${keyToCss("label")}`).cloneNode(true);
+            header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
+            css(label, { "display": "inline", "marginLeft": "5px" });
+            css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
           }
         }
       };
@@ -248,28 +283,29 @@ const main = async function () {
       const checkboxEvent = (id, value) => {
         switch (id) {
           case "__c1":
-          $(keyToCss("timelineHeader")).toggle(!value);
-          break;
+            toggle($(keyToCss("timelineHeader")), !value);
+            break;
           case "__c2":
-          $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!value);
-          break;
+            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !value);
+            break;
           case "__c3":
-          $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!value);
-          break;
+            toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !value);
+            break;
           case "__c4":
-          $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!value);
-          break;
+            toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !value);
+            break;
           case "__c5":
-          $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!value);
-          break;
+            toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
+            break;
           case "__c6":
-          $("#__c11,#__c17").trigger("click");
-          $("#__cta").children().has("#__c11,#__c17").toggle(value);
+            $("#__c11,#__c17").click();
+            toggle($("#__c11").parentElement, value);
+            toggle($("#__c17").parentElement, value);
           break;
         }
       };  
       const initialChecks = () => {
-        if ($("#__m").length) { //initial status checks to determine whether to inject or not
+        if ($a("#__m").length) { //initial status checks to determine whether to inject or not
           console.log("no need to unfuck");
           return false;
         } else {
@@ -278,18 +314,18 @@ const main = async function () {
         };
       };
       const followingAsDefault = async function () {
-        waitFor($(keyToCss("timeline"))).then(() => {
+        waitFor(keyToCss("timeline")).then(() => {
           if (isDashboard()
-            && $(keyToCss("timeline")).attr("data-timeline").split("?")[0] === "/v2/tabs/for_you") {
+            && $(keyToCss("timeline")).attributes.getNamedItem("data-timeline").value.includes("/v2/tabs/for_you")) {
             window.tumblr.navigate("/dashboard/following");
             console.log("navigating to following");
             throw "navigating tabs";
           } else if (isDashboard) {
             waitFor(keyToCss("timelineOptionsItemWrapper")).then(() => {
-              if ($(keyToCss("timelineOptionsItemWrapper")).first().has("a[href='/dashboard/stuff_for_you']").length) {
-                let $forYou = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/stuff_for_you']");
-                let $following = $(keyToCss("timelineOptionsItemWrapper")).has("a[href='/dashboard/following']");
-                $following.insertBefore($forYou);
+              if ($a(keyToCss("timelineOptionsItemWrapper"))[0].querySelectorAll("a[href='/dashboard/stuff_for_you']").length) {
+                let forYou = find($(keyToCss("timelineOptionsItemWrapper")), "a[href='/dashboard/stuff_for_you']");
+                let following = find($(keyToCss("timelineOptionsItemWrapper")), "a[href='/dashboard/following']");
+                forYou.before(following);
               }
             });
           }
@@ -325,7 +361,7 @@ const main = async function () {
         };
         return preferences;
       };
-      const configMenu = (version, updateSrc, configPreferences) => $(`
+      const configMenu = (version, updateSrc, configPreferences) => $str(`
         <div id="__m">
           <div id="__in">
             <h1>dashboard unfucker v${version}a</h1>
@@ -450,67 +486,74 @@ const main = async function () {
         </div>
       `);
       const initializePreferences = (pref) => {
-        $(keyToCss("timelineHeader")).toggle(!pref[0].value);
-        waitFor(keyToCss("recommendedBlogs")).then(() => {
-          $(keyToCss("sidebarItem")).has(keyToCss("recommendedBlogs")).toggle(!pref[1].value);
-        });
-        waitFor(keyToCss("radar")).then(() => {
-          $(keyToCss("sidebarItem")).has(keyToCss("radar")).toggle(!pref[2].value);
-        });
+        if(isDashboard()) {
+          waitFor(keyToCss("timelineHeader")).then(() => {
+            toggle($(keyToCss("timelineHeader")), !pref[0].value);
+          });
+          waitFor(keyToCss("recommendedBlogs")).then(() => {
+            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !pref[1].value);
+          });
+          waitFor(keyToCss("radar")).then(() => {
+            toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !pref[2].value);
+          });
+        };
         waitFor(keyToCss("menuRight")).then(() => {
-          $(keyToCss("menuContainer")).has('use[href="#managed-icon__explore"]').toggle(!pref[3].value);
-        $(keyToCss("menuContainer")).has('use[href="#managed-icon__shop"]').toggle(!pref[4].value);
+          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !pref[3].value);
+          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !pref[4].value);
         });
-        if (!$("#__c6").is(":checked")) {
-          $("#__cta").children().has("#__c11,#__c17").hide();
-          if ($("#__c11").is(":checked")) $("#__c11").trigger("click");
-          if ($("#__c17").is(":checked")) $("#__c17").trigger("click");
+        if (!$("#__c6").matches(":checked")) {
+          hide($("#__c11").parentElement);
+          hide($("#__c17").parentElement);
+          if ($("#__c11").matches(":checked")) $("#__c11").click();
+          if ($("#__c17").matches(":checked")) $("#__c17").click();
         }
-        if ($("#__c8").is(":checked")) {
-          $("#__s").text(`
-          ${$("#__s").text()}
-          ${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }
-          `);
-        }
+        if ($("#__c8").matches(":checked")) {
+          $("#__s").innerText =`
+            ${$("#__s").innerText}
+            ${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }
+          `;
+        };
+        if ($("#__c17").matches(":checked")) {
+          fixHeader(Array.from($a(postSelector)));
+          observer.observe(target, { childList: true, subtree: true });
+        };
       };
-      
       const unfuck = async function () {
         if (!initialChecks()) return;
 
         let configPreferences = getPreferences();
-        const $menu = configMenu(version, updateSrc, configPreferences);
+        const menu = configMenu(version, updateSrc, configPreferences);
 
-        $("html").append($menu);
-        observer.observe(target, { childList: true, subtree: true });
-        $("#__cb").on("click", () => {
-          if ($("#__c").is(":hidden")) {
-            $("#__cb svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else { $("#__cb svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-          $("#__c").toggle();
+        document.documentElement.appendChild(menu);
+        $("#__cb").addEventListener("click", () => {
+          if ($("#__c").style.display === "none") {
+            $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
+          } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)"); 
+          toggle($("#__c"));
         });
-        $("#__ab").on("click", () => {
-          if ($("#__a").is(":hidden")) {
-            $("#__ab svg").css("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else { $("#__ab svg").css("--icon-color-primary", "rgba(var(--white-on-dark),.65)") }
-          $("#__a").toggle();
+        $("#__ab").addEventListener("click", () => {
+          if ($("#__a").style.display === "none") {
+            $("#__ab svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
+          } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
+          toggle($("#__a"));
         });
-        $(".configInput").on("change", function () {
-          configPreferences[Number($(this).attr("name"))].value = $(this).is(":checked") ? "checked" : "";
-          checkboxEvent($(this).attr("id"), $(this).is(":checked"));
+        $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", (event) => {
+          configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
+          checkboxEvent(event.target.id, event.target.matches(":checked"));
           updatePreferences(configPreferences);
-        });
+        })});
         requestAnimationFrame(() => {
+          document.head.appendChild(styleElement);
           initializePreferences(configPreferences);
           followingAsDefault();
           if (matchPathname()) {
             waitFor(keyToCss("sidebar")).then(() => {
-              $(keyToCss("sidebar")).prepend($menu);
+              $(keyToCss("sidebar")).insertBefore(menu, $(`${keyToCss("sidebar")} aside`));
             });
           };
           if (!storageAvailable("localStorage")) {
-            $("#__cta").hide();
+            hide($("#__cta"));
           }
-          $styleElement.appendTo("html");
         });
         console.log("dashboard fixed!");
       }
@@ -519,7 +562,7 @@ const main = async function () {
       window.tumblr.on('navigation', () => window.setTimeout(
         unfuck().then(() => {
           window.setTimeout(() => {
-            if (!$("#__hw").length) unfuck();
+            if (!$a("#__m").length) unfuck();
           }, 400)
         }).catch((e) => 
           window.setTimeout(unfuck, 400)
@@ -529,12 +572,10 @@ const main = async function () {
   });
 };
 const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
-const jQuerySource = $(`<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>`)
 const script = $(`
   <script nonce="${nonce}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard();
   </script>
 `);
-$("head").append(jQuerySource);
 $("head").append(script);
