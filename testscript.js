@@ -1,4 +1,4 @@
-const version = "3.6.6";
+const version = "3.6.7";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
