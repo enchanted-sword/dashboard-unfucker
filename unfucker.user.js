@@ -548,6 +548,7 @@ const main = async function () {
           followingAsDefault();
           if (matchPathname()) {
             waitFor(keyToCss("sidebar")).then(() => {
+              hide($(keyToCss("sidebarContent")));
               $(keyToCss("sidebar")).insertBefore(menu, $(`${keyToCss("sidebar")} aside`));
             });
           };
