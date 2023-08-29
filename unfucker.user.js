@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.0 beta
+// @version      4.0.1 beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.0.0 beta";
+  const version = "4.0.1 beta";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
@@ -204,7 +204,7 @@ const main = async function () {
   });
 
   document.addEventListener("DOMContentLoaded", () => {
-    getUtilities().then(({ keyToCss }) => {
+    getUtilities().then(({ keyToCss, keyToClasses }) => {
       const postSelector = "[tabindex='-1'][data-id] article";
       const newNodes = [];
       const target = document.getElementById("root");
@@ -266,9 +266,12 @@ const main = async function () {
           && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
             const { trail } = fetchNpf(post);
             const rebloggedFromName = trail[trail.length - 1].blog.name
-            hide(header.querySelector(`:scope ${keyToCss("followButton")}`));
+            const follow = header.querySelector(`:scope ${keyToCss("followButton")}`);
+            if (follow) hide(follow);
             let label = find(post.querySelectorAll(`:scope ${keyToCss("label")}`), `a[href="/${rebloggedFromName}"]`).cloneNode(true);
             header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
+            const classes = keyToClasses("rebloggedFromName")
+            label.classList.add(...classes);
             css(label, { "display": "inline", "marginLeft": "5px" });
             css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
           };
