@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.1beta
+// @version      4.0.2beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.0.1β";
+  const version = "4.0.2β";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
@@ -264,16 +264,21 @@ const main = async function () {
           const header = post.querySelector(`:scope header${keyToCss("header")}`);
           if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
           && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
-            const { trail } = fetchNpf(post);
-            const rebloggedFromName = trail[trail.length - 1].blog.name
-            const follow = header.querySelector(`:scope ${keyToCss("followButton")}`);
-            if (follow) hide(follow);
-            let label = find(post.querySelectorAll(`:scope ${keyToCss("label")}`), `a[href="/${rebloggedFromName}"]`).cloneNode(true);
-            header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
-            const classes = keyToClasses("rebloggedFromName")
-            label.classList.add(...classes);
-            css(label, { "display": "inline", "marginLeft": "5px" });
-            css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
+            try {
+              const follow = header.querySelector(`:scope ${keyToCss("followButton")}`);
+              if (follow) hide(follow);
+              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
+              const label = labels.item(labels.length - 1).cloneNode(true);
+              header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
+              const classes = keyToClasses("rebloggedFromName")
+              label.classList.add(...classes);
+              css(label, { "display": "inline", "marginLeft": "5px" });
+              css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
+            } catch (e) {
+              console.error("an error occurred processing a post header:", e);
+              console.error(post);
+              console.error(fetchNpf(post));
+            };
           };
         };
       };
@@ -281,12 +286,18 @@ const main = async function () {
         for (const post of posts) {
           const { id } = fetchNpf(post);
           post.id = `post${id}`;
-          waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
-            const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
-            const number = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")[0];
-            const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
-            blackText.innerText = number;
-          });
+          try {
+            waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
+              const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
+              const number = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")[0];
+              const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
+              blackText.innerText = number;
+            });
+          } catch (e) {
+            console.error("an error occurred processing a post's notes:", e);
+            console.error(post);
+            console.error(fetchNpf(post));
+          };
         };
       };
       const sortPosts = () => {
