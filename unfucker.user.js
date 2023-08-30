@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.2beta
+// @version      4.0.3beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,8 +16,11 @@
 
 'use strict';
 var $ = window.jQuery;
+const wait = (retried = 0,) => new Promise((resolve) => {
+  if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
+});
 const main = async function () {
-  const version = "4.0.2β";
+  const version = "4.0.3β";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
@@ -136,6 +139,19 @@ const main = async function () {
     const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
     return { keyToCss, keyToClasses };
   };
+  const style = $str(`
+    <style>
+      #adBanner + div:not(#glass-container) > div:first-child {
+        z-index: 100;
+        border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 0 !important;
+        min-height: unset !important;
+        background-color: RGB(var(--navy));
+      }
+    </style>
+  `);
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
@@ -186,23 +202,7 @@ const main = async function () {
     enumerable: true,
     configurable: true,
   });
-  waitFor("head").then(() => {
-    const style = $str(`
-      <style>
-        #adBanner + div:not(#glass-container) > div:first-child {
-          z-index: 100;
-          border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
-          position: -webkit-sticky !important;
-          position: sticky !important;
-          top: 0 !important;
-          min-height: unset !important;
-          background-color: RGB(var(--navy));
-        }
-      </style>
-    `);
-    document.head.appendChild(style);
-  });
-
+  document.head.appendChild(style);
   document.addEventListener("DOMContentLoaded", () => {
     getUtilities().then(({ keyToCss, keyToClasses }) => {
       const postSelector = "[tabindex='-1'][data-id] article";
@@ -608,4 +608,4 @@ const script = $(`
     unfuckDashboard();
   </script>
 `);
-$("head").append(script);
+wait().then(() => $("head").append(script));
