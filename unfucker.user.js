@@ -276,7 +276,10 @@ const main = async function () {
           }
           ${keyToCss("postColumn")} { max-width: calc(100% - 85px); }
           ${keyToCss("post")}, ${keyToCss("post")} > * { max-width: 100%; }
-          ${keyToCss("reblog")}, ${keyToCss("videoBlock")}, ${keyToCss("videoBlock")} iframe { max-width: none !important; }
+          ${keyToCss("reblog")}, 
+          ${keyToCss("videoBlock")}, 
+          ${keyToCss("videoBlock")} iframe,
+          ${keyToCss("audioBlock")} { max-width: none !important; }
           ${keyToCss("queueSettings")} {
             width: calc(100% - 85px);
             box-sizing: border-box;
@@ -391,9 +394,10 @@ const main = async function () {
         const widthOffset = ($("#__c21").valueAsNumber - 51.5) / 2;
         let safeMax = Math.max(24 - widthOffset, 0);
         if (Math.abs(posOffset) > safeMax) {
-          safeMax = posOffset > 0 ? safeMax - 1 : -safeMax;
+          safeMax = posOffset > 0 ? safeMax : -safeMax;
           $("#__c20").value = safeMax.toString();
           css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}vw`});
+          configPreferences[19].value = safeMax;
           if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
         } else {
           switch (id) {
@@ -404,7 +408,10 @@ const main = async function () {
               css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
               break;
           };
-        }
+        };
+        const gridWidth = $(keyToCss("gridded")).clientWidth;
+        const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
+        $("#__gs").innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`
       };
       const initialChecks = () => {
         if ($a("#__m").length) { //initial status checks to determine whether to inject or not
@@ -626,6 +633,16 @@ const main = async function () {
         waitFor(containerSelector).then(() => {
           css($(containerSelector), { "left": `${configPreferences[19].value}vw`, "max-width": `${configPreferences[20].value}vw` });
         });
+        const gridStyle = document.createElement("style");
+        gridStyle.id = "__gs";
+        document.head.appendChild(gridStyle);
+        if (configPreferences[20].value > 51.5) {
+          waitFor(keyToCss("gridded")).then(() => {
+            const gridWidth = $(keyToCss("gridded")).clientWidth;
+            const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
+            gridStyle.innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
+          });
+        };
       };
       const unfuck = async function () {
         if (!initialChecks()) return;
