@@ -678,7 +678,7 @@ const main = async function () {
                 toggle($("#__a"));
               });
               $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
-                if (event.target.attributes.getNamedItem("type") === "checkbox") {
+                if (event.target.attributes.getNamedItem("type").value === "checkbox") {
                   configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
                   checkboxEvent(event.target.id, event.target.matches(":checked"));
                 } else {
