@@ -131,6 +131,7 @@ const main = async function () {
     localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
   };
   const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
+  const notMasonry = () => !["search", "tagged"].includes(location.pathname.split("/")[1]);
   const getUtilities = async function () {
     let retries = 0;
     while (retries++ < 1000 && (typeof window.tumblr === "undefined" || typeof window.tumblr.getCssMap === "undefined")) {
@@ -390,28 +391,32 @@ const main = async function () {
         }
       };
       const rangeEvent = (id, value) => {
-        const posOffset = $("#__c20").valueAsNumber;
-        const widthOffset = ($("#__c21").valueAsNumber - 51.5) / 2;
-        let safeMax = Math.max(24 - widthOffset, 0);
-        if (Math.abs(posOffset) > safeMax) {
-          safeMax = posOffset > 0 ? safeMax : -safeMax;
-          $("#__c20").value = safeMax.toString();
-          css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}vw`});
-          configPreferences[19].value = safeMax;
-          if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
-        } else {
-          switch (id) {
-            case "__c20":
-              css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}vw`});
-              break;
-            case "__c21":
-              css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
-              break;
+        if (notMasonry()) {
+          const posOffset = $("#__c20").valueAsNumber;
+          const widthOffset = ($("#__c21").valueAsNumber - 51.5) / 2;
+          let safeMax = Math.max(24 - widthOffset, 0);
+          if (Math.abs(posOffset) > safeMax) {
+            safeMax = posOffset > 0 ? safeMax : -safeMax;
+            $("#__c20").value = safeMax.toString();
+            css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}vw`});
+            configPreferences[19].value = safeMax;
+            if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
+          } else {
+            switch (id) {
+              case "__c20":
+                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}vw`});
+                break;
+              case "__c21":
+                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
+                break;
+            };
+          };
+          if (location.pathname.split("/")[1] === "likes") {
+            const gridWidth = $(keyToCss("gridded")).clientWidth;
+            const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
+            $("#__gs").innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
           };
         };
-        const gridWidth = $(keyToCss("gridded")).clientWidth;
-        const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
-        $("#__gs").innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`
       };
       const initialChecks = () => {
         if ($a("#__m").length) { //initial status checks to determine whether to inject or not
@@ -630,18 +635,20 @@ const main = async function () {
         if (configPreferences[18].value) {
           badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
-        waitFor(containerSelector).then(() => {
-          css($(containerSelector), { "left": `${configPreferences[19].value}vw`, "max-width": `${configPreferences[20].value}vw` });
-        });
-        const gridStyle = document.createElement("style");
-        gridStyle.id = "__gs";
-        document.head.appendChild(gridStyle);
-        if (configPreferences[20].value > 51.5) {
-          waitFor(keyToCss("gridded")).then(() => {
-            const gridWidth = $(keyToCss("gridded")).clientWidth;
-            const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
-            gridStyle.innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
+        if (notMasonry()) {
+          waitFor(containerSelector).then(() => {
+            css($(containerSelector), { "left": `${configPreferences[19].value}vw`, "max-width": `${configPreferences[20].value}vw` });
           });
+          const gridStyle = document.createElement("style");
+          gridStyle.id = "__gs";
+          document.head.appendChild(gridStyle);
+          if (configPreferences[20].value > 51.5 && location.pathname.split("/")[1] === "likes") {
+            waitFor(keyToCss("gridded")).then(() => {
+              const gridWidth = $(keyToCss("gridded")).clientWidth;
+              const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
+              gridStyle.innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
+            });
+          };
         };
       };
       const unfuck = async function () {
@@ -677,7 +684,7 @@ const main = async function () {
                 } else {
                   configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.valueAsNumber;
                   rangeEvent(event.target.id, event.target.valueAsNumber);
-                }
+                };
                 updatePreferences();
               })});
             });
