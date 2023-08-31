@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.3beta
+// @version      4.0.4beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -20,7 +20,7 @@ const wait = (retried = 0,) => new Promise((resolve) => {
   if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
 });
 const main = async function () {
-  const version = "4.0.3β";
+  const version = "4.0.4β";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
@@ -56,7 +56,9 @@ const main = async function () {
     { type: "checkbox", value: "checked" },
     { type: "checkbox", value: "checked" },
     { type: "checkbox", value: "" },
-    { type: "checkbox", value: "" }
+    { type: "checkbox", value: "" },
+    { type: "range", value: 0},
+    { type: "range", value: 51.5}
   ];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
@@ -125,8 +127,8 @@ const main = async function () {
   const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
     if ($a(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
   });
-  const updatePreferences = (arr) => {
-    localStorage.setItem("configPreferences", JSON.stringify(arr))
+  const updatePreferences = () => {
+    localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
   };
   const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
   const getUtilities = async function () {
@@ -155,8 +157,14 @@ const main = async function () {
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
-      updatePreferences(configPreferences);
-      console.log("initialized preferences");
+      if (!localStorage.getItem("configPreferences")) {
+        updatePreferences(configPreferences);
+        console.log("initialized preferences");
+      } else {
+        const oldPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+        const diff = oldPreferences.length - configPreferences.length;
+        configPreferences = oldPreferences.concat(configPreferences.slice(diff));
+      };
     } else {
       configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
     };
@@ -243,7 +251,36 @@ const main = async function () {
             padding: 12px 12px;
             font-weight: bold;
           }
-          ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle) { display: none !important; }
+          .rangeInput {
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+          }
+          .rangeInput datalist {
+            display: flex;
+            justify-content: space-between;
+          }
+          button.configReset {
+            width: fit-content;
+            margin: 8px auto 0;
+            padding: 4px 8px;
+            background: rgba(var(--black),.07)
+          }
+          ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
+          ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
+          ${keyToCss("main")} {
+            flex: 1;
+            min-width: 0;
+            max-width: none;
+          }
+          ${keyToCss("postColumn")} { max-width: calc(100% - 85px); }
+          ${keyToCss("post")}, ${keyToCss("post")} > * { max-width: 100%; }
+          ${keyToCss("reblog")}, ${keyToCss("videoBlock")}, ${keyToCss("videoBlock")} iframe { max-width: none !important; }
+          ${keyToCss("queueSettings")} {
+            width: calc(100% - 85px);
+            box-sizing: border-box;
+          }
         </style>
       `);
       const fetchNpf = post => { //shoutout to xkit rewritten for showing me this method
@@ -348,7 +385,27 @@ const main = async function () {
             } else { document.getElementById("__bs").innerText = "" };
             break;
         }
-      };  
+      };
+      const rangeEvent = (id, value) => {
+        const posOffset = $("#__c20").valueAsNumber;
+        const widthOffset = ($("#__c21").valueAsNumber - 51.5) / 2;
+        let safeMax = Math.max(24 - widthOffset, 0);
+        if (Math.abs(posOffset) > safeMax) {
+          safeMax = posOffset > 0 ? safeMax - 1 : -safeMax;
+          $("#__c20").value = safeMax.toString();
+          css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}vw`});
+          if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
+        } else {
+          switch (id) {
+            case "__c20":
+              css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}vw`});
+              break;
+            case "__c21":
+              css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
+              break;
+          };
+        }
+      };
       const initialChecks = () => {
         if ($a("#__m").length) { //initial status checks to determine whether to inject or not
           console.log("no need to unfuck");
@@ -376,7 +433,7 @@ const main = async function () {
           }
         });
       };
-      const configMenu = (version, updateSrc, configPreferences) => $str(`
+      const configMenu = (version, updateSrc) => $str(`
         <div id="__m">
           <div id="__in">
             <h1>dashboard unfucker v${version}</h1>
@@ -442,6 +499,27 @@ const main = async function () {
                 <span>hide badges</span>
                 <input class="configInput" type="checkbox" id="__c19" name="18" ${configPreferences[18].value}>
               </li>
+              <li>
+                <span>content positioning</span>
+                <div class="rangeInput">
+                  <input class="configInput" type="range" id="__c20" name="19" list="__cp" min="-24" max="24" step="1" value="${configPreferences[19].value}">
+                  <datalist id="__cp">
+                    <option value="-24" label="left"></option>
+                    <option value="0" label="default"></option>
+                    <option value="24" label="right"></option>
+                  </datalist>
+                </div>
+              </li>
+              <li>
+                <span>content width</span>
+                <div class="rangeInput">
+                  <input class="configInput" type="range" id="__c21" name="20" list="__cw" min="51.5" max="100" step="0.5" value="${configPreferences[20].value}">
+                  <datalist id="__cw">
+                    <option value="51.5" label="default"></option>
+                    <option value="100" label="full width"></option>
+                  </datalist>
+                </div>
+              </li>
               </ul>
               <ul id="__cta">
                 <li class="infoHeader" style="flex-flow: column wrap">
@@ -505,6 +583,7 @@ const main = async function () {
         </div>
       `);
       const initializePreferences = () => {
+        const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
         if(isDashboard()) {
           waitFor(keyToCss("timelineHeader")).then(() => {
             toggle($(keyToCss("timelineHeader")), !configPreferences[0].value);
@@ -544,11 +623,14 @@ const main = async function () {
         if (configPreferences[18].value) {
           badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
+        waitFor(containerSelector).then(() => {
+          css($(containerSelector), { "left": `${configPreferences[19].value}vw`, "max-width": `${configPreferences[20].value}vw` });
+        });
       };
       const unfuck = async function () {
         if (!initialChecks()) return;
 
-        const menu = configMenu(version, updateSrc, configPreferences);
+        const menu = configMenu(version, updateSrc);
 
         requestAnimationFrame(() => {
           document.head.appendChild(styleElement);
@@ -571,14 +653,16 @@ const main = async function () {
                 } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
                 toggle($("#__a"));
               });
-              $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", (event) => {
-                configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
-                checkboxEvent(event.target.id, event.target.matches(":checked"));
-                updatePreferences(configPreferences);
+              $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
+                if (event.target.attributes.getNamedItem("type") === "checkbox") {
+                  configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
+                  checkboxEvent(event.target.id, event.target.matches(":checked"));
+                } else {
+                  configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.valueAsNumber;
+                  rangeEvent(event.target.id, event.target.valueAsNumber);
+                }
+                updatePreferences();
               })});
-              if (!storageAvailable("localStorage")) {
-                hide($("#__cta"));
-              };
             });
           };
           initializePreferences();
