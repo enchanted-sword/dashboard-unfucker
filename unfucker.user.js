@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.1.2
+// @version      4.1.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -20,7 +20,7 @@ const wait = (retried = 0,) => new Promise((resolve) => {
   if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
 });
 const main = async function () {
-  const version = "4.1.2";
+  const version = "4.1.3";
   const match = [
     "",
     "dashboard",
@@ -130,7 +130,7 @@ const main = async function () {
     localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
   };
   const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
-  const notMasonry = () => !["search", "tagged"].includes(location.pathname.split("/")[1]);
+  const notMasonry = () => !["search", "tagged", "explore"].includes(location.pathname.split("/")[1]);
   const getUtilities = async function () {
     let retries = 0;
     while (retries++ < 1000 && (typeof window.tumblr === "undefined" || typeof window.tumblr.getCssMap === "undefined")) {
