@@ -1,12 +1,10 @@
 // ==UserScript==
 // @name         dashboard unfucker (no flags)
-// @version      4.2.2
+// @version      4.3.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
-// @downloadURL  https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js
-// @updateURL    https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js
 // @grant        unsafeWindow
 // @require      https://code.jquery.com/jquery-3.6.4.min.js
 // ==/UserScript==
@@ -15,9 +13,8 @@
 
 'use strict';
 
-const version = "4.2.2";
+const version = "4.3.0";
 const type = "b"
-const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker-noflags.user.js";
 const match = [
   "",
   "dashboard",
@@ -754,17 +751,13 @@ getUtilities().then(({ keyToClasses, keyToCss, tr }) => {
               <span>about</span>
             </li>
             <li style="flex-flow: column wrap">
-              <span style="width: 100%;">version: <b>v${version}b</b></span><br>
-              <span style="width: 100%;">type "<b>b</b>" uses jQuery instead of window property feature toggles</span>
+              <span style="width: 100%;">version: <b>v${version}b</b> - <b>DEPRECATED</b></span><br>
+              <span style="width: 100%;">this version is now deprecated, disable this script in your script injector and install 
+                <a target="_blank" href="https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js">this one</a>
+              </span>
             </li>
             <li>
               <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
-            </li>
-            <li>
-              <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
-            </li>
-            <li>
-              <a target="_blank" href="${updateSrc}">update</a>
             </li>
             <li>
               <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
