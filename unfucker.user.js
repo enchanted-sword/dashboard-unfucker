@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.1.0
+// @version      4.1.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -20,7 +20,7 @@ const wait = (retried = 0,) => new Promise((resolve) => {
   if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
 });
 const main = async function () {
-  const version = "4.1.0";
+  const version = "4.1.1";
   const match = [
     "",
     "dashboard",
@@ -57,7 +57,7 @@ const main = async function () {
     { type: "checkbox", value: "" },
     { type: "checkbox", value: "" },
     { type: "range", value: 0},
-    { type: "range", value: 51.5}
+    { type: "range", value: 990}
   ];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
@@ -158,7 +158,7 @@ const main = async function () {
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
       if (!localStorage.getItem("configPreferences")) {
-        updatePreferences(configPreferences);
+        updatePreferences();
         console.log("initialized preferences");
       } else {
         const oldPreferences = JSON.parse(localStorage.getItem("configPreferences"));
@@ -167,6 +167,10 @@ const main = async function () {
       };
     } else {
       configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+      if (configPreferences[20] < 990) {
+        configPreferences[20] = 990;
+        updatePreferences();
+      }
     };
   };
   const featureSet = [
@@ -214,6 +218,8 @@ const main = async function () {
   document.head.appendChild(style);
   document.addEventListener("DOMContentLoaded", () => {
     getUtilities().then(({ keyToCss, keyToClasses }) => {
+      let windowWidth = window.innerWidth;
+      let safeOffset = (windowWidth - 1000) / 2;
       const postSelector = "[tabindex='-1'][data-id] article";
       const newNodes = [];
       const target = document.getElementById("root");
@@ -389,21 +395,21 @@ const main = async function () {
       const rangeEvent = (id, value) => {
         if (matchPathname() && notMasonry()) {
           const posOffset = $("#__c20").valueAsNumber;
-          const widthOffset = ($("#__c21").valueAsNumber - 51.5) / 2;
-          let safeMax = Math.max(24 - widthOffset, 0);
+          const widthOffset = ($("#__c21").valueAsNumber - 990) / 2;
+          let safeMax = Math.max(safeOffset - widthOffset, 0);
           if (Math.abs(posOffset) > safeMax) {
             safeMax = posOffset > 0 ? safeMax : -safeMax;
             $("#__c20").value = safeMax.toString();
-            css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}vw`});
+            css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}px`});
             configPreferences[19].value = safeMax;
-            if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
+            if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
           } else {
             switch (id) {
               case "__c20":
-                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}vw`});
+                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}px`});
                 break;
               case "__c21":
-                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}vw`});
+                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
                 break;
             };
           };
@@ -510,21 +516,21 @@ const main = async function () {
               <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
-                  <input class="configInput" type="range" id="__c20" name="19" list="__cp" min="-24" max="24" step="1" value="${configPreferences[19].value}">
+                  <input class="configInput" type="range" id="__c20" name="19" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences[19].value}">
                   <datalist id="__cp">
-                    <option value="-24" label="left"></option>
+                    <option value="-${safeOffset}" label="left"></option>
                     <option value="0" label="default"></option>
-                    <option value="24" label="right"></option>
+                    <option value="${safeOffset}" label="right"></option>
                   </datalist>
                 </div>
               </li>
               <li>
                 <span>content width</span>
                 <div class="rangeInput">
-                  <input class="configInput" type="range" id="__c21" name="20" list="__cw" min="51.5" max="100" step="0.5" value="${configPreferences[20].value}">
+                  <input class="configInput" type="range" id="__c21" name="20" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences[20].value}">
                   <datalist id="__cw">
-                    <option value="51.5" label="default"></option>
-                    <option value="100" label="full width"></option>
+                    <option value="990" label="default"></option>
+                    <option value="${windowWidth}" label="full width"></option>
                   </datalist>
                 </div>
               </li>
@@ -623,7 +629,7 @@ const main = async function () {
         };
         if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
-            css($(containerSelector), { "left": `${configPreferences[19].value}vw`, "max-width": `${configPreferences[20].value}vw` });
+            css($(containerSelector), { "left": `${configPreferences[19].value}px`, "max-width": `${configPreferences[20].value}px` });
           });
           const gridStyle = document.createElement("style");
           gridStyle.id = "__gs";
