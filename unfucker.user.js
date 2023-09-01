@@ -689,6 +689,22 @@ const main = async function () {
       console.log(featureSet);
       console.log(JSON.parse(atob(state.obfuscatedFeatures)));
       unfuck();
+      window.addEventListener("resize", () => {
+        windowWidth = window.innerWidth;
+        safeOffset = (windowWidth - 1000) / 2;
+        $("#__c20").attributes.getNamedItem("min").value = `-${safeOffset}`;
+        $("#__c20").attributes.getNamedItem("max").value = `${safeOffset}`;
+        $("#__c21").attributes.getNamedItem("max").value = `${windowWidth}`;
+        $("#__cp").innerHTML = `
+          <option value="-${safeOffset}" label="left"></option>
+          <option value="0" label="default"></option>
+          <option value="${safeOffset}" label="right"></option>
+        `;
+        $("#__cw").innerHTML = `
+          <option value="990" label="default"></option>
+          <option value="${windowWidth}" label="full width"></option>
+        `;
+      });
       window.tumblr.on('navigation', () => window.setTimeout(
         unfuck().then(() => {
           window.setTimeout(() => {
