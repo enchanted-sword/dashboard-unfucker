@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.5beta
+// @version      4.1.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -20,8 +20,7 @@ const wait = (retried = 0,) => new Promise((resolve) => {
   if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
 });
 const main = async function () {
-  const version = "4.0.5β";
-  const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
+  const version = "4.1.0";
   const match = [
     "",
     "dashboard",
@@ -442,7 +441,7 @@ const main = async function () {
           }
         });
       };
-      const configMenu = (version, updateSrc) => $str(`
+      const configMenu = (version) => $str(`
         <div id="__m">
           <div id="__in">
             <h1>dashboard unfucker v${version}</h1>
@@ -469,7 +468,7 @@ const main = async function () {
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
               </li>
               <li>
-                <a target="_blank" href="${updateSrc}">update</a>
+                <a target="_blank" href="https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js">update</a>
               </li>
               <li>
                 <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
@@ -641,7 +640,7 @@ const main = async function () {
       const unfuck = async function () {
         if (!initialChecks()) return;
 
-        const menu = configMenu(version, updateSrc);
+        const menu = configMenu(version);
 
         requestAnimationFrame(() => {
           document.head.appendChild(styleElement);
