@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.1.1
+// @version      4.1.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -20,7 +20,7 @@ const wait = (retried = 0,) => new Promise((resolve) => {
   if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
 });
 const main = async function () {
-  const version = "4.1.1";
+  const version = "4.1.2";
   const match = [
     "",
     "dashboard",
@@ -167,8 +167,8 @@ const main = async function () {
       };
     } else {
       configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
-      if (configPreferences[20] < 990) {
-        configPreferences[20] = 990;
+      if (configPreferences[20].value < 990) {
+        configPreferences[20].value = 990;
         updatePreferences();
       }
     };
