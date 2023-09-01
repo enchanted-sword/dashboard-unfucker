@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.0.4beta
+// @version      4.0.5beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -20,7 +20,7 @@ const wait = (retried = 0,) => new Promise((resolve) => {
   if ($("head").length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => wait(retried + 1).then(resolve)) }
 });
 const main = async function () {
-  const version = "4.0.4β";
+  const version = "4.0.5β";
   const updateSrc = "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js";
   const match = [
     "",
@@ -171,7 +171,7 @@ const main = async function () {
     };
   };
   const featureSet = [
-    {"name": "redpopDesktopVerticalNav", "value": !configPreferences[5].value},
+    {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "redpopVirtualScroller", "value": !configPreferences[6].value},
     {"name": "liveCustomMarqueeData", "value": !configPreferences[7].value},
     {"name": "liveStreaming", "value": !configPreferences[7].value},
@@ -189,6 +189,7 @@ const main = async function () {
     {"name": "tagSuggestionTwoStepDialog", "value": !configPreferences[14].value},
     {"name": "redpopUnreadNotificationsOnTab", "value": !configPreferences[15].value},
     {"name": "reblogRedesignNew", "value": !configPreferences[16].value},
+    {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "crowdsignalPollsNpf", "value": true},
     {"name": "crowdsignalPollsCreate", "value": true},
     {"name": "adFreeCtaBanner", "value": false}
@@ -273,10 +274,11 @@ const main = async function () {
           ${keyToCss("main")} {
             flex: 1;
             min-width: 0;
-            max-width: none;
+            max-width: none !important;
           }
           ${keyToCss("postColumn")} { max-width: calc(100% - 85px); }
           ${keyToCss("post")}, ${keyToCss("post")} > * { max-width: 100%; }
+          ${keyToCss("cell")},
           ${keyToCss("reblog")}, 
           ${keyToCss("videoBlock")}, 
           ${keyToCss("videoBlock")} iframe,
@@ -378,11 +380,6 @@ const main = async function () {
           case "__c5":
             toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
             break;
-          case "__c6":
-            $("#__c11,#__c17").click();
-            toggle($("#__c11").parentElement, value);
-            toggle($("#__c17").parentElement, value);
-          break;
           case "__c19":
             if (configPreferences[18].value) {
               document.getElementById("__bs").innerText = `${keyToCss("badgeContainer")} { display: none; }`;
@@ -391,7 +388,7 @@ const main = async function () {
         }
       };
       const rangeEvent = (id, value) => {
-        if (notMasonry()) {
+        if (matchPathname() && notMasonry()) {
           const posOffset = $("#__c20").valueAsNumber;
           const widthOffset = ($("#__c21").valueAsNumber - 51.5) / 2;
           let safeMax = Math.max(24 - widthOffset, 0);
@@ -539,10 +536,6 @@ const main = async function () {
                 <span style="width: 100%; font-size: .8em;">requires a page reload</span>
               </li>
               <li>
-                <span>revert vertical nav layout</span>
-                <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
-              </li>
-              <li>
                 <span>disable "virtual scroller" experiment</span>
                 <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
               </li>
@@ -611,12 +604,6 @@ const main = async function () {
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences[3].value);
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences[4].value);
         });
-        if (!configPreferences[6].value && matchPathname()) {
-          hide($("#__c11").parentElement);
-          hide($("#__c17").parentElement);
-          if ($("#__c11").matches(":checked")) $("#__c11").click();
-          if ($("#__c17").matches(":checked")) $("#__c17").click();
-        }
         if (configPreferences[7].value) {
           $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
         };
@@ -635,7 +622,7 @@ const main = async function () {
         if (configPreferences[18].value) {
           badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
-        if (notMasonry()) {
+        if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
             css($(containerSelector), { "left": `${configPreferences[19].value}vw`, "max-width": `${configPreferences[20].value}vw` });
           });
