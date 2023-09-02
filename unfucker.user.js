@@ -18,10 +18,7 @@
 var $ = window.jQuery;
 const wait = (retried = 0) => new Promise((resolve) => {
   if ($(document.body).length) resolve();
-  else if (retried < 25) {
-    console.log(retried);
-    requestAnimationFrame(() => wait(retried + 1).then(resolve))
-  }
+  else if (retried < 25) requestAnimationFrame(() => wait(retried + 1).then(resolve));
 });
 const main = async function () {
   const version = "4.2.1";
@@ -128,7 +125,7 @@ const main = async function () {
     return btoa(JSON.stringify(obf));
   };
   const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
-    if ($a(selector).length) { resolve() } else if (retried < 25) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
+    if ($a(selector).length) { resolve() } else if (retried < 50) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
   });
   const updatePreferences = () => {
     localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
@@ -599,15 +596,15 @@ const main = async function () {
       `);
       const initializePreferences = () => {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
+        waitFor(keyToCss("recommendedBlogs")).then(() => {
+          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences[1].value);
+        });
+        waitFor(keyToCss("radar")).then(() => {
+          toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences[2].value);
+        });
         if(isDashboard()) {
           waitFor(keyToCss("timelineHeader")).then(() => {
             toggle($(keyToCss("timelineHeader")), !configPreferences[0].value);
-          });
-          waitFor(keyToCss("recommendedBlogs")).then(() => {
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences[1].value);
-          });
-          waitFor(keyToCss("radar")).then(() => {
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences[2].value);
           });
         };
         waitFor(keyToCss("menuRight")).then(() => {
