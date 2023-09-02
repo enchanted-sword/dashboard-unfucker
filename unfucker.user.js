@@ -1,22 +1,30 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.2.0
+// @version      4.2.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tumblr.com
 // @downloadURL  https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
 // @updateURL    https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js
+// @require      https://code.jquery.com/jquery-3.6.4.min.js
 // @grant        none
-// @run-at       document-body
+// @run-at       document-start
 // ==/UserScript==
 
 /* globals tumblr */
 
 'use strict';
-
+var $ = window.jQuery;
+const wait = (retried = 0) => new Promise((resolve) => {
+  if ($(document.body).length) resolve();
+  else if (retried < 25) {
+    console.log(retried);
+    requestAnimationFrame(() => wait(retried + 1).then(resolve))
+  }
+});
 const main = async function () {
-  const version = "4.2.0";
+  const version = "4.2.1";
   const match = [
     "",
     "dashboard",
@@ -715,9 +723,10 @@ const main = async function () {
   });
 };
 const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
-const script = document.createElement("script");
-
-script.setAttribute("nonce", nonce);
-script.id = "__u";
-script.innerText = `${main()}`;
-if (!document.getElementById("__u")) document.head.appendChild(script);
+const script = $(`
+  <script id="__u" nonce="${nonce}">
+    const unfuckDashboard = ${main.toString()};
+    unfuckDashboard();
+  </script>
+`);
+wait().then(() => $(document.head).append(script));
