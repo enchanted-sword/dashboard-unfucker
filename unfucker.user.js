@@ -187,8 +187,7 @@ const main = async function () {
     {"name": "domainsSettings", "value": !configPreferences[8].value},
     {"name": "activityRedesignM3", "value": !configPreferences[9].value},
     {"name": "messagingRedesign", "value": !configPreferences[10].value},
-    {"name": "experimentalBlockEditorIsOnlyEditor", "value": !configPreferences[11].value},
-    {"name": "tumblrEditorForceTextPostType", "value": !configPreferences[11].value},
+    {"name": "improvedSearchTypeahead", "value": !configPreferences[11].value},
     {"name": "configurableTabbedDash", "value": configPreferences[12].value?true:false},
     {"name": "allowAddingPollsToReblogs", "value": configPreferences[13].value?true:false},
     {"name": "tagSuggestionTwoStepDialog", "value": !configPreferences[14].value},
@@ -571,7 +570,7 @@ const main = async function () {
                 <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
               </li>
               <li>
-                <span>allow legacy post editor</span>
+                <span>revert searchbar update</span>
                 <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
               </li>
               <li>
