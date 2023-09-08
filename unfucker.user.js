@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.2.1
+// @version      4.3.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -22,7 +22,7 @@ if (head.length === 0) {
     $("html").append(head);
 };
 const main = async function () {
-  const version = "4.2.1";
+  const version = "4.3.0";
   const match = [
     "",
     "dashboard",
