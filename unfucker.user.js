@@ -16,10 +16,11 @@
 
 'use strict';
 var $ = window.jQuery;
-const wait = (retried = 0) => new Promise((resolve) => {
-  if ($(document.body).length) resolve();
-  else if (retried < 25) requestAnimationFrame(() => wait(retried + 1).then(resolve));
-});
+let head = $("head");
+if (head.length === 0) {
+    head = $("<head>");
+    $("html").append(head);
+};
 const main = async function () {
   const version = "4.2.1";
   const match = [
@@ -218,6 +219,13 @@ const main = async function () {
   });
   document.head.appendChild(style);
   document.addEventListener("DOMContentLoaded", () => {
+    if ($a("head").length > 1) {
+      const head0 = $a("head").item(0);
+      const head1 = $a("head").item(1);
+      const head1c = Array.from(head1.children);
+      head0.append(...head1c);
+      head1.remove();
+    };
     getUtilities().then(({ keyToCss, keyToClasses }) => {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
@@ -726,4 +734,4 @@ const script = $(`
     unfuckDashboard();
   </script>
 `);
-wait().then(() => $(document.head).append(script));
+$(document.head).append(script);
