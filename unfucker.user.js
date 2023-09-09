@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.3.1
+// @version      4.3.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.3.1";
+  const version = "4.3.2";
   const match = [
     "",
     "dashboard",
@@ -714,7 +714,7 @@ const main = async function () {
     });
   });
 };
-let { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
 const script = $(`
   <script id="__u" nonce="${nonce}">
     const unfuckDashboard = ${main.toString()};
@@ -728,7 +728,6 @@ if ($("head").length === 0) {
     if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
       const head = nodes.find(node => node.matches("head"));
       $(head).append(script);
-      script.attr("nonce") = [...document.scripts].find(script => script.getAttributeNames().includes("nonce"));
     }
   };
   const observer = new MutationObserver(mutations => {
@@ -740,5 +739,4 @@ if ($("head").length === 0) {
     findHead();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-};
-$(document.head).append(script);
+} else $(document.head).append(script);
