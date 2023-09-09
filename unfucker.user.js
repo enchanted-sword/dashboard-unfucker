@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.3.0
+// @version      4.3.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,13 +16,8 @@
 
 'use strict';
 var $ = window.jQuery;
-let head = $("head");
-if (head.length === 0) {
-    head = $("<head>");
-    $("html").append(head);
-};
 const main = async function () {
-  const version = "4.3.0";
+  const version = "4.3.1";
   const match = [
     "",
     "dashboard",
@@ -218,13 +213,6 @@ const main = async function () {
   });
   document.head.appendChild(style);
   document.addEventListener("DOMContentLoaded", () => {
-    if ($a("head").length > 1) {
-      const head0 = $a("head").item(0);
-      const head1 = $a("head").item(1);
-      const head1c = Array.from(head1.children);
-      head0.append(...head1c);
-      head1.remove();
-    };
     getUtilities().then(({ keyToCss, keyToClasses }) => {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
@@ -726,11 +714,31 @@ const main = async function () {
     });
   });
 };
-const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+let { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
 const script = $(`
   <script id="__u" nonce="${nonce}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard();
   </script>
 `);
+if ($("head").length === 0) {
+  const newNodes = [];
+  const findHead = () => {
+    const nodes = newNodes.splice(0);
+    if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
+      const head = nodes.find(node => node.matches("head"));
+      $(head).append(script);
+      script.attr("nonce") = [...document.scripts].find(script => script.getAttributeNames().includes("nonce"));
+    }
+  };
+  const observer = new MutationObserver(mutations => {
+    const nodes = mutations
+    .flatMap(({ addedNodes }) => [...addedNodes])
+    .filter(node => node instanceof Element)
+    .filter(node => node.isConnected);
+    newNodes.push(...nodes);
+    findHead();
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+};
 $(document.head).append(script);
