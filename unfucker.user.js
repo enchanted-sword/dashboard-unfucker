@@ -398,7 +398,7 @@ const main = async function () {
                 };
               });
             };
-          } catch {
+          } catch (e) {
             console.error("an error occurred processing a notification:", e);
             console.error(note);
             console.error(fetchNote(note));
@@ -407,7 +407,7 @@ const main = async function () {
       };
       const sortNodes = () => {
         const nodes = newNodes.splice(0);
-        if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) ||  node.querySelector(postSelector) !== null)
+        if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null)
           || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null))) {
           const posts = [
             ...nodes.filter(node => node.matches(postSelector)),
