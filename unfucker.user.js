@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.3.2
+// @version      4.3.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.3.2";
+  const version = "4.3.3";
   const match = [
     "",
     "dashboard",
@@ -54,7 +54,8 @@ const main = async function () {
     { type: "checkbox", value: "" },
     { type: "checkbox", value: "" },
     { type: "range", value: 0},
-    { type: "range", value: 990}
+    { type: "range", value: 990},
+    { type: "checkbox", value: "checked" }
   ];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
@@ -69,11 +70,11 @@ const main = async function () {
   const toggle = (elem, toggle = "ignore") => {
     if (toggle === "ignore") {
       elem.style.display === "none" ?
-        show(elem) 
+        show(elem)
         : hide(elem);
     } else {
       toggle === true ?
-        show(elem) 
+        show(elem)
         : hide(elem);
     }
   };
@@ -136,7 +137,8 @@ const main = async function () {
     const cssMap = await window.tumblr.getCssMap();
     const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
     const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
-    return { keyToCss, keyToClasses };
+    const tr = string => `${window.tumblr.languageData.translations[string] || string}`;
+    return { keyToClasses, keyToCss, tr };
   };
   const style = $str(`
     <style>
@@ -213,10 +215,11 @@ const main = async function () {
   });
   document.head.appendChild(style);
   document.addEventListener("DOMContentLoaded", () => {
-    getUtilities().then(({ keyToCss, keyToClasses }) => {
+    getUtilities().then(({ keyToCss, keyToClasses, tr }) => {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
       const postSelector = "[tabindex='-1'][data-id] article";
+      const noteSelector = `[aria-label="${tr("Notification")}"]`;
       const newNodes = [];
       const target = document.getElementById("root");
       const styleElement = $str(`
@@ -281,8 +284,8 @@ const main = async function () {
           ${keyToCss("post")}, ${keyToCss("post")} > * { max-width: 100%; }
           ${keyToCss("cell")},
           ${keyToCss("link")},
-          ${keyToCss("reblog")}, 
-          ${keyToCss("videoBlock")}, 
+          ${keyToCss("reblog")},
+          ${keyToCss("videoBlock")},
           ${keyToCss("videoBlock")} iframe,
           ${keyToCss("audioBlock")} { max-width: none !important; }
           ${keyToCss("queueSettings")} {
@@ -291,10 +294,26 @@ const main = async function () {
           }
         </style>
       `);
-      const fetchNpf = post => { //shoutout to xkit rewritten for showing me this method
-        const fiberKey = Object.keys(post).find(key => key.startsWith("__reactFiber"));
-        let fiber = post[fiberKey];
-        
+      const followsYou = () => $str(`
+        <div class="${keyToClasses("generalLabelContainer").join(" ")} followsYouLabel" style="margin-left: 5px; color: #2552ff; background-color: #e7fcff;">
+          Following You
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation">
+            <use href="#managed-icon__profile-checkmark"></use>
+          </svg>
+        </div>
+      `);
+      const possibleBot = () =>  $str(`
+        <div class="${keyToClasses("generalLabelContainer").join(" ")}" style="margin-left: 5px; color: #ff252f; background-color: #ffe7e7;">
+          Possible Bot
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: #ff252f;">
+            <use href="#managed-icon__warning-circle"></use>
+          </svg>
+        </div>
+      `);
+      const fetchNpf = obj => { //shoutout to xkit rewritten for showing me this method
+        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        let fiber = obj[fiberKey];
+
         while (fiber !== null) {
           const { timelineObject } = fiber.memoizedProps || {};
           if (timelineObject !== undefined) {
@@ -302,8 +321,21 @@ const main = async function () {
           } else {
             fiber = fiber.return;
           };
-        }
-      }
+        };
+      };
+      const fetchNote = obj => {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        let fiber = obj[fiberKey];
+
+        while (fiber !== null) {
+          const { notification } = fiber.memoizedProps || {};
+          if (notification !== undefined) {
+            return notification;
+          } else {
+            fiber = fiber.return;
+          };
+        };
+      };
       const fixHeader = posts => {
         for (const post of posts) {
           const header = post.querySelector(`:scope header${keyToCss("header")}`);
@@ -334,9 +366,13 @@ const main = async function () {
           try {
             waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
               const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
-              const number = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")[0];
+              const title = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")
+              const number = title[0];
+              const descriptor = title[1];
               const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
               blackText.innerText = number;
+              formattedNoteCount.childNodes[0].nodeValue = descriptor;
+              css(formattedNoteCount, { "overflowWrap": "normal"});
             });
           } catch (e) {
             console.error("an error occurred processing a post's notes:", e);
@@ -345,15 +381,45 @@ const main = async function () {
           };
         };
       };
-      const sortPosts = () => {
+      const scanNotes = notes => {
+        for (const note of notes) {
+          try {
+            const { followingYou, mutuals, type, fromTumblelogUuid } = fetchNote(note);
+            if (configPreferences[21].value && followingYou && !mutuals) {
+              note.querySelector(keyToCss("blogLinkUserAttribution")).append(followsYou());
+            };
+            if (configPreferences[5].value && type === "follower") {
+              window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
+                const { secondsSinceLastActivity, title } = response.response.blog;
+                if (secondsSinceLastActivity === -1 && title === tr("Untitled")) {
+                  css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
+                  note.querySelector(keyToCss("blogLinkUserAttribution")).append(possibleBot());
+                  note.querySelector(".followsYouLabel").remove();
+                };
+              });
+            };
+          } catch {
+            console.error("an error occurred processing a notification:", e);
+            console.error(note);
+            console.error(fetchNote(note));
+          };
+        };
+      };
+      const sortNodes = () => {
         const nodes = newNodes.splice(0);
-        if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null))) {
+        if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) ||  node.querySelector(postSelector) !== null)
+          || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null))) {
           const posts = [
             ...nodes.filter(node => node.matches(postSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
+          const notes = [
+            ...nodes.filter(node => node.matches(noteSelector)),
+            ...nodes.flatMap(node => [...node.querySelectorAll(noteSelector)])
+          ].filter((value, index, array) => index === array.indexOf(value));
           if (configPreferences[16].value) fixHeader(posts);
           if (configPreferences[17].value) recountNotes(posts);
+          if (configPreferences[5].value) scanNotes(notes);
         }
         else return
       };
@@ -363,7 +429,7 @@ const main = async function () {
         .filter(node => node instanceof Element)
         .filter(node => node.isConnected);
         newNodes.push(...nodes);
-        sortPosts();
+        sortNodes();
       });
       const checkboxEvent = (id, value) => {
         switch (id) {
@@ -432,16 +498,12 @@ const main = async function () {
             && $(keyToCss("timeline")).attributes.getNamedItem("data-timeline").value.includes("/v2/tabs/for_you")) {
             window.tumblr.navigate("/dashboard/following");
             console.log("navigating to following");
-            throw "navigating tabs";
-          } else if (isDashboard) {
-            waitFor(keyToCss("timelineOptionsItemWrapper")).then(() => {
-              if ($a(keyToCss("timelineOptionsItemWrapper"))[0].querySelectorAll("a[href='/dashboard/stuff_for_you']").length) {
-                let forYou = find($(keyToCss("timelineOptionsItemWrapper")), "a[href='/dashboard/stuff_for_you']");
-                let following = find($(keyToCss("timelineOptionsItemWrapper")), "a[href='/dashboard/following']");
-                forYou.before(following);
-              }
-            });
-          }
+          };
+        });
+        waitFor(keyToCss("menuRight")).then(() => {
+          $(`${keyToCss("menuContainer")} [href="/dashboard"]`).addEventListener("click", () => {
+            window.tumblr.navigate("/dashboard/following");
+          });
         });
       };
       const configMenu = (version) => $str(`
@@ -585,6 +647,14 @@ const main = async function () {
                 <span>display full note counts</span>
                 <input class="configInput" type="checkbox" id="__c18" name="17" ${configPreferences[17].value}>
               </li>
+              <li>
+                <span>highlight likely bots in the activity feed</span>
+                <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
+              </li>
+              <li>
+                <span>show who follows you in the activity feed</span>
+                <input class="configInput" type="checkbox" id="__c22" name="21" ${configPreferences[21].value}>
+              </li>
             </ul>
           </div>
         </div>
@@ -609,8 +679,11 @@ const main = async function () {
         if (configPreferences[7].value) {
           $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
         };
-        if (configPreferences[16].value || configPreferences[17].value) {
+        if (configPreferences[5].value || configPreferences[21].value || configPreferences[16].value || configPreferences[17].value) {
           observer.observe(target, { childList: true, subtree: true });
+        }
+        if (configPreferences[5].value || configPreferences[21].value) {
+          scanNotes(Array.from($a(noteSelector)));
         }
         if (configPreferences[16].value) {
           fixHeader(Array.from($a(postSelector)));
@@ -657,7 +730,7 @@ const main = async function () {
               $("#__cb").addEventListener("click", () => {
                 if ($("#__c").style.display === "none") {
                   $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-                } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)"); 
+                } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
                 toggle($("#__c"));
               });
               $("#__ab").addEventListener("click", () => {
@@ -682,7 +755,7 @@ const main = async function () {
         });
         console.log("dashboard fixed!");
       };
-      
+
       console.log(featureSet);
       console.log(JSON.parse(atob(state.obfuscatedFeatures)));
       unfuck();
@@ -707,7 +780,7 @@ const main = async function () {
           window.setTimeout(() => {
             if (!$a("#__m").length) unfuck();
           }, 400)
-        }).catch((e) => 
+        }).catch((e) =>
           window.setTimeout(unfuck, 400)
         ), 400
       ));
