@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.3.3
+// @version      4.3.4
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.3.3";
+  const version = "4.3.4";
   const match = [
     "",
     "dashboard",
@@ -219,7 +219,7 @@ const main = async function () {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
       const postSelector = "[tabindex='-1'][data-id] article";
-      const noteSelector = `[aria-label="${tr("Notification")}"]`;
+      const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
       const newNodes = [];
       const target = document.getElementById("root");
       const styleElement = $str(`
