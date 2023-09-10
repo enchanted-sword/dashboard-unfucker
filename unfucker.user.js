@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.3.4
+// @version      4.3.5
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.3.4";
+  const version = "4.3.5";
   const match = [
     "",
     "dashboard",
@@ -499,11 +499,6 @@ const main = async function () {
             window.tumblr.navigate("/dashboard/following");
             console.log("navigating to following");
           };
-        });
-        waitFor(keyToCss("menuRight")).then(() => {
-          $(`${keyToCss("menuContainer")} [href="/dashboard"]`).addEventListener("click", () => {
-            window.tumblr.navigate("/dashboard/following");
-          });
         });
       };
       const configMenu = (version) => $str(`
