@@ -314,9 +314,6 @@ const main = async function () {
             justify-content: space-between;
           }
           
-          .customLabelContainer {
-            position: relative;
-          }
           .customLabelContainer[label="Possible Bot"]::after {
             content: "about";
             border-bottom: 1px solid #ff252f;
@@ -334,7 +331,7 @@ const main = async function () {
             border-radius: var(--border-radius-small);
             position: absolute;
             z-index: 1;
-            top: 20px;
+            top: 24px;
             left: 0;
             transition: opacity 0.5s;
             white-space: initial;
@@ -344,6 +341,7 @@ const main = async function () {
             opacity: 1;
           }
 
+          #tumblr { --dashboard-tabs-header-height: 0px !important; }
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
           ${keyToCss("main")} {
@@ -636,6 +634,14 @@ const main = async function () {
                 <input class="configInput" type="checkbox" id="__hideBadges" name="hideBadges" ${configPreferences.hideBadges.value}>
               </li>
               <li>
+                <span>highlight likely bots in the activity feed</span>
+                <input class="configInput" type="checkbox" id="__highlightLikelyBots" name="highlightLikelyBots" ${configPreferences.highlightLikelyBots.value}>
+              </li>
+              <li>
+                <span>show who follows you in the activity feed</span>
+                <input class="configInput" type="checkbox" id="__showFollowingLabel" name="showFollowingLabel" ${configPreferences.showFollowingLabel.value}>
+              </li>
+              <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
                   <input class="configInput" type="range" id="__contentPositioning" name="contentPositioning" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences.contentPositioning.value}">
@@ -705,14 +711,6 @@ const main = async function () {
               <li>
                 <span>display full note counts</span>
                 <input class="configInput" type="checkbox" id="__displayFullNoteCounts" name="displayFullNoteCounts" ${configPreferences.displayFullNoteCounts.value}>
-              </li>
-              <li>
-                <span>highlight likely bots in the activity feed</span>
-                <input class="configInput" type="checkbox" id="__highlightLikelyBots" name="highlightLikelyBots" ${configPreferences.highlightLikelyBots.value}>
-              </li>
-              <li>
-                <span>show who follows you in the activity feed</span>
-                <input class="configInput" type="checkbox" id="__showFollowingLabel" name="showFollowingLabel" ${configPreferences.showFollowingLabel.value}>
               </li>
             </ul>
           </div>
