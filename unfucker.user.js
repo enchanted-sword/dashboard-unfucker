@@ -267,12 +267,37 @@ const main = async function () {
             display: flex;
             justify-content: space-between;
           }
-          button.configReset {
-            width: fit-content;
-            margin: 8px auto 0;
-            padding: 4px 8px;
-            background: rgba(var(--black),.07)
+          
+          .customLabelContainer {
+            position: relative;
           }
+          .customLabelContainer[label="Possible Bot"]::after {
+            content: "about";
+            border-bottom: 1px solid #ff252f;
+            font-size: 12px;
+            margin-left: 5px;
+          }
+          .customLabelInfo {
+            visibility: hidden;
+            opacity: 0;
+            width: 240px;
+            background-color: inherit;
+            color: rgb(var(--black));
+            text-align: center;
+            padding: 2px;
+            border-radius: var(--border-radius-small);
+            position: absolute;
+            z-index: 1;
+            top: 20px;
+            left: 0;
+            transition: opacity 0.5s;
+            white-space: initial;
+          }
+          .customLabelContainer:hover .customLabelInfo {
+            visibility: visible;
+            opacity: 1;
+          }
+
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
           ${keyToCss("main")} {
@@ -294,20 +319,13 @@ const main = async function () {
           }
         </style>
       `);
-      const followsYou = () => $str(`
-        <div class="${keyToClasses("generalLabelContainer").join(" ")} followsYouLabel" style="margin-left: 5px; color: #2552ff; background-color: #e7fcff;">
-          Following You
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation">
-            <use href="#managed-icon__profile-checkmark"></use>
+      const labelContainer = (label, color, backgroundColor, icon, desc) => $str(`
+        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px; color: #${color}; background-color: #${backgroundColor};">
+          ${label}
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: #${color};">
+            <use href="#managed-icon__${icon}"></use>
           </svg>
-        </div>
-      `);
-      const possibleBot = () =>  $str(`
-        <div class="${keyToClasses("generalLabelContainer").join(" ")}" style="margin-left: 5px; color: #ff252f; background-color: #ffe7e7;">
-          Possible Bot
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: #ff252f;">
-            <use href="#managed-icon__warning-circle"></use>
-          </svg>
+          <span class="customLabelInfo ${icon}">${desc}</span>
         </div>
       `);
       const fetchNpf = obj => { //shoutout to xkit rewritten for showing me this method
@@ -386,7 +404,7 @@ const main = async function () {
           try {
             const { followingYou, mutuals, type, fromTumblelogUuid } = fetchNote(note);
             if (configPreferences[21].value && followingYou && !mutuals) {
-              note.querySelector(keyToCss("blogLinkUserAttribution")).append(followsYou());
+              note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "2552ff", "e7fcff", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker"));
             };
             if (configPreferences[5].value && type === "follower") {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
@@ -394,8 +412,8 @@ const main = async function () {
                 if ((posts === 0 && title === tr("Untitled"))
                 || (name === title && posts === 1)) {
                   css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
-                  note.querySelector(keyToCss("blogLinkUserAttribution")).append(possibleBot());
-                  note.querySelector(".followsYouLabel").remove();
+                  note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Possible Bot", "ff252f", "ffe7e7", "warning-circle", "This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker"));
+                  note.querySelector("[label='Follows You']").remove();
                 };
               });
             };
