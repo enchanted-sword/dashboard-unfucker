@@ -390,8 +390,9 @@ const main = async function () {
             };
             if (configPreferences[5].value && type === "follower") {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
-                const { secondsSinceLastActivity, title } = response.response.blog;
-                if (secondsSinceLastActivity === -1 && title === tr("Untitled")) {
+                const { title, name, posts } = response.response.blog;
+                if ((posts === 0 && title === tr("Untitled"))
+                || (name === title && posts === 1)) {
                   css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
                   note.querySelector(keyToCss("blogLinkUserAttribution")).append(possibleBot());
                   note.querySelector(".followsYouLabel").remove();
