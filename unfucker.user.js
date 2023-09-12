@@ -770,14 +770,14 @@ const main = async function () {
           <option value="${windowWidth}" label="full width"></option>
         `;
       });
-      window.tumblr.on('navigation', () => window.setTimeout(
+      window.tumblr.on('navigation', () => window.setTimeout(() => {
         unfuck().then(() => {
           window.setTimeout(() => {
             if (!$a("#__m").length) unfuck();
           }, 400)
         }).catch((e) =>
           window.setTimeout(unfuck, 400)
-        ), 400
+        )}, 400
       ));
     });
   });
