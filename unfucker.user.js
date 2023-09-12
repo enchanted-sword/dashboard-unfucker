@@ -33,30 +33,30 @@ const main = async function () {
     "reblog"
   ];
   let state = window.___INITIAL_STATE___;
-  let configPreferences = [
-    { type: "checkbox", value: "" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "checked" },
-    { type: "checkbox", value: "" },
-    { type: "checkbox", value: "" },
-    { type: "range", value: 0},
-    { type: "range", value: 990},
-    { type: "checkbox", value: "checked" }
-  ];
+  let configPreferences = {
+    lastVersion: version,
+    hideDashboardTabs: { type: "checkbox", value: "" },
+    hideRecommendedBlogs: { type: "checkbox", value: "checked" },
+    hideTumblrRadar: { type: "checkbox", value: "checked" },
+    hideExplore: { type: "checkbox", value: "checked" },
+    hideTumblrShop: { type: "checkbox", value: "checked" },
+    hideBadges: { type: "checkbox", value: "checked" },
+    contentPositioning: { type: "range", value: 0},
+    contentWidth: { type: "range", value: 990},
+    disableVirtualScroller: { type: "checkbox", value: "checked" },
+    disableTumblrLive: { type: "checkbox", value: "checked" },
+    disableTumblrDomains: { type: "checkbox", value: "checked" },
+    revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
+    revertMessagingRedesign: { type: "checkbox", value: "checked" },
+    revertSearchbarRedesign: { type: "checkbox", value: "checked" },
+    enableCustomTabs: { type: "checkbox", value: "checked" },
+    enableReblogPolls: { type: "checkbox", value: "checked" },
+    disableTagNag: { type: "checkbox", value: "checked" },
+    reAddHomeNotifications: { type: "checkbox", value: "checked" },
+    displayFullNoteCounts: { type: "checkbox", value: "checked" },
+    highlightLikelyBots: { type: "checkbox", value: "" },
+    showFollowingLabel: { type: "checkbox", value: "" }
+  };
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
   const $str = str => {
@@ -155,41 +155,66 @@ const main = async function () {
   `);
 
   if (storageAvailable("localStorage")) {
-    if (!localStorage.getItem("configPreferences") || JSON.parse(localStorage.getItem("configPreferences")).length < configPreferences.length) {
+    if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
       if (!localStorage.getItem("configPreferences")) {
         updatePreferences();
         console.log("initialized preferences");
       } else {
         const oldPreferences = JSON.parse(localStorage.getItem("configPreferences"));
-        const diff = oldPreferences.length - configPreferences.length;
-        configPreferences = oldPreferences.concat(configPreferences.slice(diff));
+        configPreferences = {
+          lastVersion: "nope!",
+          hideDashboardTabs: { type: "checkbox", value: oldPreferences[0].value },
+          hideRecommendedBlogs: { type: "checkbox", value: oldPreferences[1].value },
+          hideTumblrRadar: { type: "checkbox", value: oldPreferences[2].value },
+          hideExplore: { type: "checkbox", value: oldPreferences[3].value },
+          hideTumblrShop: { type: "checkbox", value: oldPreferences[4].value },
+          hideBadges: { type: "checkbox", value: oldPreferences[18].value },
+          contentPositioning: { type: "range", value: oldPreferences[19].value},
+          contentWidth: { type: "range", value: Math.max(oldPreferences[20].value, 990)},
+          disableVirtualScroller: { type: "checkbox", value: oldPreferences[6].value },
+          disableTumblrLive: { type: "checkbox", value: oldPreferences[7].value },
+          disableTumblrDomains: { type: "checkbox", value: oldPreferences[8].value},
+          revertActivityFeedRedesign: { type: "checkbox", value: oldPreferences[9].value },
+          revertMessagingRedesign: { type: "checkbox", value: oldPreferences[10].value },
+          revertSearchbarRedesign: { type: "checkbox", value: oldPreferences[11].value },
+          enableCustomTabs: { type: "checkbox", value: oldPreferences[12].value },
+          enableReblogPolls: { type: "checkbox", value: oldPreferences[13].value },
+          disableTagNag: { type: "checkbox", value: oldPreferences[14].value },
+          reAddHomeNotifications: { type: "checkbox", value: oldPreferences[15].value },
+          displayFullNoteCounts: { type: "checkbox", value: oldPreferences[17].value },
+          highlightLikelyBots: { type: "checkbox", value: oldPreferences[5].value },
+          showFollowingLabel: { type: "checkbox", value: oldPreferences[21].value }
+        };
       };
     } else {
-      configPreferences = JSON.parse(localStorage.getItem("configPreferences"));
-      if (configPreferences[20].value < 990) {
-        configPreferences[20].value = 990;
-        updatePreferences();
-      }
+      const currentPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+      const currentKeys = Object.keys(currentPreferences);
+      for (const key in configPreferences) {
+        if (currentKeys.includes(key)) {
+          configPreferences[key] = currentPreferences[key];
+        };
+      };
+      updatePreferences();
     };
   };
   const featureSet = [
     {"name": "redpopDesktopVerticalNav", "value": false},
-    {"name": "redpopVirtualScroller", "value": !configPreferences[6].value},
-    {"name": "liveCustomMarqueeData", "value": !configPreferences[7].value},
-    {"name": "liveStreaming", "value": !configPreferences[7].value},
-    {"name": "liveStreamingUserAllowed", "value": !configPreferences[7].value},
-    {"name": "liveStreamingUserEnabled", "value": !configPreferences[7].value},
-    {"name": "liveStreamingWeb", "value": !configPreferences[7].value},
-    {"name": "liveSteamingWebPayments", "value": !configPreferences[7].value},
-    {"name": "domainsSettings", "value": !configPreferences[8].value},
-    {"name": "activityRedesignM3", "value": !configPreferences[9].value},
-    {"name": "messagingRedesign", "value": !configPreferences[10].value},
-    {"name": "improvedSearchTypeahead", "value": !configPreferences[11].value},
-    {"name": "configurableTabbedDash", "value": configPreferences[12].value?true:false},
-    {"name": "allowAddingPollsToReblogs", "value": configPreferences[13].value?true:false},
-    {"name": "tagSuggestionTwoStepDialog", "value": !configPreferences[14].value},
-    {"name": "redpopUnreadNotificationsOnTab", "value": !configPreferences[15].value},
-    {"name": "reblogRedesignNew", "value": !configPreferences[16].value},
+    {"name": "redpopVirtualScroller", "value": !configPreferences.disableVirtualScroller.value},
+    {"name": "liveCustomMarqueeData", "value": !configPreferences.disableTumblrLive.value},
+    {"name": "liveStreaming", "value": !configPreferences.disableTumblrLive.value},
+    {"name": "liveStreamingUserAllowed", "value": !configPreferences.disableTumblrLive.value},
+    {"name": "liveStreamingUserEnabled", "value": !configPreferences.disableTumblrLive.value},
+    {"name": "liveStreamingWeb", "value": !configPreferences.disableTumblrLive.value},
+    {"name": "liveSteamingWebPayments", "value": !configPreferences.disableTumblrLive.value},
+    {"name": "domainsSettings", "value": !configPreferences.disableTumblrDomains.value},
+    {"name": "activityRedesignM3", "value": !configPreferences.revertActivityFeedRedesign.value},
+    {"name": "messagingRedesign", "value": !configPreferences.revertMessagingRedesign.value},
+    {"name": "improvedSearchTypeahead", "value": !configPreferences.revertSearchbarRedesign.value},
+    {"name": "configurableTabbedDash", "value": configPreferences.enableCustomTabs.value?true:false},
+    {"name": "allowAddingPollsToReblogs", "value": configPreferences.enableReblogPolls.value?true:false},
+    {"name": "tagSuggestionTwoStepDialog", "value": !configPreferences.disableTagNag.value},
+    {"name": "redpopUnreadNotificationsOnTab", "value": !configPreferences.reAddHomeNotifications.value},
+    {"name": "reblogRedesignNew", "value": false},
     {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "crowdsignalPollsNpf", "value": true},
     {"name": "crowdsignalPollsCreate", "value": true},
@@ -224,7 +249,13 @@ const main = async function () {
       const target = document.getElementById("root");
       const styleElement = $str(`
         <style id='__s'>
-          #__m { margin-bottom: 20px; }
+          #__m {
+            margin-bottom: 20px;
+            position: relative;
+          }
+          #__m button {
+            position: relative;
+          }
           #__in {
             padding: 8px;
             font-weight: bold;
@@ -251,6 +282,21 @@ const main = async function () {
             align-items: center;
             justify-content: space-between;
             color: rgb(var(--black));
+          }
+          .__n {
+            position: absolute;
+          }
+          #__in > .__n {
+            color: rgb(var(--accent));
+            top: -6px;
+            left: 220px;
+          }
+          button .__n {
+            content: "";
+            border-radius: 50%;
+            border: solid 4px rgb(var(--accent));
+            top: 0px;
+            right: -6px;
           }
           li.infoHeader {
             background: rgba(var(--black),.07);
@@ -403,10 +449,10 @@ const main = async function () {
         for (const note of notes) {
           try {
             const { followingYou, mutuals, type, fromTumblelogUuid } = fetchNote(note);
-            if (configPreferences[21].value && followingYou && !mutuals) {
+            if (configPreferences.showFollowingLabel.value && followingYou && !mutuals) {
               note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "2552ff", "e7fcff", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker"));
             };
-            if (configPreferences[5].value && type === "follower") {
+            if (configPreferences.highlightLikelyBots.value && type === "follower") {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
                 const { title, name, posts } = response.response.blog;
                 if ((posts === 0 && title === tr("Untitled"))
@@ -436,9 +482,9 @@ const main = async function () {
             ...nodes.filter(node => node.matches(noteSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(noteSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
-          if (configPreferences[16].value) fixHeader(posts);
-          if (configPreferences[17].value) recountNotes(posts);
-          if (configPreferences[5].value) scanNotes(notes);
+          fixHeader(posts);
+          if (configPreferences.displayFullNoteCounts.value) recountNotes(posts);
+          if (configPreferences.highlightLikelyBots.value) scanNotes(notes);
         }
         else return
       };
@@ -452,45 +498,45 @@ const main = async function () {
       });
       const checkboxEvent = (id, value) => {
         switch (id) {
-          case "__c1":
+          case "__hideDashboardTabs":
             toggle($(keyToCss("timelineHeader")), !value);
             break;
-          case "__c2":
+          case "__hideRecommendedBlogs":
             toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !value);
             break;
-          case "__c3":
+          case "__hideTumblrRadar":
             toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !value);
             break;
-          case "__c4":
+          case "__hideExplore":
             toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !value);
             break;
-          case "__c5":
+          case "__hideTumblrShop":
             toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
             break;
-          case "__c19":
-            if (configPreferences[18].value) {
+          case "__hideBadges":
+            if (configPreferences.hideBadges.value) {
               document.getElementById("__bs").innerText = `${keyToCss("badgeContainer")} { display: none; }`;
             } else { document.getElementById("__bs").innerText = "" };
             break;
-        }
+        };
       };
       const rangeEvent = (id, value) => {
         if (matchPathname() && notMasonry()) {
-          const posOffset = $("#__c20").valueAsNumber;
-          const widthOffset = ($("#__c21").valueAsNumber - 990) / 2;
+          const posOffset = $("#__contentPositioning").valueAsNumber;
+          const widthOffset = ($("#__contentWidth").valueAsNumber - 990) / 2;
           let safeMax = Math.max(safeOffset - widthOffset, 0);
           if (Math.abs(posOffset) > safeMax) {
             safeMax = posOffset > 0 ? safeMax : -safeMax;
-            $("#__c20").value = safeMax.toString();
+            $("#__contentPositioning").value = safeMax.toString();
             css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}px`});
-            configPreferences[19].value = safeMax;
-            if (id === "__c21") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
+            configPreferences.contentPositioning.value = safeMax;
+            if (id === "__contentWidth") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
           } else {
             switch (id) {
-              case "__c20":
+              case "__contentPositioning":
                 css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}px`});
                 break;
-              case "__c21":
+              case "__contentWidth":
                 css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
                 break;
             };
@@ -544,6 +590,9 @@ const main = async function () {
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
               </li>
               <li>
+                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker#changelog">changelog</a>
+              </li>
+              <li>
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
               </li>
               <li>
@@ -564,32 +613,32 @@ const main = async function () {
               </li>
               <li>
                 <span>hide dashboard tabs</span>
-                <input class="configInput" type="checkbox" id="__c1" name="0" ${configPreferences[0].value}>
+                <input class="configInput" type="checkbox" id="__hideDashboardTabs" name="hideDashboardTabs" ${configPreferences.hideDashboardTabs.value}>
               </li>
               <li>
                 <span>hide recommended blogs</span>
-                <input class="configInput" type="checkbox" id="__c2" name="1" ${configPreferences[1].value}>
+                <input class="configInput" type="checkbox" id="__hideRecommendedBlogs" name="hideRecommendedBlogs" ${configPreferences.hideRecommendedBlogs.value}>
               </li>
               <li>
                 <span>hide tumblr radar</span>
-                <input class="configInput" type="checkbox" id="__c3" name="2" ${configPreferences[2].value}>
+                <input class="configInput" type="checkbox" id="__hideTumblrRadar" name="hideTumblrRadar" ${configPreferences.hideTumblrRadar.value}>
               </li>
               <li>
                 <span>hide explore</span>
-                <input class="configInput" type="checkbox" id="__c4" name="3" ${configPreferences[3].value}>
+                <input class="configInput" type="checkbox" id="__hideExplore" name="hideExplore" ${configPreferences.hideExplore.value}>
               </li>
               <li>
                 <span>hide tumblr shop</span>
-                <input class="configInput" type="checkbox" id="__c5" name="4" ${configPreferences[4].value}>
+                <input class="configInput" type="checkbox" id="__hideTumblrShop" name="hideTumblrShop" ${configPreferences.hideTumblrShop.value}>
               </li>
               <li>
                 <span>hide badges</span>
-                <input class="configInput" type="checkbox" id="__c19" name="18" ${configPreferences[18].value}>
+                <input class="configInput" type="checkbox" id="__hideBadges" name="hideBadges" ${configPreferences.hideBadges.value}>
               </li>
               <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
-                  <input class="configInput" type="range" id="__c20" name="19" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences[19].value}">
+                  <input class="configInput" type="range" id="__contentPositioning" name="contentPositioning" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences.contentPositioning.value}">
                   <datalist id="__cp">
                     <option value="-${safeOffset}" label="left"></option>
                     <option value="0" label="default"></option>
@@ -600,7 +649,7 @@ const main = async function () {
               <li>
                 <span>content width</span>
                 <div class="rangeInput">
-                  <input class="configInput" type="range" id="__c21" name="20" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences[20].value}">
+                  <input class="configInput" type="range" id="__contentWidth" name="contentWidth" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences.contentWidth.value}">
                   <datalist id="__cw">
                     <option value="990" label="default"></option>
                     <option value="${windowWidth}" label="full width"></option>
@@ -615,59 +664,55 @@ const main = async function () {
               </li>
               <li>
                 <span>disable "virtual scroller" experiment</span>
-                <input class="configInput" type="checkbox" id="__c7" name="6" ${configPreferences[6].value}>
+                <input class="configInput" type="checkbox" id="__disableVirtualScroller" name="disableVirtualScroller" ${configPreferences.disableVirtualScroller.value}>
               </li>
               <li>
                 <span>disable tumblr live</span>
-                <input class="configInput" type="checkbox" id="__c8" name="7" ${configPreferences[7].value}>
+                <input class="configInput" type="checkbox" id="__disableTumblrLive" name="disableTumblrLive" ${configPreferences.disableTumblrLive.value}>
               </li>
               <li>
                 <span>disable tumblr domains</span>
-                <input class="configInput" type="checkbox" id="__c9" name="8" ${configPreferences[8].value}>
+                <input class="configInput" type="checkbox" id="__disableTumblrDomains" name="disableTumblrDomains" ${configPreferences.disableTumblrDomains.value}>
               </li>
               <li>
                 <span>revert activity feed redesign</span>
-                <input class="configInput" type="checkbox" id="__c10" name="9" ${configPreferences[9].value}>
+                <input class="configInput" type="checkbox" id="__revertActivityFeedRedesign" name="revertActivityFeedRedesign" ${configPreferences.revertActivityFeedRedesign.value}>
               </li>
               <li>
                 <span>revert messaging redesign</span>
-                <input class="configInput" type="checkbox" id="__c11" name="10" ${configPreferences[10].value}>
+                <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
               </li>
               <li>
                 <span>revert searchbar update</span>
-                <input class="configInput" type="checkbox" id="__c12" name="11" ${configPreferences[11].value}>
+                <input class="configInput" type="checkbox" id="__revertSearchbarRedesign" name="revertSearchbarRedesign" ${configPreferences.revertSearchbarRedesign.value}>
               </li>
               <li>
                 <span>enable customizable dashboard tabs</span>
-                <input class="configInput" type="checkbox" id="__c13" name="12" ${configPreferences[12].value}>
+                <input class="configInput" type="checkbox" id="__enableReCustomTabs" name="enableCustomTabs" ${configPreferences.enableCustomTabs.value}>
               </li>
               <li>
                 <span>enable adding polls to reblogs</span>
-                <input class="configInput" type="checkbox" id="__c14" name="13" ${configPreferences[13].value}>
+                <input class="configInput" type="checkbox" id="__enableReblogPolls" name="enableReblogPolls" ${configPreferences.enableReblogPolls.value}>
               </li>
               <li>
                 <span>disable "post without tags" nag</span>
-                <input class="configInput" type="checkbox" id="__c15" name="14" ${configPreferences[14].value}>
+                <input class="configInput" type="checkbox" id="__disableTagNag" name="disableTagNag" ${configPreferences.disableTagNag.value}>
               </li>
               <li>
                 <span>re-add unread post notifications to the corner of the home icon</span>
-                <input class="configInput" type="checkbox" id="__c16" name="15" ${configPreferences[15].value}>
-              </li>
-              <li>
-                <span>revert post header changes</span>
-                <input class="configInput" type="checkbox" id="__c17" name="16" ${configPreferences[16].value}>
+                <input class="configInput" type="checkbox" id="__reAddHomeNotifications" name="reAddHomeNotifications" ${configPreferences.reAddHomeNotifications.value}>
               </li>
               <li>
                 <span>display full note counts</span>
-                <input class="configInput" type="checkbox" id="__c18" name="17" ${configPreferences[17].value}>
+                <input class="configInput" type="checkbox" id="__displayFullNoteCounts" name="displayFullNoteCounts" ${configPreferences.displayFullNoteCounts.value}>
               </li>
               <li>
                 <span>highlight likely bots in the activity feed</span>
-                <input class="configInput" type="checkbox" id="__c6" name="5" ${configPreferences[5].value}>
+                <input class="configInput" type="checkbox" id="__highlightLikelyBots" name="highlightLikelyBots" ${configPreferences.highlightLikelyBots.value}>
               </li>
               <li>
                 <span>show who follows you in the activity feed</span>
-                <input class="configInput" type="checkbox" id="__c22" name="21" ${configPreferences[21].value}>
+                <input class="configInput" type="checkbox" id="__showFollowingLabel" name="showFollowingLabel" ${configPreferences.showFollowingLabel.value}>
               </li>
             </ul>
           </div>
@@ -675,50 +720,49 @@ const main = async function () {
       `);
       const initializePreferences = () => {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
+
+        fixHeader(Array.from($a(postSelector)));
         waitFor(keyToCss("recommendedBlogs")).then(() => {
-          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences[1].value);
+          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
         });
         waitFor(keyToCss("radar")).then(() => {
-          toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences[2].value);
+          toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences.hideTumblrRadar.value);
         });
         if(isDashboard()) {
           waitFor(keyToCss("timelineHeader")).then(() => {
-            toggle($(keyToCss("timelineHeader")), !configPreferences[0].value);
+            toggle($(keyToCss("timelineHeader")), !configPreferences.hideDashboardTabs.value);
           });
         };
         waitFor(keyToCss("menuRight")).then(() => {
-          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences[3].value);
-          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences[4].value);
+          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
+          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
         });
-        if (configPreferences[7].value) {
+        if (configPreferences.disableTumblrLive.value) {
           $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
         };
-        if (configPreferences[5].value || configPreferences[21].value || configPreferences[16].value || configPreferences[17].value) {
+        if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value || configPreferences.displayFullNoteCounts.value) {
           observer.observe(target, { childList: true, subtree: true });
         }
-        if (configPreferences[5].value || configPreferences[21].value) {
+        if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value) {
           scanNotes(Array.from($a(noteSelector)));
         }
-        if (configPreferences[16].value) {
-          fixHeader(Array.from($a(postSelector)));
-        };
-        if (configPreferences[17].value) {
+        if (configPreferences.displayFullNoteCounts.value) {
           recountNotes(Array.from($a(postSelector)));
         };
         const badgeStyle = document.createElement("style");
         badgeStyle.id = "__bs";
         document.head.appendChild(badgeStyle);
-        if (configPreferences[18].value) {
+        if (configPreferences.hideBadges.value) {
           badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
         if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
-            css($(containerSelector), { "left": `${configPreferences[19].value}px`, "max-width": `${configPreferences[20].value}px` });
+            css($(containerSelector), { "left": `${configPreferences.contentPositioning.value}px`, "max-width": `${configPreferences.contentWidth.value}px` });
           });
           const gridStyle = document.createElement("style");
           gridStyle.id = "__gs";
           document.head.appendChild(gridStyle);
-          if (configPreferences[20].value > 51.5 && location.pathname.split("/")[1] === "likes") {
+          if (configPreferences.contentWidth.value > 51.5 && location.pathname.split("/")[1] === "likes") {
             waitFor(keyToCss("gridded")).then(() => {
               const gridWidth = $(keyToCss("gridded")).clientWidth;
               const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
@@ -741,6 +785,14 @@ const main = async function () {
                 hide($(keyToCss("sidebarContent")));
               });
               $(keyToCss("sidebar")).insertBefore(menu, $(`${keyToCss("sidebar")} aside`));
+              if (configPreferences.lastVersion !== version) {
+                $("#__in").append($str("<span class='__n'>new!</span>"));
+                $("#__cb").append($str("<span class='__n'></span>"));
+                $("#__ab").append($str("<span class='__n'></span>"));
+                $("#__in").addEventListener("click", () => {$a(".__n").forEach(value => hide(value))});
+                configPreferences.lastVersion = version;
+                updatePreferences();
+              };
               $("#__cb").addEventListener("click", () => {
                 if ($("#__c").style.display === "none") {
                   $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
@@ -755,10 +807,10 @@ const main = async function () {
               });
               $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
                 if (event.target.attributes.getNamedItem("type").value === "checkbox") {
-                  configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.matches(":checked") ? "checked" : "";
+                  configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.matches(":checked") ? "checked" : "";
                   checkboxEvent(event.target.id, event.target.matches(":checked"));
                 } else {
-                  configPreferences[Number(event.target.attributes.getNamedItem("name").value)].value = event.target.valueAsNumber;
+                  configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.valueAsNumber;
                   rangeEvent(event.target.id, event.target.valueAsNumber);
                 };
                 updatePreferences();
@@ -776,9 +828,9 @@ const main = async function () {
       window.addEventListener("resize", () => {
         windowWidth = window.innerWidth;
         safeOffset = (windowWidth - 1000) / 2;
-        $("#__c20").attributes.getNamedItem("min").value = `-${safeOffset}`;
-        $("#__c20").attributes.getNamedItem("max").value = `${safeOffset}`;
-        $("#__c21").attributes.getNamedItem("max").value = `${windowWidth}`;
+        $("#__contentPositioning").attributes.getNamedItem("min").value = `-${safeOffset}`;
+        $("#__contentPositioning").attributes.getNamedItem("max").value = `${safeOffset}`;
+        $("#__contentWidth").attributes.getNamedItem("max").value = `${windowWidth}`;
         $("#__cp").innerHTML = `
           <option value="-${safeOffset}" label="left"></option>
           <option value="0" label="default"></option>
