@@ -40,7 +40,9 @@ const main = async function () {
     hideTumblrRadar: { type: "checkbox", value: "checked" },
     hideExplore: { type: "checkbox", value: "checked" },
     hideTumblrShop: { type: "checkbox", value: "checked" },
-    hideBadges: { type: "checkbox", value: "checked" },
+    hideBadges: { type: "checkbox", value: "" },
+    highlightLikelyBots: { type: "checkbox", value: "" },
+    showFollowingLabel: { type: "checkbox", value: "" },
     contentPositioning: { type: "range", value: 0},
     contentWidth: { type: "range", value: 990},
     disableVirtualScroller: { type: "checkbox", value: "checked" },
@@ -49,13 +51,11 @@ const main = async function () {
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
     revertMessagingRedesign: { type: "checkbox", value: "checked" },
     revertSearchbarRedesign: { type: "checkbox", value: "checked" },
-    enableCustomTabs: { type: "checkbox", value: "checked" },
-    enableReblogPolls: { type: "checkbox", value: "checked" },
+    enableCustomTabs: { type: "checkbox", value: "" },
+    enableReblogPolls: { type: "checkbox", value: "" },
     disableTagNag: { type: "checkbox", value: "checked" },
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
-    displayFullNoteCounts: { type: "checkbox", value: "checked" },
-    highlightLikelyBots: { type: "checkbox", value: "" },
-    showFollowingLabel: { type: "checkbox", value: "" }
+    displayFullNoteCounts: { type: "checkbox", value: "" }
   };
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
@@ -156,36 +156,8 @@ const main = async function () {
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
-      if (!localStorage.getItem("configPreferences")) {
-        updatePreferences();
-        console.log("initialized preferences");
-      } else {
-        const oldPreferences = JSON.parse(localStorage.getItem("configPreferences"));
-        configPreferences = {
-          lastVersion: "nope!",
-          hideDashboardTabs: { type: "checkbox", value: oldPreferences[0].value },
-          hideRecommendedBlogs: { type: "checkbox", value: oldPreferences[1].value },
-          hideTumblrRadar: { type: "checkbox", value: oldPreferences[2].value },
-          hideExplore: { type: "checkbox", value: oldPreferences[3].value },
-          hideTumblrShop: { type: "checkbox", value: oldPreferences[4].value },
-          hideBadges: { type: "checkbox", value: oldPreferences[18].value },
-          contentPositioning: { type: "range", value: oldPreferences[19].value},
-          contentWidth: { type: "range", value: Math.max(oldPreferences[20].value, 990)},
-          disableVirtualScroller: { type: "checkbox", value: oldPreferences[6].value },
-          disableTumblrLive: { type: "checkbox", value: oldPreferences[7].value },
-          disableTumblrDomains: { type: "checkbox", value: oldPreferences[8].value},
-          revertActivityFeedRedesign: { type: "checkbox", value: oldPreferences[9].value },
-          revertMessagingRedesign: { type: "checkbox", value: oldPreferences[10].value },
-          revertSearchbarRedesign: { type: "checkbox", value: oldPreferences[11].value },
-          enableCustomTabs: { type: "checkbox", value: oldPreferences[12].value },
-          enableReblogPolls: { type: "checkbox", value: oldPreferences[13].value },
-          disableTagNag: { type: "checkbox", value: oldPreferences[14].value },
-          reAddHomeNotifications: { type: "checkbox", value: oldPreferences[15].value },
-          displayFullNoteCounts: { type: "checkbox", value: oldPreferences[17].value },
-          highlightLikelyBots: { type: "checkbox", value: oldPreferences[5].value },
-          showFollowingLabel: { type: "checkbox", value: oldPreferences[21].value }
-        };
-      };
+      updatePreferences();
+      console.log("initialized preferences");
     } else {
       const currentPreferences = JSON.parse(localStorage.getItem("configPreferences"));
       const currentKeys = Object.keys(currentPreferences);
