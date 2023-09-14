@@ -93,6 +93,8 @@ const main = async function () {
     return elem;
   };
   const matchPathname = () => match.includes(location.pathname.split("/")[1]);
+  const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
+  const notMasonry = () => !["search", "tagged", "explore"].includes(location.pathname.split("/")[1]);
   const storageAvailable = type => { //thanks mdn web docs!
     let storage;
     try {
@@ -127,8 +129,6 @@ const main = async function () {
   const updatePreferences = () => {
     localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
   };
-  const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
-  const notMasonry = () => !["search", "tagged", "explore"].includes(location.pathname.split("/")[1]);
   const getUtilities = async function () {
     let retries = 0;
     while (retries++ < 1000 && (typeof window.tumblr === "undefined" || typeof window.tumblr.getCssMap === "undefined")) {
@@ -419,9 +419,6 @@ const main = async function () {
         for (const note of notes) {
           try {
             const { followingYou, mutuals, type, fromTumblelogUuid } = fetchNote(note);
-            if (configPreferences.showFollowingLabel.value && followingYou && !mutuals) {
-              note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "2552ff", "e7fcff", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker"));
-            };
             if (configPreferences.highlightLikelyBots.value && type === "follower") {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
                 const { title, name, posts } = response.response.blog;
@@ -429,9 +426,11 @@ const main = async function () {
                 || (name === title && posts === 1)) {
                   css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
                   note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Possible Bot", "ff252f", "ffe7e7", "warning-circle", "This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker"));
-                  note.querySelector("[label='Follows You']").remove();
                 };
               });
+            };
+            if (configPreferences.showFollowingLabel.value && followingYou && !mutuals && !note.querySelector(".customLabelContainer")) {
+              note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "2552ff", "e7fcff", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker"));
             };
           } catch (e) {
             console.error("an error occurred processing a notification:", e);
