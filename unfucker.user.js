@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.4.0
+// @version      4.4.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.4.0";
+  const version = "4.4.1";
   const match = [
     "",
     "dashboard",
@@ -421,8 +421,9 @@ const main = async function () {
             const { followingYou, mutuals, type, fromTumblelogUuid } = fetchNote(note);
             if (configPreferences.highlightLikelyBots.value && type === "follower") {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
-                const { title, name, posts } = response.response.blog;
+                const { title, name, posts, likes } = response.response.blog;
                 if ((posts === 0 && title === tr("Untitled"))
+                || (likes === 0 && title === tr("Untitled"))
                 || (name === title && posts === 1)) {
                   css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
                   note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Possible Bot", "ff252f", "ffe7e7", "warning-circle", "This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker"));
@@ -559,7 +560,7 @@ const main = async function () {
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
               </li>
               <li>
-                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker#changelog">changelog</a>
+                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/blob/main/changelog.md">changelog</a>
               </li>
               <li>
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>

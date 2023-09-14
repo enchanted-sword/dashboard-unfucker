@@ -1,16 +1,6 @@
 # dashboard-unfucker
 Unfucks the twitterification of tumblr's dashboard by reverting it to the old layout as closely as possible while also offering control over other aspects of the UI.
 
-## Changelog
-### v4.4.0
-- Optimized potential bot detection filters. This should help minimize false positives, but be aware that it still flags _potential_ bots.
-- Added hover-tooltips to both notification label features (and additional text to the potential bot label) to identify them as features added by the script.
-- Fixed a minor syntax error
-- Cleaned up preference storage
-- Added an indicator to show when the script has updated
-- Removed the "revert post header changes" toggle now that that garbage fire has been scrapped
-- Tweaked the default script preferences to better suit the scope of the script
-
 ## Installation
 The script works with and is fully tested with Tampermonkey, Tampermonkey Beta, Greasemonkey, and Violentmonkey.
 - Install any one of the script injector extensions listed above.
