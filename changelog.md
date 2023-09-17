@@ -1,5 +1,8 @@
 # Changelog
 
+##v4.4.2
+- Fixed J and K not scrolling posts to the top of the screen
+
 ## v4.4.1
 - Optimized potential bot detection filters to target certain bots with multiple posts
 - Fixed duplicate labels when navigating to the activity page via the "show everything" button
