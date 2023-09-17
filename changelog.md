@@ -1,6 +1,6 @@
 # Changelog
 
-##v4.4.2
+##v4.4.2/4.4.3
 - Fixed J and K not scrolling posts to the top of the screen
 
 ## v4.4.1
