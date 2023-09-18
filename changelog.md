@@ -1,5 +1,8 @@
 # Changelog
 
+##v4.4.4
+- Removed scroll offsets from permalink pages
+
 ##v4.4.2/4.4.3
 - Fixed J and K not scrolling posts to the top of the screen
 
