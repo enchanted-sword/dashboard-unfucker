@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.4.4
+// @version      4.4.5
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.4.4";
+  const version = "4.4.5";
   const match = [
     "",
     "dashboard",
@@ -318,10 +318,17 @@ const main = async function () {
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
           ${keyToCss("main")} {
             position: relative;
-            ${matchPathname() ? "top: -100px; padding-top: 100px;" : ""}
             flex: 1;
             min-width: 0;
             max-width: none !important;
+          }
+          ${keyToCss("main")}:not(${keyToCss("body")} > ${keyToCss("main")}) {
+            top: -100px;
+            padding-top: 100px;
+          }
+          ${keyToCss("body")} > header,
+          ${keyToCss("body")} > ${keyToCss("toolbar")} {
+            z-index: 1;
           }
           ${keyToCss("tabsHeader")} {
             top: 0;
