@@ -153,6 +153,23 @@ const main = async function () {
       }
     </style>
   `);
+  const fetchSelector = /\/api\/v2\/timeline/;
+  const oldFetch = window.fetch;
+  window.fetch = async (input, options) => {
+    const response = await oldFetch(input, options);
+    let content = await response.text();
+    if (fetchSelector.test(input)) {
+      content = JSON.parse(content);
+      const elements = content.response.timeline.elements;
+      elements.forEach(post => post.isNsfw = false);
+      content = JSON.stringify(content);
+    }
+    return new Response(content, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers
+    });
+  };
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
