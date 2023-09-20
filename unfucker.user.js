@@ -57,6 +57,7 @@ const main = async function () {
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
     displayFullNoteCounts: { type: "checkbox", value: "" }
   };
+  const pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
   const $str = str => {
@@ -92,9 +93,9 @@ const main = async function () {
     });
     return elem;
   };
-  const matchPathname = () => match.includes(location.pathname.split("/")[1]);
-  const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
-  const notMasonry = () => !["search", "tagged", "explore"].includes(location.pathname.split("/")[1]);
+  const matchPathname = () => match.includes(pathname);
+  const isDashboard = () => ["dashboard", ""].includes(pathname);
+  const notMasonry = () => !["search", "tagged", "explore"].includes(pathname);
   const storageAvailable = type => { //thanks mdn web docs!
     let storage;
     try {
@@ -115,6 +116,15 @@ const main = async function () {
           storage.length !== 0
       );
     }
+  };
+  const modifyInitialTimeline = (obj, context) => {
+    if (!obj) return "";
+    else if (context === "dashboard") {
+      obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
+    } else if (context === "peepr") {
+      obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
+    };
+    return obj;
   };
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures));
@@ -153,17 +163,35 @@ const main = async function () {
       }
     </style>
   `);
-  const fetchSelector = /\/api\/v2\/timeline/;
+  const timelineSelector = /\/api\/v2\/timeline/;
+  const peeprSelector = new RegExp(`/\/api\/v2\/blog\/${pathname}\/posts/`);
+  /* const tabsSelector = /\/api\/v2\/tabs/; */
+  const isPostFetch = input => {
+    if (timelineSelector.test(input) || peeprSelector.test(input)) return true;
+    else return false;
+  };
+  /* const sortTabs = (a, b) => {
+    if (a.id === "following") return 1;
+    else if (b.id === "following") return -1;
+    else return 0;
+  }; */
   const oldFetch = window.fetch;
   window.fetch = async (input, options) => {
+    console.info(input);
     const response = await oldFetch(input, options);
     let content = await response.text();
-    if (fetchSelector.test(input)) {
+    if (isPostFetch(input)) {
       content = JSON.parse(content);
       const elements = content.response.timeline.elements;
       elements.forEach(post => post.isNsfw = false);
       content = JSON.stringify(content);
-    }
+    }/*  else if (tabsSelector.test(input)) {
+      content = JSON.parse(content);
+      content.response.tabs.sort(sortTabs);
+      content.response.tabs[1].isHideable = true;
+      content.response.tabs[1].isMovable = true;
+      content = JSON.stringify(content);
+    }; */
     return new Response(content, {
         status: response.status,
         statusText: response.statusText,
@@ -217,6 +245,8 @@ const main = async function () {
       try {
         return {
           ...state,
+          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard"),
+          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr"),
           obfuscatedFeatures: modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet)
         };
       } catch (e) {
