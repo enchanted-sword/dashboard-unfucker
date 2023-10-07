@@ -45,7 +45,6 @@ const main = async function () {
     showFollowingLabel: { type: "checkbox", value: "" },
     contentPositioning: { type: "range", value: 0},
     contentWidth: { type: "range", value: 990},
-    disableVirtualScroller: { type: "checkbox", value: "" },
     disableTumblrLive: { type: "checkbox", value: "checked" },
     disableTumblrDomains: { type: "checkbox", value: "checked" },
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
@@ -55,7 +54,8 @@ const main = async function () {
     enableReblogPolls: { type: "checkbox", value: "" },
     disableTagNag: { type: "checkbox", value: "checked" },
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
-    displayFullNoteCounts: { type: "checkbox", value: "" }
+    displayFullNoteCounts: { type: "checkbox", value: "" },
+    displayVoteCounts: { type: "checkbox", value: "" }
   };
   const pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -216,7 +216,6 @@ const main = async function () {
   };
   const featureSet = [
     {"name": "redpopDesktopVerticalNav", "value": false},
-    {"name": "redpopVirtualScroller", "value": !configPreferences.disableVirtualScroller.value},
     {"name": "liveCustomMarqueeData", "value": !configPreferences.disableTumblrLive.value},
     {"name": "liveStreaming", "value": !configPreferences.disableTumblrLive.value},
     {"name": "liveStreamingUserAllowed", "value": !configPreferences.disableTumblrLive.value},
@@ -264,6 +263,7 @@ const main = async function () {
       let safeOffset = (windowWidth - 1000) / 2;
       const postSelector = "[tabindex='-1'][data-id] article";
       const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
+      const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
       const newNodes = [];
       const target = document.getElementById("root");
       const styleElement = $str(`
@@ -369,6 +369,13 @@ const main = async function () {
             opacity: 1;
           }
 
+          .answerVoteCount {
+            position: absolute;
+            bottom: -2px;
+            right: 16px;
+            font-size: 12px;
+          }
+
           #tumblr { --dashboard-tabs-header-height: 0px !important; }
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
@@ -421,6 +428,19 @@ const main = async function () {
           const { timelineObject } = fiber.memoizedProps || {};
           if (timelineObject !== undefined) {
             return timelineObject;
+          } else {
+            fiber = fiber.return;
+          };
+        };
+      };
+      const fetchPercentage = obj => {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        let fiber = obj[fiberKey];
+
+        while (fiber !== null) {
+          const { percentage } = fiber.memoizedProps || {};
+          if (percentage !== undefined) {
+            return percentage;
           } else {
             fiber = fiber.return;
           };
@@ -510,10 +530,24 @@ const main = async function () {
           };
         };
       };
+      const detailPolls = answers => {
+        for (const answer of answers) {
+          if (answer.classList.contains("pollDetailed")) continue;
+          const post = answer.closest(postSelector);
+          const answers = Array.from(post.querySelectorAll(`:scope [data-testid="poll-answer"]`));
+          const voteCount = Number(post.querySelector(keyToCss("pollSummary")).innerText.replace(/,/, "").match(/\d+/)[0]);
+          answers.forEach((element) => {
+            const percentage = fetchPercentage(element);
+            element.append($str(`<span class="answerVoteCount">(${Math.round(voteCount * percentage / 100)})</span>`));
+            element.classList.add("pollDetailed");
+          });
+        }
+      };
       const sortNodes = () => {
         const nodes = newNodes.splice(0);
         if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null)
-          || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null))) {
+          || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null)
+          || nodes.some(node => node.matches(answerSelector) ||  node.querySelector(answerSelector) !== null))) {
           const posts = [
             ...nodes.filter(node => node.matches(postSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
@@ -522,9 +556,14 @@ const main = async function () {
             ...nodes.filter(node => node.matches(noteSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(noteSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
+          const answers = [
+            ...nodes.filter(node => node.matches(answerSelector)),
+            ...nodes.flatMap(node => [...node.querySelectorAll(answerSelector)])
+          ].filter((value, index, array) => index === array.indexOf(value));
           fixHeader(posts);
           if (configPreferences.displayFullNoteCounts.value) recountNotes(posts);
           if (configPreferences.highlightLikelyBots.value) scanNotes(notes);
+          if (configPreferences.displayVoteCounts.value) detailPolls(answers);
         }
         else return
       };
@@ -711,10 +750,6 @@ const main = async function () {
                 <span style="width: 100%; font-size: .8em;">requires a page reload</span>
               </li>
               <li>
-                <span>disable "virtual scroller" experiment</span>
-                <input class="configInput" type="checkbox" id="__disableVirtualScroller" name="disableVirtualScroller" ${configPreferences.disableVirtualScroller.value}>
-              </li>
-              <li>
                 <span>disable tumblr live</span>
                 <input class="configInput" type="checkbox" id="__disableTumblrLive" name="disableTumblrLive" ${configPreferences.disableTumblrLive.value}>
               </li>
@@ -754,6 +789,10 @@ const main = async function () {
                 <span>display full note counts</span>
                 <input class="configInput" type="checkbox" id="__displayFullNoteCounts" name="displayFullNoteCounts" ${configPreferences.displayFullNoteCounts.value}>
               </li>
+              <li>
+                <span>display exact vote counts on poll answers</span>
+                <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
+              </li>
             </ul>
           </div>
         </div>
@@ -788,6 +827,15 @@ const main = async function () {
         }
         if (configPreferences.displayFullNoteCounts.value) {
           recountNotes(Array.from($a(postSelector)));
+        };
+        if (configPreferences.displayVoteCounts.value) {
+          detailPolls(Array.from($a(postSelector)));
+          const pollStyle = document.createElement("style");
+          document.head.appendChild(pollStyle);
+          pollStyle.innerText = `
+            ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
+            ${keyToCss("results")} { overflow: hidden; }
+          `;
         };
         const badgeStyle = document.createElement("style");
         badgeStyle.id = "__bs";
