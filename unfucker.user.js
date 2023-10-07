@@ -93,6 +93,9 @@ const main = async function () {
     });
     return elem;
   };
+  const remove = (nodeList) => {
+    nodeList.forEach(currentValue => {currentValue.remove()})
+  }
   const matchPathname = () => match.includes(pathname);
   const isDashboard = () => ["dashboard", ""].includes(pathname);
   const notMasonry = () => !["search", "tagged", "explore"].includes(pathname);
@@ -595,9 +598,19 @@ const main = async function () {
             toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
             break;
           case "__hideBadges":
-            if (configPreferences.hideBadges.value) {
+            if (value) {
               document.getElementById("__bs").innerText = `${keyToCss("badgeContainer")} { display: none; }`;
             } else { document.getElementById("__bs").innerText = "" };
+            break;
+          case "__highlightLikelyBots":
+            if (value) {
+              scanNotes(Array.from($a(noteSelector)));
+            } else {remove($a("[label='Possible Bot']"));}
+            break;
+          case "__showFollowingLabel":
+            if (value) {
+              scanNotes(Array.from($a(noteSelector)));
+            } else {remove($a("[label='Follows You']"));}
             break;
         };
       };
