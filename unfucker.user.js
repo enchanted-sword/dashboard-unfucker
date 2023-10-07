@@ -910,8 +910,8 @@ const main = async function () {
         console.log("dashboard fixed!");
       };
 
-      console.log(featureSet);
-      console.log(JSON.parse(atob(state.obfuscatedFeatures)));
+      console.info(JSON.parse(atob(state.obfuscatedFeatures)));
+      console.info(featureSet);
       unfuck();
       window.addEventListener("resize", () => {
         windowWidth = window.innerWidth;
