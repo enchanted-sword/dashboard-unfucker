@@ -1,12 +1,12 @@
 # Changelog
 
-##v4.4.6
+## v4.4.6
 - Changed the custom notification labels to use theme colours
 
-##v4.4.4/4.4.5
+## v4.4.4/4.4.5
 - Removed scroll offsets from permalink pages
 
-##v4.4.2/4.4.3
+## v4.4.2/4.4.3
 - Fixed J and K not scrolling posts to the top of the screen
 
 ## v4.4.1
