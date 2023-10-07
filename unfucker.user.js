@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.4.4
+// @version      4.4.6
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.4.4";
+  const version = "4.4.6";
   const match = [
     "",
     "dashboard",
@@ -333,9 +333,17 @@ const main = async function () {
             justify-content: space-between;
           }
           
+          .customLabelContainer[label="Follows You"] {
+            color: rgb(var(--blue));
+            background-color: rgba(var(--blue),.2);
+          }
+          .customLabelContainer[label="Possible Bot"] {
+            color: rgb(var(--red));
+            background-color: rgba(var(--red),.2);
+          }
           .customLabelContainer[label="Possible Bot"]::after {
             content: "about";
-            border-bottom: 1px solid #ff252f;
+            border-bottom: 1px solid rgb(var(--red));
             font-size: 12px;
             margin-left: 5px;
           }
@@ -343,13 +351,14 @@ const main = async function () {
             visibility: hidden;
             opacity: 0;
             width: 240px;
-            background-color: inherit;
-            color: rgb(var(--black));
+            background-color: rgb(var(--white));
+            box-shadow: 2px 2px rgba(var(--black),.07);
+            color: inherit;
             text-align: center;
             padding: 2px;
             border-radius: var(--border-radius-small);
             position: absolute;
-            z-index: 1;
+            z-index: 2;
             top: 24px;
             left: 0;
             transition: opacity 0.5s;
@@ -365,10 +374,17 @@ const main = async function () {
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
           ${keyToCss("main")} {
             position: relative;
-            ${matchPathname() ? "top: -100px; padding-top: 100px;" : ""}
             flex: 1;
             min-width: 0;
             max-width: none !important;
+          }
+          ${keyToCss("main")}:not(${keyToCss("body")} > ${keyToCss("main")}) {
+            top: -100px;
+            padding-top: 100px;
+          }
+          ${keyToCss("body")} > header,
+          ${keyToCss("body")} > ${keyToCss("toolbar")} {
+            z-index: 1;
           }
           ${keyToCss("tabsHeader")} {
             top: 0;
@@ -388,10 +404,10 @@ const main = async function () {
           }
         </style>
       `);
-      const labelContainer = (label, color, backgroundColor, icon, desc) => $str(`
-        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px; color: #${color}; background-color: #${backgroundColor};">
+      const labelContainer = (label, icon, desc) => $str(`
+        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
           ${label}
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: #${color};">
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: rgb(var(--${label === "Follows You" ? "blue" : "red"}))">
             <use href="#managed-icon__${icon}"></use>
           </svg>
           <span class="customLabelInfo ${icon}">${desc}</span>
@@ -478,13 +494,14 @@ const main = async function () {
                 if ((posts === 0 && title === tr("Untitled"))
                 || (likes === 0 && title === tr("Untitled"))
                 || (name === title && posts === 1)) {
+                  hide(note.querySelector(".customLabelContainer"));
                   css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
-                  note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Possible Bot", "ff252f", "ffe7e7", "warning-circle", "This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker"));
+                  note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Possible Bot", "warning-circle", "This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker."));
                 };
               });
             };
             if (configPreferences.showFollowingLabel.value && followingYou && !mutuals && !note.querySelector(".customLabelContainer")) {
-              note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "2552ff", "e7fcff", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker"));
+              note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker."));
             };
           } catch (e) {
             console.error("an error occurred processing a notification:", e);
