@@ -489,13 +489,15 @@ const main = async function () {
           try {
             waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
               const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
-              const title = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")
-              const number = title[0];
-              const descriptor = title[1];
-              const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
-              blackText.innerText = number;
-              formattedNoteCount.childNodes[0].nodeValue = descriptor;
-              css(formattedNoteCount, { "overflowWrap": "normal"});
+              if (formattedNoteCount) {
+                const title = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")
+                const number = title[0];
+                const descriptor = title[1];
+                const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
+                blackText.innerText = number;
+                formattedNoteCount.childNodes[0].nodeValue = descriptor;
+                css(formattedNoteCount, { "overflowWrap": "normal"});
+              }
             });
           } catch (e) {
             console.error("an error occurred processing a post's notes:", e);
@@ -829,7 +831,7 @@ const main = async function () {
           recountNotes(Array.from($a(postSelector)));
         };
         if (configPreferences.displayVoteCounts.value) {
-          detailPolls(Array.from($a(postSelector)));
+          detailPolls(Array.from($a(answerSelector)));
           const pollStyle = document.createElement("style");
           document.head.appendChild(pollStyle);
           pollStyle.innerText = `
