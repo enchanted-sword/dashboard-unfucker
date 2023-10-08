@@ -45,6 +45,7 @@ const main = async function () {
     showFollowingLabel: { type: "checkbox", value: "" },
     contentPositioning: { type: "range", value: 0},
     contentWidth: { type: "range", value: 990},
+    messagingScale: { type: "range", value: 1},
     disableTumblrLive: { type: "checkbox", value: "checked" },
     disableTumblrDomains: { type: "checkbox", value: "checked" },
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
@@ -631,6 +632,14 @@ const main = async function () {
               case "__contentWidth":
                 css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
                 break;
+              case "__messagingScale":
+                $("#__ms").innerText = `
+                  ${keyToCss("conversationWindow")} { 
+                    width: calc(280px * ${value}); 
+                    height: calc(450px * ${value});
+                  }
+                `;
+                break;
             };
           };
           if (location.pathname.split("/")[1] === "likes") {
@@ -756,9 +765,20 @@ const main = async function () {
                   </datalist>
                 </div>
               </li>
-              </ul>
-              <ul id="__cta">
-                <li class="infoHeader" style="flex-flow: column wrap">
+              <li>
+                <span>messaging window scale</span>
+                <div class="rangeInput">
+                  <input class="configInput" type="range" id="__messagingScale" name="messagingScale" list="__mss" min="1" max ="2" step="0.05" value="${configPreferences.messagingScale.value}">
+                  <datalist id="__mss">
+                    <option value="1" label="1x"></option>
+                    <option value="1.5" label="1.5x"></option>
+                    <option value="2" label="2x"></option>
+                  </datalist>
+                </div>
+              </li>
+            </ul>
+            <ul id="__cta">
+              <li class="infoHeader" style="flex-flow: column wrap">
                 <span style="width: 100%;">advanced configuration</span>
                 <span style="width: 100%; font-size: .8em;">requires a page reload</span>
               </li>
@@ -856,7 +876,7 @@ const main = async function () {
         };
         const badgeStyle = document.createElement("style");
         badgeStyle.id = "__bs";
-        document.head.appendChild(badgeStyle);
+        document.head.append(badgeStyle);
         if (configPreferences.hideBadges.value) {
           badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
@@ -866,7 +886,7 @@ const main = async function () {
           });
           const gridStyle = document.createElement("style");
           gridStyle.id = "__gs";
-          document.head.appendChild(gridStyle);
+          document.head.append(gridStyle);
           if (configPreferences.contentWidth.value > 51.5 && location.pathname.split("/")[1] === "likes") {
             waitFor(keyToCss("gridded")).then(() => {
               const gridWidth = $(keyToCss("gridded")).clientWidth;
@@ -875,6 +895,15 @@ const main = async function () {
             });
           };
         };
+        const messagingStyle = document.createElement("style");
+        messagingStyle.id = "__ms";
+        document.head.append(messagingStyle);
+        messagingStyle.innerText = `
+          ${keyToCss("conversationWindow")} { 
+            width: calc(280px * ${configPreferences.messagingScale.value}); 
+            height: calc(450px * ${configPreferences.messagingScale.value});
+          }
+        `;
       };
       const unfuck = async function () {
         if (!initialChecks()) return;
