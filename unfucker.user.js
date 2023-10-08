@@ -55,7 +55,8 @@ const main = async function () {
     disableTagNag: { type: "checkbox", value: "checked" },
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
     displayFullNoteCounts: { type: "checkbox", value: "" },
-    displayVoteCounts: { type: "checkbox", value: "" }
+    displayVoteCounts: { type: "checkbox", value: "" },
+    showNsfwPosts: { type: "checkbox", value: "" }
   };
   const pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -120,13 +121,17 @@ const main = async function () {
       );
     }
   };
-  const modifyInitialTimeline = (obj, context) => {
-    if (!obj) return "";
+  const modifyInitialTimeline = (obj, context, value) => {
+    if (!obj || !value) return "";
     else if (context === "dashboard") {
-      obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
+      obj = obj.dashboardTimeline.response.timeline.elements;
     } else if (context === "peepr") {
-      obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
+      obj = obj.initialTimeline.objects
     };
+    obj.forEach(post => {
+      post.isNsfw = false;
+      post.isModified = true;
+    });
     return obj;
   };
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
@@ -168,39 +173,11 @@ const main = async function () {
   `);
   const timelineSelector = /\/api\/v2\/timeline/;
   const peeprSelector = new RegExp(`/\/api\/v2\/blog\/${pathname}\/posts/`);
-  /* const tabsSelector = /\/api\/v2\/tabs/; */
   const isPostFetch = input => {
     if (timelineSelector.test(input) || peeprSelector.test(input)) return true;
     else return false;
   };
-  /* const sortTabs = (a, b) => {
-    if (a.id === "following") return 1;
-    else if (b.id === "following") return -1;
-    else return 0;
-  }; */
   const oldFetch = window.fetch;
-  window.fetch = async (input, options) => {
-    console.info(input);
-    const response = await oldFetch(input, options);
-    let content = await response.text();
-    if (isPostFetch(input)) {
-      content = JSON.parse(content);
-      const elements = content.response.timeline.elements;
-      elements.forEach(post => post.isNsfw = false);
-      content = JSON.stringify(content);
-    }/*  else if (tabsSelector.test(input)) {
-      content = JSON.parse(content);
-      content.response.tabs.sort(sortTabs);
-      content.response.tabs[1].isHideable = true;
-      content.response.tabs[1].isMovable = true;
-      content = JSON.stringify(content);
-    }; */
-    return new Response(content, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers
-    });
-  };
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
@@ -215,6 +192,27 @@ const main = async function () {
         };
       };
       updatePreferences();
+    };
+  };
+  if (configPreferences.showNsfwPosts.value) {
+    window.fetch = async (input, options) => {
+      const response = await oldFetch(input, options);
+      let content = await response.text();
+      if (isPostFetch(input)) {
+        console.info(input);
+        content = JSON.parse(content);
+        const elements = content.response.timeline.elements;
+        elements.forEach(post => {
+          post.isNsfw = false;
+          post.isModified = true;
+        });
+        content = JSON.stringify(content);
+      };
+      return new Response(content, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers
+      });
     };
   };
   const featureSet = [
@@ -247,8 +245,8 @@ const main = async function () {
       try {
         return {
           ...state,
-          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard"),
-          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr"),
+          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard", configPreferences.showNsfwPosts.value),
+          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr", configPreferences.showNsfwPosts.value),
           obfuscatedFeatures: modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet)
         };
       } catch (e) {
@@ -807,6 +805,10 @@ const main = async function () {
               <li>
                 <span>display exact vote counts on poll answers</span>
                 <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
+              </li>
+              <li>
+                <span>show hidden NSFW posts in the timeline</span>
+                <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
               </li>
             </ul>
           </div>
