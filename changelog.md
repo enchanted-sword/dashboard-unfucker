@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.0.0
+- Improved the toggling of the notification-based features
+- Added the "display exact vote counts on poll answers" feature
+- Added the "show hidden NSFW posts in the timeline" feature
+
 ## v4.4.6
 - Changed the custom notification labels to use theme colours
 
