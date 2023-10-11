@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.0.0beta
+// @version      5.1.0beta
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.0.0β";
+  const version = "5.1.0β";
   const match = [
     "",
     "dashboard",
@@ -57,7 +57,8 @@ const main = async function () {
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
     displayFullNoteCounts: { type: "checkbox", value: "" },
     displayVoteCounts: { type: "checkbox", value: "" },
-    showNsfwPosts: { type: "checkbox", value: "" }
+    showNsfwPosts: { type: "checkbox", value: "" },
+    replyFromSecondaries: {type: "checkbox", value: "checked" }
   };
   const pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -236,7 +237,8 @@ const main = async function () {
     {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "crowdsignalPollsNpf", "value": true},
     {"name": "crowdsignalPollsCreate", "value": true},
-    {"name": "adFreeCtaBanner", "value": false}
+    {"name": "adFreeCtaBanner", "value": false},
+    {"name": "replyFromSecondaries", "value": true}
   ];
   Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
@@ -829,6 +831,10 @@ const main = async function () {
               <li>
                 <span>show hidden NSFW posts in the timeline</span>
                 <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
+              </li>
+              <li>
+                <span>enable the "reply from sideblogs" experiment</span>
+                <input class="configInput" type="checkbox" id="__replyFromSecondaries" name="replyFromSecondaries" ${configPreferences.replyFromSecondaries.value}>
               </li>
             </ul>
           </div>

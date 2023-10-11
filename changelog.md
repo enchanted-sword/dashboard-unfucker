@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.1.0
+- Added the "enable the "reply from sideblogs" experiment" feature
+
 ## v5.0.0
 - Improved the toggling of the notification-based features
 - Added the "display exact vote counts on poll answers" feature
