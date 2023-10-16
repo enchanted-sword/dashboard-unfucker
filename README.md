@@ -44,8 +44,8 @@ Controls the horizontal offset of the dashboard's content.
 ### Content width
 Controls the width of the dashboard's content.
 
-### Disable "virtual scroller" experiment
-Disables the `virtualScroller` experiment, which modifies how posts in the timeline are handled.
+### Messaging window scale
+Controls the relative height and width of the messaging window
 
 ### Disable Tumblr Live
 Disables the Tumblr Live service and related icons (Where possible).
@@ -76,6 +76,15 @@ Re-adds the notification icon to the navbar's "home" icon that displays how many
 
 ### Display full note counts
 Displays notes as a full, non-shortened number (E.g. "16,248 notes" instead of "16K notes").
+
+### Display exact vote counts on poll answers
+Displays the number of votes each poll answer has recieved underneath the vote percentage.
+
+### Show hidden NSFW posts in the timeline
+Certain posts flagged as NSFW by Tumblr are delivered by internal API requests, but are not added to the dashboard feed. Enabling this feature will make these posts visible on the dashboard.
+
+### Enable the "reply from sideblogs" experiment
+Manually enables the new `replyFromSecondaries` beta feature, which allows users to reply to posts with sideblogs and group blogs.
 
 ## Troubleshooting
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
