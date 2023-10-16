@@ -1,9 +1,13 @@
 # Changelog
 
-## v5.1.0
+## v5.1.0 (release version)
+- Added a fallback style to ensure 3px border radius on posts
+- Minor code improvements 
+
+## v5.1.0 beta
 - Added the "enable the "reply from sideblogs" experiment" feature
 
-## v5.0.0
+## v5.0.0 beta
 - Improved the toggling of the notification-based features
 - Added the "display exact vote counts on poll answers" feature
 - Added the "show hidden NSFW posts in the timeline" feature

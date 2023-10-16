@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.1.0beta
+// @version      5.1.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.1.0β";
+  const version = "5.1.0";
   const match = [
     "",
     "dashboard",
@@ -201,7 +201,7 @@ const main = async function () {
       const response = await oldFetch(input, options);
       let content = await response.text();
       if (isPostFetch(input)) {
-        console.info(input);
+        console.info(`modified data fetched from ${input}`);
         content = JSON.parse(content);
         const elements = content.response.timeline.elements;
         elements.forEach(post => {
@@ -413,6 +413,9 @@ const main = async function () {
             width: calc(100% - 85px);
             box-sizing: border-box;
           }
+
+          [data-timeline] article { border-radius: 3px !important; }
+          article header { border-radius: 3px 3px 0 0 !important; }
         </style>
       `);
       const labelContainer = (label, icon, desc) => $str(`
@@ -859,9 +862,6 @@ const main = async function () {
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
         });
-        if (configPreferences.disableTumblrLive.value) {
-          $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
-        };
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value || configPreferences.displayFullNoteCounts.value) {
           observer.observe(target, { childList: true, subtree: true });
         }
