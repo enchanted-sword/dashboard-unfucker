@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      4.4.6
+// @version      5.1.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "4.4.6";
+  const version = "5.1.0";
   const match = [
     "",
     "dashboard",
@@ -45,7 +45,7 @@ const main = async function () {
     showFollowingLabel: { type: "checkbox", value: "" },
     contentPositioning: { type: "range", value: 0},
     contentWidth: { type: "range", value: 990},
-    disableVirtualScroller: { type: "checkbox", value: "" },
+    messagingScale: { type: "range", value: 1},
     disableTumblrLive: { type: "checkbox", value: "checked" },
     disableTumblrDomains: { type: "checkbox", value: "checked" },
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
@@ -55,8 +55,12 @@ const main = async function () {
     enableReblogPolls: { type: "checkbox", value: "" },
     disableTagNag: { type: "checkbox", value: "checked" },
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
-    displayFullNoteCounts: { type: "checkbox", value: "" }
+    displayFullNoteCounts: { type: "checkbox", value: "" },
+    displayVoteCounts: { type: "checkbox", value: "" },
+    showNsfwPosts: { type: "checkbox", value: "" },
+    replyFromSecondaries: {type: "checkbox", value: "checked" }
   };
+  const pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
   const $str = str => {
@@ -92,9 +96,12 @@ const main = async function () {
     });
     return elem;
   };
-  const matchPathname = () => match.includes(location.pathname.split("/")[1]);
-  const isDashboard = () => ["dashboard", ""].includes(location.pathname.split("/")[1]);
-  const notMasonry = () => !["search", "tagged", "explore"].includes(location.pathname.split("/")[1]);
+  const remove = (nodeList) => {
+    nodeList.forEach(currentValue => {currentValue.remove()})
+  }
+  const matchPathname = () => match.includes(pathname);
+  const isDashboard = () => ["dashboard", ""].includes(pathname);
+  const notMasonry = () => !["search", "tagged", "explore"].includes(pathname);
   const storageAvailable = type => { //thanks mdn web docs!
     let storage;
     try {
@@ -115,6 +122,19 @@ const main = async function () {
           storage.length !== 0
       );
     }
+  };
+  const modifyInitialTimeline = (obj, context, value) => {
+    if (!obj || !value) return "";
+    else if (context === "dashboard") {
+      obj = obj.dashboardTimeline.response.timeline.elements;
+    } else if (context === "peepr") {
+      obj = obj.initialTimeline.objects
+    };
+    obj.forEach(post => {
+      post.isNsfw = false;
+      post.isModified = true;
+    });
+    return obj;
   };
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures));
@@ -153,6 +173,13 @@ const main = async function () {
       }
     </style>
   `);
+  const timelineSelector = /\/api\/v2\/timeline/;
+  const peeprSelector = new RegExp(`/\/api\/v2\/blog\/${pathname}\/posts/`);
+  const isPostFetch = input => {
+    if (timelineSelector.test(input) || peeprSelector.test(input)) return true;
+    else return false;
+  };
+  const oldFetch = window.fetch;
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
@@ -169,9 +196,29 @@ const main = async function () {
       updatePreferences();
     };
   };
+  if (configPreferences.showNsfwPosts.value) {
+    window.fetch = async (input, options) => {
+      const response = await oldFetch(input, options);
+      let content = await response.text();
+      if (isPostFetch(input)) {
+        console.info(`modified data fetched from ${input}`);
+        content = JSON.parse(content);
+        const elements = content.response.timeline.elements;
+        elements.forEach(post => {
+          post.isNsfw = false;
+          post.isModified = true;
+        });
+        content = JSON.stringify(content);
+      };
+      return new Response(content, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers
+      });
+    };
+  };
   const featureSet = [
     {"name": "redpopDesktopVerticalNav", "value": false},
-    {"name": "redpopVirtualScroller", "value": !configPreferences.disableVirtualScroller.value},
     {"name": "liveCustomMarqueeData", "value": !configPreferences.disableTumblrLive.value},
     {"name": "liveStreaming", "value": !configPreferences.disableTumblrLive.value},
     {"name": "liveStreamingUserAllowed", "value": !configPreferences.disableTumblrLive.value},
@@ -190,7 +237,8 @@ const main = async function () {
     {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "crowdsignalPollsNpf", "value": true},
     {"name": "crowdsignalPollsCreate", "value": true},
-    {"name": "adFreeCtaBanner", "value": false}
+    {"name": "adFreeCtaBanner", "value": false},
+    {"name": "replyFromSecondaries", "value": true}
   ];
   Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
@@ -200,6 +248,8 @@ const main = async function () {
       try {
         return {
           ...state,
+          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard", configPreferences.showNsfwPosts.value),
+          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr", configPreferences.showNsfwPosts.value),
           obfuscatedFeatures: modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet)
         };
       } catch (e) {
@@ -217,6 +267,7 @@ const main = async function () {
       let safeOffset = (windowWidth - 1000) / 2;
       const postSelector = "[tabindex='-1'][data-id] article";
       const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
+      const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
       const newNodes = [];
       const target = document.getElementById("root");
       const styleElement = $str(`
@@ -322,6 +373,13 @@ const main = async function () {
             opacity: 1;
           }
 
+          .answerVoteCount {
+            position: absolute;
+            bottom: -2px;
+            right: 16px;
+            font-size: 12px;
+          }
+
           #tumblr { --dashboard-tabs-header-height: 0px !important; }
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
@@ -355,6 +413,9 @@ const main = async function () {
             width: calc(100% - 85px);
             box-sizing: border-box;
           }
+
+          [data-timeline] article { border-radius: 3px !important; }
+          article header { border-radius: 3px 3px 0 0 !important; }
         </style>
       `);
       const labelContainer = (label, icon, desc) => $str(`
@@ -374,6 +435,19 @@ const main = async function () {
           const { timelineObject } = fiber.memoizedProps || {};
           if (timelineObject !== undefined) {
             return timelineObject;
+          } else {
+            fiber = fiber.return;
+          };
+        };
+      };
+      const fetchPercentage = obj => {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        let fiber = obj[fiberKey];
+
+        while (fiber !== null) {
+          const { percentage } = fiber.memoizedProps || {};
+          if (percentage !== undefined) {
+            return percentage;
           } else {
             fiber = fiber.return;
           };
@@ -422,13 +496,15 @@ const main = async function () {
           try {
             waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
               const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
-              const title = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")
-              const number = title[0];
-              const descriptor = title[1];
-              const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
-              blackText.innerText = number;
-              formattedNoteCount.childNodes[0].nodeValue = descriptor;
-              css(formattedNoteCount, { "overflowWrap": "normal"});
+              if (formattedNoteCount) {
+                const title = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")
+                const number = title[0];
+                const descriptor = title[1];
+                const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
+                blackText.innerText = number;
+                formattedNoteCount.childNodes[0].nodeValue = descriptor;
+                css(formattedNoteCount, { "overflowWrap": "normal"});
+              }
             });
           } catch (e) {
             console.error("an error occurred processing a post's notes:", e);
@@ -463,10 +539,24 @@ const main = async function () {
           };
         };
       };
+      const detailPolls = answers => {
+        for (const answer of answers) {
+          if (answer.classList.contains("pollDetailed")) continue;
+          const post = answer.closest(postSelector);
+          const answers = Array.from(post.querySelectorAll(`:scope [data-testid="poll-answer"]`));
+          const voteCount = Number(post.querySelector(keyToCss("pollSummary")).innerText.replace(/,/, "").match(/\d+/)[0]);
+          answers.forEach((element) => {
+            const percentage = fetchPercentage(element);
+            element.append($str(`<span class="answerVoteCount">(${Math.round(voteCount * percentage / 100)})</span>`));
+            element.classList.add("pollDetailed");
+          });
+        }
+      };
       const sortNodes = () => {
         const nodes = newNodes.splice(0);
         if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null)
-          || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null))) {
+          || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null)
+          || nodes.some(node => node.matches(answerSelector) ||  node.querySelector(answerSelector) !== null))) {
           const posts = [
             ...nodes.filter(node => node.matches(postSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
@@ -475,9 +565,14 @@ const main = async function () {
             ...nodes.filter(node => node.matches(noteSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(noteSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
+          const answers = [
+            ...nodes.filter(node => node.matches(answerSelector)),
+            ...nodes.flatMap(node => [...node.querySelectorAll(answerSelector)])
+          ].filter((value, index, array) => index === array.indexOf(value));
           fixHeader(posts);
           if (configPreferences.displayFullNoteCounts.value) recountNotes(posts);
           if (configPreferences.highlightLikelyBots.value) scanNotes(notes);
+          if (configPreferences.displayVoteCounts.value) detailPolls(answers);
         }
         else return
       };
@@ -507,9 +602,19 @@ const main = async function () {
             toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
             break;
           case "__hideBadges":
-            if (configPreferences.hideBadges.value) {
+            if (value) {
               document.getElementById("__bs").innerText = `${keyToCss("badgeContainer")} { display: none; }`;
             } else { document.getElementById("__bs").innerText = "" };
+            break;
+          case "__highlightLikelyBots":
+            if (value) {
+              scanNotes(Array.from($a(noteSelector)));
+            } else {remove($a("[label='Possible Bot']"));}
+            break;
+          case "__showFollowingLabel":
+            if (value) {
+              scanNotes(Array.from($a(noteSelector)));
+            } else {remove($a("[label='Follows You']"));}
             break;
         };
       };
@@ -531,6 +636,14 @@ const main = async function () {
                 break;
               case "__contentWidth":
                 css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
+                break;
+              case "__messagingScale":
+                $("#__ms").innerText = `
+                  ${keyToCss("conversationWindow")} { 
+                    width: calc(280px * ${value}); 
+                    height: calc(450px * ${value});
+                  }
+                `;
                 break;
             };
           };
@@ -657,15 +770,22 @@ const main = async function () {
                   </datalist>
                 </div>
               </li>
-              </ul>
-              <ul id="__cta">
-                <li class="infoHeader" style="flex-flow: column wrap">
+              <li>
+                <span>messaging window scale</span>
+                <div class="rangeInput">
+                  <input class="configInput" type="range" id="__messagingScale" name="messagingScale" list="__mss" min="1" max ="2" step="0.05" value="${configPreferences.messagingScale.value}">
+                  <datalist id="__mss">
+                    <option value="1" label="1x"></option>
+                    <option value="1.5" label="1.5x"></option>
+                    <option value="2" label="2x"></option>
+                  </datalist>
+                </div>
+              </li>
+            </ul>
+            <ul id="__cta">
+              <li class="infoHeader" style="flex-flow: column wrap">
                 <span style="width: 100%;">advanced configuration</span>
                 <span style="width: 100%; font-size: .8em;">requires a page reload</span>
-              </li>
-              <li>
-                <span>disable "virtual scroller" experiment</span>
-                <input class="configInput" type="checkbox" id="__disableVirtualScroller" name="disableVirtualScroller" ${configPreferences.disableVirtualScroller.value}>
               </li>
               <li>
                 <span>disable tumblr live</span>
@@ -707,6 +827,18 @@ const main = async function () {
                 <span>display full note counts</span>
                 <input class="configInput" type="checkbox" id="__displayFullNoteCounts" name="displayFullNoteCounts" ${configPreferences.displayFullNoteCounts.value}>
               </li>
+              <li>
+                <span>display exact vote counts on poll answers</span>
+                <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
+              </li>
+              <li>
+                <span>show hidden NSFW posts in the timeline</span>
+                <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
+              </li>
+              <li>
+                <span>enable the "reply from sideblogs" experiment</span>
+                <input class="configInput" type="checkbox" id="__replyFromSecondaries" name="replyFromSecondaries" ${configPreferences.replyFromSecondaries.value}>
+              </li>
             </ul>
           </div>
         </div>
@@ -730,9 +862,6 @@ const main = async function () {
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
         });
-        if (configPreferences.disableTumblrLive.value) {
-          $("#__s").innerText +=`${keyToCss("navItem")}:has(use[href="#managed-icon__earth"]) { display: none !important; }`;
-        };
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value || configPreferences.displayFullNoteCounts.value) {
           observer.observe(target, { childList: true, subtree: true });
         }
@@ -742,9 +871,18 @@ const main = async function () {
         if (configPreferences.displayFullNoteCounts.value) {
           recountNotes(Array.from($a(postSelector)));
         };
+        if (configPreferences.displayVoteCounts.value) {
+          detailPolls(Array.from($a(answerSelector)));
+          const pollStyle = document.createElement("style");
+          document.head.appendChild(pollStyle);
+          pollStyle.innerText = `
+            ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
+            ${keyToCss("results")} { overflow: hidden; }
+          `;
+        };
         const badgeStyle = document.createElement("style");
         badgeStyle.id = "__bs";
-        document.head.appendChild(badgeStyle);
+        document.head.append(badgeStyle);
         if (configPreferences.hideBadges.value) {
           badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
         };
@@ -754,7 +892,7 @@ const main = async function () {
           });
           const gridStyle = document.createElement("style");
           gridStyle.id = "__gs";
-          document.head.appendChild(gridStyle);
+          document.head.append(gridStyle);
           if (configPreferences.contentWidth.value > 51.5 && location.pathname.split("/")[1] === "likes") {
             waitFor(keyToCss("gridded")).then(() => {
               const gridWidth = $(keyToCss("gridded")).clientWidth;
@@ -763,6 +901,15 @@ const main = async function () {
             });
           };
         };
+        const messagingStyle = document.createElement("style");
+        messagingStyle.id = "__ms";
+        document.head.append(messagingStyle);
+        messagingStyle.innerText = `
+          ${keyToCss("conversationWindow")} { 
+            width: calc(280px * ${configPreferences.messagingScale.value}); 
+            height: calc(450px * ${configPreferences.messagingScale.value});
+          }
+        `;
       };
       const unfuck = async function () {
         if (!initialChecks()) return;
@@ -815,8 +962,8 @@ const main = async function () {
         console.log("dashboard fixed!");
       };
 
-      console.log(featureSet);
-      console.log(JSON.parse(atob(state.obfuscatedFeatures)));
+      console.info(JSON.parse(atob(state.obfuscatedFeatures)));
+      console.info(featureSet);
       unfuck();
       window.addEventListener("resize", () => {
         windowWidth = window.innerWidth;

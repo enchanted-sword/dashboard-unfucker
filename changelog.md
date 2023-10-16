@@ -1,12 +1,25 @@
 # Changelog
 
-##v4.4.6
+## v5.1.0 (release version)
+- Added a fallback style to ensure 3px border radius on posts
+- Minor code improvements 
+
+## v5.1.0 beta
+- Added the "enable the "reply from sideblogs" experiment" feature
+
+## v5.0.0 beta
+- Improved the toggling of the notification-based features
+- Added the "display exact vote counts on poll answers" feature
+- Added the "show hidden NSFW posts in the timeline" feature
+- Added the "messaging scale" feature
+
+## v4.4.6
 - Changed the custom notification labels to use theme colours
 
-##v4.4.4/4.4.5
+## v4.4.4/4.4.5
 - Removed scroll offsets from permalink pages
 
-##v4.4.2/4.4.3
+## v4.4.2/4.4.3
 - Fixed J and K not scrolling posts to the top of the screen
 
 ## v4.4.1
