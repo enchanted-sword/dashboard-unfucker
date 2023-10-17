@@ -60,7 +60,7 @@ const main = async function () {
     showNsfwPosts: { type: "checkbox", value: "" },
     replyFromSecondaries: {type: "checkbox", value: "checked" }
   };
-  const pathname = location.pathname.split("/")[1];
+  let pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
   const $str = str => {
@@ -647,7 +647,7 @@ const main = async function () {
                 break;
             };
           };
-          if (location.pathname.split("/")[1] === "likes") {
+          if (pathname === "likes") {
             const gridWidth = $(keyToCss("gridded")).clientWidth;
             const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
             $("#__gs").innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
@@ -893,7 +893,7 @@ const main = async function () {
           const gridStyle = document.createElement("style");
           gridStyle.id = "__gs";
           document.head.append(gridStyle);
-          if (configPreferences.contentWidth.value > 51.5 && location.pathname.split("/")[1] === "likes") {
+          if (configPreferences.contentWidth.value > 51.5 && pathname === "likes") {
             waitFor(keyToCss("gridded")).then(() => {
               const gridWidth = $(keyToCss("gridded")).clientWidth;
               const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
@@ -915,6 +915,7 @@ const main = async function () {
         if (!initialChecks()) return;
 
         const menu = configMenu(version);
+        pathname = location.pathname.split("/")[1];
 
         requestAnimationFrame(() => {
           document.head.appendChild(styleElement);
