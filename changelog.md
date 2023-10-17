@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.1.1
+- Fixed masonry page content-sidebar overlap
+- Removed the "enable the "reply from sideblogs" experiment" feature
+
+The feature was apparently only be enabled on the frontend, and despite this, no errors would be returned by the `/v2/user/reply` requests. Instead, it would post as a reply from the user's main blog if they weren't part of the A/B group, but would still display as a sideblog reply to the person who posted it until the page was refreshed. Why Tumblr handles it like this, who knows.
+
 ## v5.1.0 (release version)
 - Added a fallback style to ensure 3px border radius on posts
 - Minor code improvements 

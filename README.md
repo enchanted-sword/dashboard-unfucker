@@ -83,9 +83,6 @@ Displays the number of votes each poll answer has recieved underneath the vote p
 ### Show hidden NSFW posts in the timeline
 Certain posts flagged as NSFW by Tumblr are delivered by internal API requests, but are not added to the dashboard feed. Enabling this feature will make these posts visible on the dashboard.
 
-### Enable the "reply from sideblogs" experiment
-Manually enables the new `replyFromSecondaries` beta feature, which allows users to reply to posts with sideblogs and group blogs.
-
 ## Troubleshooting
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
 - If it injects, but ends up wonky, chances are you just need to do a full reload of the page (ctrl + shift + r).
