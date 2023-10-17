@@ -57,8 +57,7 @@ const main = async function () {
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
     displayFullNoteCounts: { type: "checkbox", value: "" },
     displayVoteCounts: { type: "checkbox", value: "" },
-    showNsfwPosts: { type: "checkbox", value: "" },
-    replyFromSecondaries: {type: "checkbox", value: "checked" }
+    showNsfwPosts: { type: "checkbox", value: "" }
   };
   let pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -237,8 +236,7 @@ const main = async function () {
     {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "crowdsignalPollsNpf", "value": true},
     {"name": "crowdsignalPollsCreate", "value": true},
-    {"name": "adFreeCtaBanner", "value": false},
-    {"name": "replyFromSecondaries", "value": true}
+    {"name": "adFreeCtaBanner", "value": false}
   ];
   Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
     set(x) {
@@ -834,10 +832,6 @@ const main = async function () {
               <li>
                 <span>show hidden NSFW posts in the timeline</span>
                 <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
-              </li>
-              <li>
-                <span>enable the "reply from sideblogs" experiment</span>
-                <input class="configInput" type="checkbox" id="__replyFromSecondaries" name="replyFromSecondaries" ${configPreferences.replyFromSecondaries.value}>
               </li>
             </ul>
           </div>
