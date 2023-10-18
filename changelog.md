@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.2.0
+- Added config preference file importing/exporting
+- Tweaked the appearance of the config menu
+
 ## v5.1.1
 - Fixed masonry page content-sidebar overlap
 - Removed the "enable the "reply from sideblogs" experiment" feature

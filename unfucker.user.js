@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.1.1
+// @version      5.2.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.1.1";
+  const version = "5.2.0";
   const match = [
     "",
     "dashboard",
@@ -98,6 +98,7 @@ const main = async function () {
   const remove = (nodeList) => {
     nodeList.forEach(currentValue => {currentValue.remove()})
   }
+  const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));
   const matchPathname = () => match.includes(pathname);
   const isDashboard = () => ["dashboard", ""].includes(pathname);
   const notMasonry = () => !["search", "tagged", "explore"].includes(pathname);
@@ -290,10 +291,14 @@ const main = async function () {
             display: inline;
           }
           #__m ul {
-            margin: 4px;
+            max-height: 360px;
+            margin: 0 4px 8px;
             padding: 0;
             background: RGB(var(--white));
-            border-radius: 3px;
+            border-radius: 0 0 3px 3px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(var(--black),.4)rgba(var(--white),.1);
           }
           #__m li {
             list-style-type: none;
@@ -319,10 +324,12 @@ const main = async function () {
             top: 0px;
             right: -6px;
           }
-          li.infoHeader {
-            background: rgba(var(--black),.07);
+          .infoHeader {
+            background: rgb(var(--accent));
             padding: 12px 12px;
             font-weight: bold;
+            margin: 0 4px;
+            border-radius: 3px 3px 0 0;
           }
           .rangeInput {
             width: 160px;
@@ -333,6 +340,32 @@ const main = async function () {
           .rangeInput datalist {
             display: flex;
             justify-content: space-between;
+          }
+          #__cio {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            margin: 4px 4px 8px;
+          }
+          .iOButton {
+            width: 49%;
+            background: rgb(var(--accent));
+            border-radius: var(--border-radius-small);
+            font-size: 20px;
+            padding: 4px;
+          }
+          #__im {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            font-size: 20px;
+            color: rgb(var(--black));
+            transition: opacity .6s ease-in;
+            background: rgb(var(--accent));
+            padding: 8px;
+            text-align: center;
+            border-radius: var(--border-radius-small);
+            opacity: 0;
           }
           
           .customLabelContainer[label="Follows You"] {
@@ -686,10 +719,10 @@ const main = async function () {
             </button>
           </div>
           <div id="__a" style="display: none;">
+            <div class="infoHeader">
+              <span>about</span>
+            </div>
             <ul id="__am">
-              <li class="infoHeader">
-                <span>about</span>
-              </li>
               <li>
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
               </li>
@@ -711,10 +744,14 @@ const main = async function () {
             </ul>
           </div>
           <div id="__c" style="display: none;">
+            <div id="__cio">
+              <button id="__co" class="iOButton">export</button>
+              <button id="__ci" class="iOButton">import</button>
+            </div>
+            <div class="infoHeader">
+              <span>general configuration</span>
+            </div>
             <ul id="__ct">
-              <li class="infoHeader">
-                <span>general configuration</span>
-              </li>
               <li>
                 <span>hide dashboard tabs</span>
                 <input class="configInput" type="checkbox" id="__hideDashboardTabs" name="hideDashboardTabs" ${configPreferences.hideDashboardTabs.value}>
@@ -780,11 +817,11 @@ const main = async function () {
                 </div>
               </li>
             </ul>
+            <li class="infoHeader" style="flex-flow: column wrap">
+              <span style="width: 100%;">advanced configuration</span>
+              <span style="width: 100%; font-size: .8em;">requires a page reload</span>
+            </li>
             <ul id="__cta">
-              <li class="infoHeader" style="flex-flow: column wrap">
-                <span style="width: 100%;">advanced configuration</span>
-                <span style="width: 100%; font-size: .8em;">requires a page reload</span>
-              </li>
               <li>
                 <span>disable tumblr live</span>
                 <input class="configInput" type="checkbox" id="__disableTumblrLive" name="disableTumblrLive" ${configPreferences.disableTumblrLive.value}>
@@ -905,6 +942,85 @@ const main = async function () {
           }
         `;
       };
+      const setupButtons = () => {
+        $("#__cb").addEventListener("click", () => {
+          if ($("#__c").style.display === "none") {
+            $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
+          } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
+          toggle($("#__c"));
+        });
+        $("#__ab").addEventListener("click", () => {
+          if ($("#__a").style.display === "none") {
+            $("#__ab svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
+          } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
+          toggle($("#__a"));
+        });
+        $("#__co").addEventListener("click", () => {
+          const configExport = new Blob([JSON.stringify(configPreferences, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(configExport);
+          const exportLink = document.createElement("a");
+          const date = new Date();
+          const yy = date.getFullYear().toString();
+          const mm = (date.getDay() + 1).toString();
+          const dd = date.getDate().toString();
+          exportLink.href = url;
+          exportLink.download = `dashboard unfucker config export ${mm}-${dd}-${yy}`;
+
+          document.documentElement.append(exportLink);
+          exportLink.click();
+          exportLink.remove();
+          URL.revokeObjectURL(url);
+        });
+        $("#__ci").addEventListener("click", () => {
+          const input = document.createElement("input");
+          input.id = "__cii";
+          input.type = "file";
+          input.accept = "application/json";
+          input.addEventListener("change", async function () {
+            const [file] = this.files;
+
+            if (file) {
+              let msg;
+              let obj = await file.text();
+              obj = JSON.parse(obj);
+              if (typeof obj === "object" && obj.lastVersion) {
+                configPreferences = obj;
+                updatePreferences();
+                console.info("imported preferences from file!");
+                msg = $str(`<span id="__im">successfully imported preferences from file!</span>`);
+                document.getElementById("__cio").append(msg);
+                await delay(100);
+                css(msg, { "opacity": "1" });
+                await delay(3000);
+                css(msg, { "opacity": "0" });
+                await delay(700);
+                msg.remove();
+              } else {
+                console.error("failed to import preferences from file!");
+                msg = $str(`<span id="__im">failed to import preferences from file!</span>`);
+                document.getElementById("__cio").append(msg);
+                await delay(100);
+                css(msg, { "opacity": "1" });
+                await delay(3000);
+                css(msg, { "opacity": "0" });
+                await delay(700);
+                msg.remove();
+              }
+            }
+          });
+          input.click();
+        });
+        $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
+          if (event.target.attributes.getNamedItem("type").value === "checkbox") {
+            configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.matches(":checked") ? "checked" : "";
+            checkboxEvent(event.target.id, event.target.matches(":checked"));
+          } else {
+            configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.valueAsNumber;
+            rangeEvent(event.target.id, event.target.valueAsNumber);
+          };
+          updatePreferences();
+        })});
+      }
       const unfuck = async function () {
         if (!initialChecks()) return;
 
@@ -928,28 +1044,7 @@ const main = async function () {
                 configPreferences.lastVersion = version;
                 updatePreferences();
               };
-              $("#__cb").addEventListener("click", () => {
-                if ($("#__c").style.display === "none") {
-                  $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-                } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
-                toggle($("#__c"));
-              });
-              $("#__ab").addEventListener("click", () => {
-                if ($("#__a").style.display === "none") {
-                  $("#__ab svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-                } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
-                toggle($("#__a"));
-              });
-              $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
-                if (event.target.attributes.getNamedItem("type").value === "checkbox") {
-                  configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.matches(":checked") ? "checked" : "";
-                  checkboxEvent(event.target.id, event.target.matches(":checked"));
-                } else {
-                  configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.valueAsNumber;
-                  rangeEvent(event.target.id, event.target.valueAsNumber);
-                };
-                updatePreferences();
-              })});
+              setupButtons();
             });
           };
           initializePreferences();
