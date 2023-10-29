@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.2.0
+// @version      5.2.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.2.0";
+  const version = "5.2.1";
   const match = [
     "",
     "dashboard",
@@ -309,6 +309,7 @@ const main = async function () {
             justify-content: space-between;
             color: rgb(var(--black));
           }
+          #__m li span { max-width: 240px; }
           .__n {
             position: absolute;
           }
@@ -325,17 +326,77 @@ const main = async function () {
             right: -6px;
           }
           .infoHeader {
+            color: rgb(var(--navy)) !important;
             background: rgb(var(--accent));
             padding: 12px 12px;
             font-weight: bold;
             margin: 0 4px;
             border-radius: 3px 3px 0 0;
           }
+          .configInput[type="checkbox"] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            margin: 0;
+          }
+          .configInput[type="checkbox"] + label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 36px;
+            height: 18px;
+            background: rgb(var(--secondary-accent));
+            transition: 0.3s;
+            display: block;
+            border-radius: 18px;
+            position: relative;
+          }
+          .configInput[type="checkbox"] + label:after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            background: rgb(var(--white));
+            border-radius: 7px;
+            transition: 0.3s;
+          }
+          .configInput:checked + label { background: rgb(var(--accent)); }
+          .configInput:checked + label:after {
+            left: calc(100% - 2px);
+            transform: translateX(-100%);
+            background: rgb(var(--white-on-dark));
+          }
+          .configInput[type="checkbox"] + label:active:after { width: 20px; }
           .rangeInput {
             width: 160px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+          }
+          .configInput[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+          }
+          .configInput[type="range"]:focus { outline: none; }
+          .configInput[type="range"]::-webkit-slider-runnable-track,
+          .configInput[type="range"]::-moz-range-track {
+            background: rgb(var(--accent));
+            border-radius: 1rem;
+            height: 0.5rem;
+          }
+          .configInput[type="range"]::-webkit-slider-thumb,
+          .configInput[type="range"]::-moz-range-track::-moz-range-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            border: none;
+            margin-top: -4px;
+            background-color: rgb(var(--white-on-dark));
+            border-radius: 50%;
+            height: 1rem;
+            width: 1rem;
           }
           .rangeInput datalist {
             display: flex;
@@ -348,6 +409,7 @@ const main = async function () {
             margin: 4px 4px 8px;
           }
           .iOButton {
+            color: rgb(var(--navy));
             width: 49%;
             background: rgb(var(--accent));
             border-radius: var(--border-radius-small);
@@ -755,34 +817,42 @@ const main = async function () {
               <li>
                 <span>hide dashboard tabs</span>
                 <input class="configInput" type="checkbox" id="__hideDashboardTabs" name="hideDashboardTabs" ${configPreferences.hideDashboardTabs.value}>
+                <label for="__hideDashboardTabs">Toggle</label>
               </li>
               <li>
                 <span>hide recommended blogs</span>
                 <input class="configInput" type="checkbox" id="__hideRecommendedBlogs" name="hideRecommendedBlogs" ${configPreferences.hideRecommendedBlogs.value}>
+                <label for="__hideRecommendedBlogs">Toggle</label>
               </li>
               <li>
                 <span>hide tumblr radar</span>
                 <input class="configInput" type="checkbox" id="__hideTumblrRadar" name="hideTumblrRadar" ${configPreferences.hideTumblrRadar.value}>
+                <label for="__hideTumblrRadar">Toggle</label>
               </li>
               <li>
                 <span>hide explore</span>
                 <input class="configInput" type="checkbox" id="__hideExplore" name="hideExplore" ${configPreferences.hideExplore.value}>
+                <label for="__hideExplore">Toggle</label>
               </li>
               <li>
                 <span>hide tumblr shop</span>
                 <input class="configInput" type="checkbox" id="__hideTumblrShop" name="hideTumblrShop" ${configPreferences.hideTumblrShop.value}>
+                <label for="__hideTumblrShop">Toggle</label>
               </li>
               <li>
                 <span>hide badges</span>
                 <input class="configInput" type="checkbox" id="__hideBadges" name="hideBadges" ${configPreferences.hideBadges.value}>
+                <label for="__hideBadges">Toggle</label>
               </li>
               <li>
                 <span>highlight likely bots in the activity feed</span>
                 <input class="configInput" type="checkbox" id="__highlightLikelyBots" name="highlightLikelyBots" ${configPreferences.highlightLikelyBots.value}>
+                <label for="__highlightLikelyBots">Toggle</label>
               </li>
               <li>
                 <span>show who follows you in the activity feed</span>
                 <input class="configInput" type="checkbox" id="__showFollowingLabel" name="showFollowingLabel" ${configPreferences.showFollowingLabel.value}>
+                <label for="__showFollowingLabel">Toggle</label>
               </li>
               <li>
                 <span>content positioning</span>
@@ -825,50 +895,62 @@ const main = async function () {
               <li>
                 <span>disable tumblr live</span>
                 <input class="configInput" type="checkbox" id="__disableTumblrLive" name="disableTumblrLive" ${configPreferences.disableTumblrLive.value}>
+                <label for="__disableTumblrLive">Toggle</label>
               </li>
               <li>
                 <span>disable tumblr domains</span>
                 <input class="configInput" type="checkbox" id="__disableTumblrDomains" name="disableTumblrDomains" ${configPreferences.disableTumblrDomains.value}>
+                <label for="__disableTumblrDomains">Toggle</label>
               </li>
               <li>
                 <span>revert activity feed redesign</span>
                 <input class="configInput" type="checkbox" id="__revertActivityFeedRedesign" name="revertActivityFeedRedesign" ${configPreferences.revertActivityFeedRedesign.value}>
+                <label for="__revertActivityFeedRedesign">Toggle</label>
               </li>
               <li>
                 <span>revert messaging redesign</span>
                 <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
+                <label for="__revertMessagingRedesign">Toggle</label>
               </li>
               <li>
                 <span>revert searchbar update</span>
                 <input class="configInput" type="checkbox" id="__revertSearchbarRedesign" name="revertSearchbarRedesign" ${configPreferences.revertSearchbarRedesign.value}>
+                <label for="__revertSearchRedesign">Toggle</label>
               </li>
               <li>
                 <span>enable customizable dashboard tabs</span>
                 <input class="configInput" type="checkbox" id="__enableReCustomTabs" name="enableCustomTabs" ${configPreferences.enableCustomTabs.value}>
+                <label for="__enableCustomTabs">Toggle</label>
               </li>
               <li>
                 <span>enable adding polls to reblogs</span>
                 <input class="configInput" type="checkbox" id="__enableReblogPolls" name="enableReblogPolls" ${configPreferences.enableReblogPolls.value}>
+                <label for="__enableReblogPolls">Toggle</label>
               </li>
               <li>
                 <span>disable "post without tags" nag</span>
                 <input class="configInput" type="checkbox" id="__disableTagNag" name="disableTagNag" ${configPreferences.disableTagNag.value}>
+                <label for="disableTagNag">Toggle</label>
               </li>
               <li>
                 <span>re-add unread post notifications to the corner of the home icon</span>
                 <input class="configInput" type="checkbox" id="__reAddHomeNotifications" name="reAddHomeNotifications" ${configPreferences.reAddHomeNotifications.value}>
+                <label for="__reAddHomeNotifications">Toggle</label>
               </li>
               <li>
                 <span>display full note counts</span>
                 <input class="configInput" type="checkbox" id="__displayFullNoteCounts" name="displayFullNoteCounts" ${configPreferences.displayFullNoteCounts.value}>
+                <label for="__displayFullNoteCounts">Toggle</label>
               </li>
               <li>
                 <span>display exact vote counts on poll answers</span>
                 <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
+                <label for="__displayVoteCounts">Toggle</label>
               </li>
               <li>
                 <span>show hidden NSFW posts in the timeline</span>
                 <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
+                <label for="__showNsfwPosts">Toggle</label>
               </li>
             </ul>
           </div>

@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.2.1
+- Fixed a minor text colour discrepancy with some palettes
+- Prettied up the inputs for the config menu
+
 ## v5.2.0
 - Added config preference file importing/exporting
 - Tweaked the appearance of the config menu
