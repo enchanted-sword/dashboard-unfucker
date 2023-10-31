@@ -68,8 +68,14 @@ const main = async function () {
     elem = elem.firstElementChild;
     return elem;
   };
-  const hide = elem => {elem.style.display = "none"};
-  const show = elem => {elem.style.display = null};
+  const hide = elem => {
+    if (elem.length) elem.forEach(item => item.style.display = "none");
+    else elem.style.display = "none";
+  };
+  const show = elem => {
+    if (elem.length) elem.forEach(item => item.style.display = null);
+    else elem.style.display = null;
+  };
   const toggle = (elem, toggle = "ignore") => {
     if (toggle === "ignore") {
       elem.style.display === "none" ?
@@ -645,29 +651,25 @@ const main = async function () {
           });
         }
       };
+      const mutationManager = Object.freeze({
+        listeners: new Map(),
+        start (func, selector) {
+          if (this.listeners.has(func)) this.stop(func);
+          this.listeners.set(func, selector);
+          func(Array.from($a(selector)));
+        },
+        stop (func) {this.listeners.delete(func);}
+      });
       const sortNodes = () => {
         const nodes = newNodes.splice(0);
-        if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector) !== null)
-          || nodes.some(node => node.matches(noteSelector) ||  node.querySelector(noteSelector) !== null)
-          || nodes.some(node => node.matches(answerSelector) ||  node.querySelector(answerSelector) !== null))) {
-          const posts = [
-            ...nodes.filter(node => node.matches(postSelector)),
-            ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
+        if (nodes.length === 0) return
+        for ( const [func, selector] of mutationManager.listeners) {
+          const matchingElements = [
+            ...nodes.filter(node => node.matches(selector)),
+            ...nodes.flatMap(node => [...node.querySelectorAll(selector)])
           ].filter((value, index, array) => index === array.indexOf(value));
-          const notes = [
-            ...nodes.filter(node => node.matches(noteSelector)),
-            ...nodes.flatMap(node => [...node.querySelectorAll(noteSelector)])
-          ].filter((value, index, array) => index === array.indexOf(value));
-          const answers = [
-            ...nodes.filter(node => node.matches(answerSelector)),
-            ...nodes.flatMap(node => [...node.querySelectorAll(answerSelector)])
-          ].filter((value, index, array) => index === array.indexOf(value));
-          fixHeader(posts);
-          if (configPreferences.displayFullNoteCounts.value) recountNotes(posts);
-          if (configPreferences.highlightLikelyBots.value) scanNotes(notes);
-          if (configPreferences.displayVoteCounts.value) detailPolls(answers);
+          if (matchingElements.length) func(matchingElements);
         }
-        else return
       };
       const observer = new MutationObserver(mutations => {
         const nodes = mutations
@@ -701,13 +703,37 @@ const main = async function () {
             break;
           case "__highlightLikelyBots":
             if (value) {
-              scanNotes(Array.from($a(noteSelector)));
-            } else {remove($a("[label='Possible Bot']"));}
+              mutationManager.start(scanNotes, noteSelector);
+            } else {
+              remove($a("[label='Possible Bot']"));
+              if (!mutationManager.listeners.has(scanNotes)) mutationManager.stop(scanNotes);
+            }
             break;
           case "__showFollowingLabel":
+            if (value) mutationManager.start(scanNotes, noteSelector);
+            else {
+              remove($a("[label='Follows You']"));
+              if (!mutationManager.listeners.has(scanNotes)) mutationManager.stop(scanNotes);
+            }
+            break;
+          case "__displayVoteCounts":
             if (value) {
-              scanNotes(Array.from($a(noteSelector)));
-            } else {remove($a("[label='Follows You']"));}
+              mutationManager.start(detailPolls, answerSelector);
+              document.getElementById("__ps").innerText = `
+                ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
+                ${keyToCss("results")} { overflow: hidden; }
+              `;
+            }
+            else {
+              mutationManager.stop(detailPolls);
+              document.getElementById("__ps").innerText = "";
+              remove($a(".answerVoteCount"));
+              $a(".pollDetailed").forEach(elem => elem.classList.remove("pollDetailed"));
+            }
+            break;
+          case "__displayFullNoteCounts":
+            if (value) mutationManager.start(recountNotes, postSelector);
+            else mutationManager.stop(recountNotes);
             break;
         };
       };
@@ -959,14 +985,15 @@ const main = async function () {
       const initializePreferences = () => {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
 
-        fixHeader(Array.from($a(postSelector)));
+        mutationManager.start(fixHeader, postSelector);
+
         waitFor(keyToCss("recommendedBlogs")).then(() => {
           toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
         });
         waitFor(keyToCss("radar")).then(() => {
           toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences.hideTumblrRadar.value);
         });
-        if(isDashboard()) {
+        if (isDashboard()) {
           waitFor(keyToCss("timelineHeader")).then(() => {
             toggle($(keyToCss("timelineHeader")), !configPreferences.hideDashboardTabs.value);
           });
@@ -975,19 +1002,17 @@ const main = async function () {
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
           toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
         });
-        if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value || configPreferences.displayFullNoteCounts.value) {
-          observer.observe(target, { childList: true, subtree: true });
-        }
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value) {
-          scanNotes(Array.from($a(noteSelector)));
+          mutationManager.start(scanNotes, noteSelector);
         }
         if (configPreferences.displayFullNoteCounts.value) {
-          recountNotes(Array.from($a(postSelector)));
+          mutationManager.start(recountNotes, postSelector);
         };
+        const pollStyle = document.createElement("style");
+        pollStyle.id = "__ps";
+        document.head.appendChild(pollStyle);
         if (configPreferences.displayVoteCounts.value) {
-          detailPolls(Array.from($a(answerSelector)));
-          const pollStyle = document.createElement("style");
-          document.head.appendChild(pollStyle);
+          mutationManager.start(detailPolls, answerSelector);
           pollStyle.innerText = `
             ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
             ${keyToCss("results")} { overflow: hidden; }
@@ -1023,6 +1048,8 @@ const main = async function () {
             height: calc(450px * ${configPreferences.messagingScale.value});
           }
         `;
+
+        observer.observe(target, { childList: true, subtree: true });
       };
       const setupButtons = () => {
         $("#__cb").addEventListener("click", () => {
@@ -1136,7 +1163,9 @@ const main = async function () {
 
       console.info(JSON.parse(atob(state.obfuscatedFeatures)));
       console.info(featureSet);
+
       unfuck();
+
       window.addEventListener("resize", () => {
         windowWidth = window.innerWidth;
         safeOffset = (windowWidth - 1000) / 2;
