@@ -55,7 +55,6 @@ const main = async function () {
     enableReblogPolls: { type: "checkbox", value: "" },
     disableTagNag: { type: "checkbox", value: "checked" },
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
-    displayFullNoteCounts: { type: "checkbox", value: "" },
     displayVoteCounts: { type: "checkbox", value: "" },
     showNsfwPosts: { type: "checkbox", value: "" }
   };
@@ -588,30 +587,6 @@ const main = async function () {
           };
         };
       };
-      const recountNotes = posts => {
-        for (const post of posts) {
-          const { id } = fetchNpf(post);
-          post.id = `post${id}`;
-          try {
-            waitFor(`#post${id} ${keyToCss("formattedNoteCount")}`).then(() => {
-              const formattedNoteCount = post.querySelector(`:scope ${keyToCss("formattedNoteCount")}`);
-              if (formattedNoteCount) {
-                const title = formattedNoteCount.attributes.getNamedItem("title").value.split(" ")
-                const number = title[0];
-                const descriptor = title[1];
-                const blackText = formattedNoteCount.querySelector(`:scope ${keyToCss("blackText")}`);
-                blackText.innerText = number;
-                formattedNoteCount.childNodes[0].nodeValue = descriptor;
-                css(formattedNoteCount, { "overflowWrap": "normal"});
-              }
-            });
-          } catch (e) {
-            console.error("an error occurred processing a post's notes:", e);
-            console.error(post);
-            console.error(fetchNpf(post));
-          };
-        };
-      };
       const scanNotes = notes => {
         for (const note of notes) {
           try {
@@ -730,10 +705,6 @@ const main = async function () {
               remove($a(".answerVoteCount"));
               $a(".pollDetailed").forEach(elem => elem.classList.remove("pollDetailed"));
             }
-            break;
-          case "__displayFullNoteCounts":
-            if (value) mutationManager.start(recountNotes, postSelector);
-            else mutationManager.stop(recountNotes);
             break;
         };
       };
@@ -881,6 +852,11 @@ const main = async function () {
                 <label for="__showFollowingLabel">Toggle</label>
               </li>
               <li>
+                <span>display exact vote counts on poll answers</span>
+                <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
+                <label for="__displayVoteCounts">Toggle</label>
+              </li>
+              <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
                   <input class="configInput" type="range" id="__contentPositioning" name="contentPositioning" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences.contentPositioning.value}">
@@ -964,16 +940,6 @@ const main = async function () {
                 <label for="__reAddHomeNotifications">Toggle</label>
               </li>
               <li>
-                <span>display full note counts</span>
-                <input class="configInput" type="checkbox" id="__displayFullNoteCounts" name="displayFullNoteCounts" ${configPreferences.displayFullNoteCounts.value}>
-                <label for="__displayFullNoteCounts">Toggle</label>
-              </li>
-              <li>
-                <span>display exact vote counts on poll answers</span>
-                <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
-                <label for="__displayVoteCounts">Toggle</label>
-              </li>
-              <li>
                 <span>show hidden NSFW posts in the timeline</span>
                 <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
                 <label for="__showNsfwPosts">Toggle</label>
@@ -1004,9 +970,6 @@ const main = async function () {
         });
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value) {
           mutationManager.start(scanNotes, noteSelector);
-        }
-        if (configPreferences.displayFullNoteCounts.value) {
-          mutationManager.start(recountNotes, postSelector);
         };
         const pollStyle = document.createElement("style");
         pollStyle.id = "__ps";
