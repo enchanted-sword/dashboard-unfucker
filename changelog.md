@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.3.0
+- Overhauled mutuation functions
+- Moved the "display exact vote counts on poll answers" feature to the "general configuration" category
+- Removed the "display full note count" feature since tumblr no longer shortens post note counts
+
 ## v5.2.1
 - Fixed a minor text colour discrepancy with some palettes
 - Prettied up the inputs for the config menu
