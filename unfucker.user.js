@@ -49,7 +49,6 @@ const main = async function () {
     disableTumblrLive: { type: "checkbox", value: "checked" },
     disableTumblrDomains: { type: "checkbox", value: "checked" },
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
-    revertMessagingRedesign: { type: "checkbox", value: "checked" },
     revertSearchbarRedesign: { type: "checkbox", value: "checked" },
     enableCustomTabs: { type: "checkbox", value: "" },
     enableReblogPolls: { type: "checkbox", value: "" },
@@ -57,7 +56,8 @@ const main = async function () {
     reAddHomeNotifications: { type: "checkbox", value: "checked" },
     displayFullNoteCounts: { type: "checkbox", value: "" },
     displayVoteCounts: { type: "checkbox", value: "" },
-    showNsfwPosts: { type: "checkbox", value: "" }
+    showNsfwPosts: { type: "checkbox", value: "" },
+    disableScrollingAvatars: { type: "checkbox", value: ""}
   };
   let pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -227,7 +227,6 @@ const main = async function () {
     {"name": "liveSteamingWebPayments", "value": !configPreferences.disableTumblrLive.value},
     {"name": "domainsSettings", "value": !configPreferences.disableTumblrDomains.value},
     {"name": "activityRedesignM3", "value": !configPreferences.revertActivityFeedRedesign.value},
-    {"name": "messagingRedesign", "value": !configPreferences.revertMessagingRedesign.value},
     {"name": "improvedSearchTypeahead", "value": !configPreferences.revertSearchbarRedesign.value},
     {"name": "configurableTabbedDash", "value": configPreferences.enableCustomTabs.value?true:false},
     {"name": "allowAddingPollsToReblogs", "value": configPreferences.enableReblogPolls.value?true:false},
@@ -709,6 +708,10 @@ const main = async function () {
               scanNotes(Array.from($a(noteSelector)));
             } else {remove($a("[label='Follows You']"));}
             break;
+          case "__disableScrollingAvatars":
+            if (value) document.getElementById("__as").innerText = `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`;
+            else document.getElementById("__as").innerText = "";
+            break;
         };
       };
       const rangeEvent = (id, value) => {
@@ -855,6 +858,11 @@ const main = async function () {
                 <label for="__showFollowingLabel">Toggle</label>
               </li>
               <li>
+                <span>disable avatars scrolling with posts</span>
+                <input class="configInput" type="checkbox" id="__disableScrollingAvatars" name="disableScrollingAvatars" ${configPreferences.disableScrollingAvatars.value}>
+                <label for="__disableScrollingAvatars">Toggle</label>
+              </li>
+              <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
                   <input class="configInput" type="range" id="__contentPositioning" name="contentPositioning" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences.contentPositioning.value}">
@@ -906,11 +914,6 @@ const main = async function () {
                 <span>revert activity feed redesign</span>
                 <input class="configInput" type="checkbox" id="__revertActivityFeedRedesign" name="revertActivityFeedRedesign" ${configPreferences.revertActivityFeedRedesign.value}>
                 <label for="__revertActivityFeedRedesign">Toggle</label>
-              </li>
-              <li>
-                <span>revert messaging redesign</span>
-                <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
-                <label for="__revertMessagingRedesign">Toggle</label>
               </li>
               <li>
                 <span>revert searchbar update</span>
@@ -1023,6 +1026,12 @@ const main = async function () {
             height: calc(450px * ${configPreferences.messagingScale.value});
           }
         `;
+        const avatarStyle = document.createElement("style");
+        avatarStyle.id = "__as";
+        document.head.append(avatarStyle);
+        if (configPreferences.disableScrollingAvatars.value) {
+          avatarStyle.innerText = `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`;
+        }
       };
       const setupButtons = () => {
         $("#__cb").addEventListener("click", () => {
