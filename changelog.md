@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.2.2
+- Added the "disable avatars scrolling with posts" feature
+- Removed the "revert messaging redesign feature" (no longer functioned properly)
+
 ## v5.2.1
 - Fixed a minor text colour discrepancy with some palettes
 - Prettied up the inputs for the config menu
