@@ -513,6 +513,8 @@ const main = async function () {
 
           [data-timeline] article { border-radius: 3px !important; }
           article header { border-radius: 3px 3px 0 0 !important; }
+
+          ${keyToCss("toastHolder")} { display: none; }
         </style>
       `);
       const labelContainer = (label, icon, desc) => $str(`
@@ -1101,7 +1103,7 @@ const main = async function () {
           };
           updatePreferences();
         })});
-      }
+      };
       const unfuck = async function () {
         if (!initialChecks()) return;
 
