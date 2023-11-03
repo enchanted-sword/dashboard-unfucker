@@ -794,7 +794,7 @@ const main = async function () {
                 <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/blob/main/changelog.md">changelog</a>
               </li>
               <li>
-                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/new?labels=bug&projects=&template=bug_report.md&title=">report a bug</a>
+                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/">report a bug</a>
               </li>
               <li>
                 <a target="_blank" href="https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js">update</a>
