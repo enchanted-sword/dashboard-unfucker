@@ -128,19 +128,7 @@ const main = async function () {
       );
     }
   };
-  const modifyInitialTimeline = (obj, context, value) => {
-    if (!obj || !value) return "";
-    else if (context === "dashboard") {
-      obj = obj.dashboardTimeline.response.timeline.elements;
-    } else if (context === "peepr") {
-      obj = obj.initialTimeline.objects
-    };
-    obj.forEach(post => {
-      post.isNsfw = false;
-      post.isModified = true;
-    });
-    return obj;
-  };
+  let modifyInitialTimeline = (obj, context) => "";
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures));
     for (let x of featureSet) {
@@ -185,6 +173,22 @@ const main = async function () {
     else return false;
   };
   const oldFetch = window.fetch;
+  window.fetch = async (input, options) => {
+    const response = await oldFetch(input, options);
+    let content = await response.text();
+    if (isPostFetch(input) && configPreferences.showNsfwPosts.value) {
+      console.info(`modified data fetched from ${input}`);
+      content = JSON.parse(content);
+      const elements = content.response.timeline.elements;
+      elements.forEach(post => post.isNsfw = false);
+      content = JSON.stringify(content);
+    };
+    return new Response(content, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers
+    });
+  };
 
   if (storageAvailable("localStorage")) {
     if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
@@ -202,24 +206,14 @@ const main = async function () {
     };
   };
   if (configPreferences.showNsfwPosts.value) {
-    window.fetch = async (input, options) => {
-      const response = await oldFetch(input, options);
-      let content = await response.text();
-      if (isPostFetch(input)) {
-        console.info(`modified data fetched from ${input}`);
-        content = JSON.parse(content);
-        const elements = content.response.timeline.elements;
-        elements.forEach(post => {
-          post.isNsfw = false;
-          post.isModified = true;
-        });
-        content = JSON.stringify(content);
+    modifyInitialTimeline = (obj, context) => {
+      if (!obj) return "";
+      else if (context === "dashboard") {
+        obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
+      } else if (context === "peepr") {
+        obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
       };
-      return new Response(content, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers
-      });
+      return obj;
     };
   };
   const featureSet = [
@@ -251,8 +245,8 @@ const main = async function () {
       try {
         return {
           ...state,
-          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard", configPreferences.showNsfwPosts.value),
-          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr", configPreferences.showNsfwPosts.value),
+          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard"),
+          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr"),
           obfuscatedFeatures: modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet)
         };
       } catch (e) {
@@ -565,6 +559,8 @@ const main = async function () {
       };
       const fixHeader = posts => {
         for (const post of posts) {
+          const { id } = fetchNpf(post);
+          post.id = `post${id}`;
           const header = post.querySelector(`:scope header${keyToCss("header")}`);
           if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
           && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
