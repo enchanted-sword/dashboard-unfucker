@@ -920,11 +920,11 @@ const main = async function () {
               <li>
                 <span>revert searchbar update</span>
                 <input class="configInput" type="checkbox" id="__revertSearchbarRedesign" name="revertSearchbarRedesign" ${configPreferences.revertSearchbarRedesign.value}>
-                <label for="__revertSearchRedesign">Toggle</label>
+                <label for="__revertSearchbarRedesign">Toggle</label>
               </li>
               <li>
                 <span>enable customizable dashboard tabs</span>
-                <input class="configInput" type="checkbox" id="__enableReCustomTabs" name="enableCustomTabs" ${configPreferences.enableCustomTabs.value}>
+                <input class="configInput" type="checkbox" id="__enableCustomTabs" name="enableCustomTabs" ${configPreferences.enableCustomTabs.value}>
                 <label for="__enableCustomTabs">Toggle</label>
               </li>
               <li>
