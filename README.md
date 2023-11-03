@@ -38,6 +38,9 @@ Marks new followers that are likely to be bots. The filter can sometimes indicat
 ### Show who follows you in the activity feed
 Adds a "Following You" label to relevant notifications that matches the default "Mutuals" and "Following" labels.
 
+### Disable avatars scrolling with posts
+Prevents the avatars beside posts from scrolling with the posts.
+
 ### Content positioning
 Controls the horizontal offset of the dashboard's content.
 
@@ -55,9 +58,6 @@ Disables the Tumblr Domains icons where possible.
 
 ### Revert activity feed redesign
 Reverts the latest activity feed redesign.
-
-### Revert messaging redesign
-Reverts the latest messaging redesign.
 
 ### Revert searchbar redesign
 Reverts the latest searchbar and search prediction redesign.
@@ -87,6 +87,7 @@ Certain posts flagged as NSFW by Tumblr are delivered by internal API requests, 
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
 - If it injects, but ends up wonky, chances are you just need to do a full reload of the page (ctrl + shift + r).
 - If you've updated script versions but it doesn't fix a version-specific bug, it's likely because of browser caching, closing and reopening the browser usually fixes it.
+- If the script is seemingly hiding your inbox/activity feed/etc., remove any custom adblock filters that you were previously using to hide the live/shop/etc. icons.
 
 ## Known issues / Incompatibilities
 - The script apparently conflicts with HTTPS Everywhere extension on Firefox.
