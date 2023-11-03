@@ -709,10 +709,6 @@ const main = async function () {
             if (value) document.getElementById("__as").innerText = `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`;
             else document.getElementById("__as").innerText = "";
             break;
-          case "__disableScrollingAvatars":
-            if (value) document.getElementById("__as").innerText = `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`;
-            else document.getElementById("__as").innerText = "";
-            break;
         };
       };
       const rangeEvent = (id, value) => {
@@ -859,26 +855,9 @@ const main = async function () {
                 <label for="__showFollowingLabel">Toggle</label>
               </li>
               <li>
-<<<<<<< HEAD
                 <span>display exact vote counts on poll answers</span>
                 <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
                 <label for="__displayVoteCounts">Toggle</label>
-=======
-                <span>disable avatars scrolling with posts</span>
-                <input class="configInput" type="checkbox" id="__disableScrollingAvatars" name="disableScrollingAvatars" ${configPreferences.disableScrollingAvatars.value}>
-                <label for="__disableScrollingAvatars">Toggle</label>
->>>>>>> 706b67f516782cdba9ab6643f078e1e0094deaee
-              </li>
-              <li>
-<<<<<<< HEAD
-                <span>display exact vote counts on poll answers</span>
-                <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
-                <label for="__displayVoteCounts">Toggle</label>
-=======
-                <span>disable avatars scrolling with posts</span>
-                <input class="configInput" type="checkbox" id="__disableScrollingAvatars" name="disableScrollingAvatars" ${configPreferences.disableScrollingAvatars.value}>
-                <label for="__disableScrollingAvatars">Toggle</label>
->>>>>>> 706b67f516782cdba9ab6643f078e1e0094deaee
               </li>
               <li>
                 <span>disable avatars scrolling with posts</span>

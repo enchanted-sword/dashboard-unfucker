@@ -74,9 +74,6 @@ Disables the popup that appears when attempting to create a post without adding 
 ### Re-add unread post notifications to the corner of the home icon
 Re-adds the notification icon to the navbar's "home" icon that displays how many unread posts are in your feed.
 
-### Display full note counts
-Displays notes as a full, non-shortened number (E.g. "16,248 notes" instead of "16K notes").
-
 ### Display exact vote counts on poll answers
 Displays the number of votes each poll answer has recieved underneath the vote percentage.
 
