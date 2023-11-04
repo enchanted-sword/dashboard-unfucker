@@ -681,9 +681,13 @@ const main = async function () {
 
         const { otherParticipantName, selectedBlogName } = conversationWindowObject;
 
-        await window.tumblr.apiFetch(`/v2/blog/${otherParticipantName}/info?fields[blogs]=theme`).then(response => {
-          ({ headerImageFocused, backgroundColor, titleColor, linkColor } = response.response.blog.theme);
-        });
+        try {
+          await window.tumblr.apiFetch(`/v2/blog/${otherParticipantName}/info?fields[blogs]=theme`).then(response => {
+            ({ headerImageFocused, backgroundColor, titleColor, linkColor } = response.response.blog.theme);
+          });
+        } catch (e) {
+          console.error(`failed to fetch the theme for blog ${otherParticipantName}`);
+        }
 
         return ({headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName });
       };
