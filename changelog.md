@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.3.1
+- Improved colour contrast for messaging blog descriptions
+
 ## v5.3.0
 - Overhauled mutuation functions
 - Moved the "display exact vote counts on poll answers" feature to the "general configuration" category

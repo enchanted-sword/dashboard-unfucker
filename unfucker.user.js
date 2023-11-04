@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.3.0
+// @version      5.3.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.3.0";
+  const version = "5.3.1";
   const match = [
     "",
     "dashboard",
@@ -661,7 +661,7 @@ const main = async function () {
               ${keyToCss("headerWrapper")} { background: no-repeat top/100% url(${headerImageFocused}) }
               ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
               ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
-              ${keyToCss("timestamp")},${keyToCss("statusWithCaption")} { color: ${titleColor} !important; }
+              ${keyToCss("timestamp")},${keyToCss("statusWithCaption")},${keyToCss("name")},${keyToCss("description")},${keyToCss("descriptionContainer")} { color: ${titleColor} !important; }
             `;
           });
         }
