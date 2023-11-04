@@ -1,8 +1,15 @@
 # Changelog
 
+## v5.3.0
+- Overhauled mutuation functions
+- Moved the "display exact vote counts on poll answers" feature to the "general configuration" category
+- Removed the "display full note count" feature since tumblr no longer shortens post note counts
+- Added a new "revert messaging redesign" feature using CSS
+- Simplified feature styles
+
 ## v5.2.2
 - Added the "disable avatars scrolling with posts" feature
-- Removed the "revert messaging redesign feature" (no longer functioned properly)
+- Removed the "revert messaging redesign" feature (no longer functioned properly)
 
 ## v5.2.1
 - Fixed a minor text colour discrepancy with some palettes
