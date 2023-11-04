@@ -41,6 +41,9 @@ Adds a "Following You" label to relevant notifications that matches the default 
 ### Disable avatars scrolling with posts
 Prevents the avatars beside posts from scrolling with the posts.
 
+### Revert messaging redesign
+Changes the messaging window to look more like the old design.
+
 ### Content positioning
 Controls the horizontal offset of the dashboard's content.
 

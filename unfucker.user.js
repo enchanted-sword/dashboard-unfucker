@@ -49,6 +49,7 @@ const main = async function () {
     disableTumblrLive: { type: "checkbox", value: "checked" },
     disableTumblrDomains: { type: "checkbox", value: "checked" },
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
+    revertMessagingRedesign: { type: "checkbox", value: "checked" },
     revertSearchbarRedesign: { type: "checkbox", value: "checked" },
     enableCustomTabs: { type: "checkbox", value: "" },
     enableReblogPolls: { type: "checkbox", value: "" },
@@ -265,6 +266,7 @@ const main = async function () {
       const postSelector = "[tabindex='-1'][data-id] article";
       const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
+      const conversationSelector = `[data-skip-glass-focus-trap]`;
       const newNodes = [];
       const target = document.getElementById("root");
       const styleElement = $str(`
@@ -623,6 +625,42 @@ const main = async function () {
           });
         }
       };
+      const fetchOtherBlog =  async function (obj) {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        let fiber = obj[fiberKey];
+        let conversationWindowObject;
+
+        while (fiber !== null) {
+          ({ conversationWindowObject } = fiber.memoizedProps || {});
+          if (conversationWindowObject !== undefined) {
+            break;
+          } else {
+            fiber = fiber.return;
+          };
+        };
+
+        const { otherParticipantName, selectedBlogName } = conversationWindowObject;
+        let backgroundColor;
+         await window.tumblr.apiFetch(`/v2/blog/${otherParticipantName}/info?fields[blogs]=theme`).then(response => {
+          ({ headerImageFocused, backgroundColor } = response.response.blog.theme);
+        });
+        return ({headerImageFocused, backgroundColor, otherParticipantName, selectedBlogName });
+      };
+      const styleMessaging = conversations => {
+        for (const conversation of conversations) {
+          fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, otherParticipantName, selectedBlogName}) => {
+            console.log(conversation);
+            conversation.style.backgroundColor = backgroundColor;
+            const style = document.createElement("style");
+            conversation.append(style);
+            style.innerText = `
+              ${keyToCss("headerWrapper")} { background: no-repeat top/100% url(${headerImageFocused}) }
+              ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
+              ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
+            `;
+          });
+        }
+      };
       const mutationManager = Object.freeze({
         listeners: new Map(),
         start (func, selector) {
@@ -651,6 +689,31 @@ const main = async function () {
         newNodes.push(...nodes);
         sortNodes();
       });
+      const featureStyles = Object.freeze({
+        styles: new Map(),
+        build (name, on, off, state) {
+          const style = document.createElement("style");
+          style.id = name;
+          document.head.append(style);
+          this.styles.set(name, { on, off });
+          this.toggle(name, state);
+        },
+        buildScalable (name, on, off, state, num) {
+          const style = document.createElement("style");
+          style.id = name;
+          document.head.append(style);
+          this.styles.set(name, { on, off });
+          this.toggleScalable(name, state, num);
+        },
+        toggle (name, state) {
+          const style = document.getElementById(name);
+          style.innerText = state ? this.styles.get(name).on : this.styles.get(name).off;
+        },
+        toggleScalable (name, state, num) {
+          const style = document.getElementById(name);
+          style.innerText = state ? this.styles.get(name).on.replaceAll("$NUM", num) : this.styles.get(name).off.replaceAll("$NUM", num);
+        }
+      });
       const checkboxEvent = (id, value) => {
         switch (id) {
           case "__hideDashboardTabs":
@@ -669,9 +732,7 @@ const main = async function () {
             toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
             break;
           case "__hideBadges":
-            if (value) {
-              document.getElementById("__bs").innerText = `${keyToCss("badgeContainer")} { display: none; }`;
-            } else { document.getElementById("__bs").innerText = "" };
+            featureStyles.toggle("__bs", value);
             break;
           case "__highlightLikelyBots":
             if (value) {
@@ -689,12 +750,9 @@ const main = async function () {
             }
             break;
           case "__displayVoteCounts":
+            featureStyles.toggle("__ps", value);
             if (value) {
               mutationManager.start(detailPolls, answerSelector);
-              document.getElementById("__ps").innerText = `
-                ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
-                ${keyToCss("results")} { overflow: hidden; }
-              `;
             }
             else {
               mutationManager.stop(detailPolls);
@@ -704,8 +762,12 @@ const main = async function () {
             }
             break;
           case "__disableScrollingAvatars":
-            if (value) document.getElementById("__as").innerText = `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`;
-            else document.getElementById("__as").innerText = "";
+            featureStyles.toggle("__as", value);
+            break;
+          case "__revertMessagingRedesign":
+            if (value) mutationManager.start(styleMessaging, conversationSelector);
+            else {mutationManager.stop(styleMessaging)};
+            featureStyles.toggleScalable("__ms", value, configPreferences.messagingScale.value);
             break;
         };
       };
@@ -729,19 +791,14 @@ const main = async function () {
                 css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
                 break;
               case "__messagingScale":
-                $("#__ms").innerText = `
-                  ${keyToCss("conversationWindow")} { 
-                    width: calc(280px * ${value}); 
-                    height: calc(450px * ${value});
-                  }
-                `;
+                featureStyles.toggleScalable("__ms", configPreferences.revertMessagingRedesign.value, value);
                 break;
             };
           };
           if (pathname === "likes") {
             const gridWidth = $(keyToCss("gridded")).clientWidth;
             const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
-            $("#__gs").innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
+            featureStyles.toggleScalable("__gs", true, gridItemWidth);
           };
         };
       };
@@ -863,6 +920,11 @@ const main = async function () {
                 <label for="__disableScrollingAvatars">Toggle</label>
               </li>
               <li>
+                <span>revert messaging redesign</span>
+                <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
+                <label for="__revertMessagingRedesign">Toggle</label>
+              </li>
+              <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
                   <input class="configInput" type="range" id="__contentPositioning" name="contentPositioning" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences.contentPositioning.value}">
@@ -972,52 +1034,60 @@ const main = async function () {
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value) {
           mutationManager.start(scanNotes, noteSelector);
         };
-        const pollStyle = document.createElement("style");
-        pollStyle.id = "__ps";
-        document.head.appendChild(pollStyle);
+        featureStyles.build("__ps", `
+          ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
+          ${keyToCss("results")} { overflow: hidden; }`, "", configPreferences.displayVoteCounts.value);
         if (configPreferences.displayVoteCounts.value) {
           mutationManager.start(detailPolls, answerSelector);
-          pollStyle.innerText = `
-            ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
-            ${keyToCss("results")} { overflow: hidden; }
-          `;
         };
-        const badgeStyle = document.createElement("style");
-        badgeStyle.id = "__bs";
-        document.head.append(badgeStyle);
-        if (configPreferences.hideBadges.value) {
-          badgeStyle.innerText = `${keyToCss("badgeContainer")} { display: none; }`;
-        };
+        featureStyles.build("__bs", `${keyToCss("badgeContainer")} { display: none; }`, "", configPreferences.hideBadges.value);
         if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
             css($(containerSelector), { "left": `${configPreferences.contentPositioning.value}px`, "max-width": `${configPreferences.contentWidth.value}px` });
           });
-          const gridStyle = document.createElement("style");
-          gridStyle.id = "__gs";
-          document.head.append(gridStyle);
+          featureStyles.buildScalable("__gs", `${keyToCss("gridTimelineObject")} { width: calc($NUM% - 2px) !important; }`, "", true, 0);
           if (configPreferences.contentWidth.value > 51.5 && pathname === "likes") {
             waitFor(keyToCss("gridded")).then(() => {
               const gridWidth = $(keyToCss("gridded")).clientWidth;
               const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
-              gridStyle.innerText = `${keyToCss("gridTimelineObject")} { width: calc(${gridItemWidth}% - 2px) !important; }`;
+              featureStyles.toggleScalable("__gs", true, gridItemWidth);
             });
           };
         };
-        const messagingStyle = document.createElement("style");
-        messagingStyle.id = "__ms";
-        document.head.append(messagingStyle);
-        messagingStyle.innerText = `
-          ${keyToCss("conversationWindow")} { 
-            width: calc(280px * ${configPreferences.messagingScale.value}); 
-            height: calc(450px * ${configPreferences.messagingScale.value});
+        featureStyles.buildScalable("__ms", `
+          ${keyToCss("conversationWindow")} {
+            border-radius: 5px;
+            width: calc(280px * $NUM); 
+            height: calc(500px * $NUM);
+            max-height: calc(100vh - 80px) !important;
           }
-        `;
-        const avatarStyle = document.createElement("style");
-        avatarStyle.id = "__as";
-        document.head.append(avatarStyle);
-        if (configPreferences.disableScrollingAvatars.value) {
-          avatarStyle.innerText = `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`;
+          ${keyToCss("conversationWindow")} ${keyToCss("headerDesktop")} {
+            border-radius: 5px 5px 0 0 !important;
+            background: transparent;
+            backdrop-filter: blur(6px);
+          }
+          ${keyToCss("conversationWindow")} ${keyToCss("footer")} { border-radius: 0 0 5px 5px !important; }
+          ${keyToCss("conversationWindow")} ${keyToCss("timestamp")} {
+            text-align: center !important;
+            margin: 14px 0;
+            font-size: 14px;
+          }
+          ${keyToCss("messages")} { background: transparent !important; }
+          ${keyToCss("message")} img { width: 100% !important; }
+          ${keyToCss("messageText")}, ${keyToCss("messagePost")} ${keyToCss("header")} {
+            background: rgb(var(--white)) !important;
+            color: rgb(var(--black)) !important;
+          }
+          ${keyToCss("conversation")} ${keyToCss("textareaContainer")} { border-radius: 3px; }
+        `, `${keyToCss("conversationWindow")} {
+          width: calc(400px * $NUM); 
+          height: calc(560px * $NUM);
+          max-height: calc(100vh - 80px) !important;
+        }`, configPreferences.revertMessagingRedesign.value, configPreferences.messagingScale.value);
+        if (configPreferences.revertMessagingRedesign.value) {
+          mutationManager.start(styleMessaging, conversationSelector);
         }
+        featureStyles.build("__as", `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`, "", configPreferences.disableScrollingAvatars.value);
         
         observer.observe(target, { childList: true, subtree: true });
       };
