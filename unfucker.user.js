@@ -629,6 +629,9 @@ const main = async function () {
         const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
         let fiber = obj[fiberKey];
         let conversationWindowObject;
+        let headerImageFocused;
+        let backgroundColor;
+        let titleColor;
 
         while (fiber !== null) {
           ({ conversationWindowObject } = fiber.memoizedProps || {});
@@ -640,15 +643,16 @@ const main = async function () {
         };
 
         const { otherParticipantName, selectedBlogName } = conversationWindowObject;
-        let backgroundColor;
-         await window.tumblr.apiFetch(`/v2/blog/${otherParticipantName}/info?fields[blogs]=theme`).then(response => {
-          ({ headerImageFocused, backgroundColor } = response.response.blog.theme);
+
+        await window.tumblr.apiFetch(`/v2/blog/${otherParticipantName}/info?fields[blogs]=theme`).then(response => {
+          ({ headerImageFocused, backgroundColor, titleColor } = response.response.blog.theme);
         });
-        return ({headerImageFocused, backgroundColor, otherParticipantName, selectedBlogName });
+
+        return ({headerImageFocused, backgroundColor, titleColor, otherParticipantName, selectedBlogName });
       };
       const styleMessaging = conversations => {
         for (const conversation of conversations) {
-          fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, otherParticipantName, selectedBlogName}) => {
+          fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, titleColor, otherParticipantName, selectedBlogName}) => {
             console.log(conversation);
             conversation.style.backgroundColor = backgroundColor;
             const style = document.createElement("style");
@@ -657,6 +661,7 @@ const main = async function () {
               ${keyToCss("headerWrapper")} { background: no-repeat top/100% url(${headerImageFocused}) }
               ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
               ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
+              ${keyToCss("timestamp")},${keyToCss("statusWithCaption")} { color: ${titleColor} !important; }
             `;
           });
         }
