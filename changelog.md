@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.3.2
+- Import blog title and link colours for messaging
+- Fixed issue with messaging stylesheets affecting post timestamps
+- The messaging feature now computes colour contrast ratios to determine if the message backgrounds should be white or black
+- Fixed an additional timeline load when not using the "show hidden nsfw posts" feature
+
 ## v5.3.1
 - Improved colour contrast for messaging blog descriptions
 

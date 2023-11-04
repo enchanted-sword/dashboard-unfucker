@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.3.1
+// @version      5.3.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.3.1";
+  const version = "5.3.2";
   const match = [
     "",
     "dashboard",
@@ -129,7 +129,6 @@ const main = async function () {
       );
     }
   };
-  let modifyInitialTimeline = (obj, context) => "";
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures));
     for (let x of featureSet) {
@@ -206,16 +205,15 @@ const main = async function () {
       updatePreferences();
     };
   };
-  if (configPreferences.showNsfwPosts.value) {
-    modifyInitialTimeline = (obj, context) => {
-      if (!obj) return "";
-      else if (context === "dashboard") {
-        obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
-      } else if (context === "peepr") {
-        obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
-      };
-      return obj;
+  const modifyInitialTimeline = (obj, context) => {
+    if (!obj || configPreferences.showNsfwPosts.value) return obj;
+    console.log(obj);
+    if (context === "dashboard") {
+      obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
+    } else if (context === "peepr") {
+      obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
     };
+    return obj;
   };
   const featureSet = [
     {"name": "redpopDesktopVerticalNav", "value": false},
@@ -513,6 +511,44 @@ const main = async function () {
           ${keyToCss("toastHolder")} { display: none; }
         </style>
       `);
+
+      const hexToRgb = (hex = "") => {
+        hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => {
+          return r + r + g + g + b + b;
+        });
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : null;
+      }              
+      const luminance = ({r, g, b}) => {
+        const a = [r, g, b].map(v => {
+          v /= 255;
+          return v <= 0.03928
+            ? v / 12.92
+          : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+      }
+      const ratio = (lum1, lum2) => lum1 > lum2 ? ((lum2 + 0.05) / (lum1 + 0.05)) : ((lum1 + 0.05) / (lum2 + 0.05));
+      const contrast = (hex1, hex2) => {
+        const lum1 = luminance(hexToRgb(hex1));
+        const lum2 = luminance(hexToRgb(hex2));
+        return ratio(lum1, lum2);
+      }
+      const contrastBW = hex => {
+        const lum = luminance(hexToRgb(hex));
+        const lumBlk = luminance({ r: 12, g: 12, b: 12 });
+        const lumWht = luminance({ r: 255, g: 255, b: 255 });
+        const ratioBlk = ratio(lum, lumBlk);
+        const ratioWht = ratio(lum, lumWht);
+        if (ratioBlk < ratioWht) return "12,12,12";
+        else return "255,255,255";
+      }
+      rgbToString = ({r, g, b}) => `${r},${g},${b}`;
+
       const labelContainer = (label, icon, desc) => $str(`
         <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
           ${label}
@@ -632,6 +668,7 @@ const main = async function () {
         let headerImageFocused;
         let backgroundColor;
         let titleColor;
+        let linkColor;
 
         while (fiber !== null) {
           ({ conversationWindowObject } = fiber.memoizedProps || {});
@@ -645,27 +682,44 @@ const main = async function () {
         const { otherParticipantName, selectedBlogName } = conversationWindowObject;
 
         await window.tumblr.apiFetch(`/v2/blog/${otherParticipantName}/info?fields[blogs]=theme`).then(response => {
-          ({ headerImageFocused, backgroundColor, titleColor } = response.response.blog.theme);
+          ({ headerImageFocused, backgroundColor, titleColor, linkColor } = response.response.blog.theme);
         });
 
-        return ({headerImageFocused, backgroundColor, titleColor, otherParticipantName, selectedBlogName });
+        return ({headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName });
       };
       const styleMessaging = conversations => {
         for (const conversation of conversations) {
-          fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, titleColor, otherParticipantName, selectedBlogName}) => {
-            console.log(conversation);
+          fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName}) => {
+            conversation.id = `messaging-${otherParticipantName}`
             conversation.style.backgroundColor = backgroundColor;
             const style = document.createElement("style");
+            style.classList.add("customMessagingStyle");
             conversation.append(style);
+            const msgBackground = contrastBW(titleColor);
+            const tsColor = contrastBW(backgroundColor);
+            if (contrast(linkColor, backgroundColor) > 0.33) {
+              linkColor = tsColor;
+            }
+            titleColor = rgbToString(hexToRgb(titleColor));
             style.innerText = `
-              ${keyToCss("headerWrapper")} { background: no-repeat top/100% url(${headerImageFocused}) }
-              ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
-              ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
-              ${keyToCss("timestamp")},${keyToCss("statusWithCaption")},${keyToCss("name")},${keyToCss("description")},${keyToCss("descriptionContainer")} { color: ${titleColor} !important; }
+              #messaging-${otherParticipantName} ${keyToCss("headerWrapper")} { background: no-repeat top/100% url(${headerImageFocused}) }
+              #messaging-${otherParticipantName} ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
+              #messaging-${otherParticipantName} ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
+              #messaging-${otherParticipantName} ${keyToCss("statusWithCaption")} { color: ${linkColor} !important; }
+              #messaging-${otherParticipantName} ${keyToCss("timestamp")} { color: rgba(${tsColor},.6) }
+              #messaging-${otherParticipantName} ${keyToCss("name")}, #messaging-${otherParticipantName} ${keyToCss("description")}, 
+              #messaging-${otherParticipantName} ${keyToCss("descriptionContainer")} { color: rgb(${tsColor}) !important; }
+              #messaging-${otherParticipantName} ${keyToCss("messageText")}, #messaging-${otherParticipantName} ${keyToCss("messagePost")} ${keyToCss("header")},
+              #messaging-${otherParticipantName} ${keyToCss("headerPreview")} ${keyToCss("action")} {
+                background: rgb(${msgBackground}) !important;
+                color: rgb(${titleColor}) !important;
+              }
+              #messaging-${otherParticipantName} ${keyToCss("headerPreview")} ${keyToCss("summary")} { color: rgba(${titleColor}, .6) !important; }
             `;
           });
         }
       };
+
       const mutationManager = Object.freeze({
         listeners: new Map(),
         start (func, selector) {
@@ -694,6 +748,7 @@ const main = async function () {
         newNodes.push(...nodes);
         sortNodes();
       });
+
       const featureStyles = Object.freeze({
         styles: new Map(),
         build (name, on, off, state) {
@@ -719,6 +774,7 @@ const main = async function () {
           style.innerText = state ? this.styles.get(name).on.replaceAll("$NUM", num) : this.styles.get(name).off.replaceAll("$NUM", num);
         }
       });
+
       const checkboxEvent = (id, value) => {
         switch (id) {
           case "__hideDashboardTabs":
@@ -771,7 +827,10 @@ const main = async function () {
             break;
           case "__revertMessagingRedesign":
             if (value) mutationManager.start(styleMessaging, conversationSelector);
-            else {mutationManager.stop(styleMessaging)};
+            else {
+              mutationManager.stop(styleMessaging);
+              remove($a(".customMessagingStyle"));
+            }
             featureStyles.toggleScalable("__ms", value, configPreferences.messagingScale.value);
             break;
         };
@@ -1068,10 +1127,14 @@ const main = async function () {
           }
           ${keyToCss("conversationWindow")} ${keyToCss("headerDesktop")} {
             border-radius: 5px 5px 0 0 !important;
-            background: transparent;
+            background: rgba(255,255,255,.1);
             backdrop-filter: blur(6px);
+            padding: 8px;
           }
-          ${keyToCss("conversationWindow")} ${keyToCss("footer")} { border-radius: 0 0 5px 5px !important; }
+          ${keyToCss("conversationWindow")} ${keyToCss("footer")} {
+            padding: 4px;
+            border-radius: 0 0 5px 5px !important;
+          }
           ${keyToCss("conversationWindow")} ${keyToCss("timestamp")} {
             text-align: center !important;
             margin: 14px 0;
@@ -1079,10 +1142,6 @@ const main = async function () {
           }
           ${keyToCss("messages")} { background: transparent !important; }
           ${keyToCss("message")} img { width: 100% !important; }
-          ${keyToCss("messageText")}, ${keyToCss("messagePost")} ${keyToCss("header")} {
-            background: rgb(var(--white)) !important;
-            color: rgb(var(--black)) !important;
-          }
           ${keyToCss("conversation")} ${keyToCss("textareaContainer")} { border-radius: 3px; }
         `, `${keyToCss("conversationWindow")} {
           width: calc(400px * $NUM); 
@@ -1175,6 +1234,7 @@ const main = async function () {
           updatePreferences();
         })});
       };
+
       const unfuck = async function () {
         if (!initialChecks()) return;
 
