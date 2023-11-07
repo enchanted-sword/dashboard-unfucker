@@ -298,6 +298,13 @@ const main = async function () {
             scrollbar-width: thin;
             scrollbar-color: rgba(var(--black),.4)rgba(var(--white),.1);
           }
+          #__m ul.submenu {
+            margin: 0;
+            padding: 0 16px 8px;
+            display: none;
+            border-bottom: 1px solid rgba(var(--black),.07);
+          }
+          #__m li[active="true"] + ul.submenu { display: block; }
           #__m li {
             list-style-type: none;
             padding: 8px 12px;
@@ -307,6 +314,7 @@ const main = async function () {
             justify-content: space-between;
             color: rgb(var(--black));
           }
+          #__m li:last-of-type, #__m li[active="true"] { border: none; }
           #__m li span { max-width: 240px; }
           .__n {
             position: absolute;
@@ -987,11 +995,14 @@ const main = async function () {
                 <input class="configInput" type="checkbox" id="__disableScrollingAvatars" name="disableScrollingAvatars" ${configPreferences.disableScrollingAvatars.value}>
                 <label for="__disableScrollingAvatars">Toggle</label>
               </li>
-              <li>
-                <span>revert messaging redesign</span>
+              <li active="${configPreferences.revertMessagingRedesign.value ? true : false}">
+                <span class="submenuHeader">revert messaging redesign</span>
                 <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
                 <label for="__revertMessagingRedesign">Toggle</label>
               </li>
+              <ul class="submenu">
+                
+              </ul>
               <li>
                 <span>content positioning</span>
                 <div class="rangeInput">
@@ -1228,11 +1239,15 @@ const main = async function () {
           input.click();
         });
         $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
+          const name = event.target.attributes.getNamedItem("name").value;
           if (event.target.attributes.getNamedItem("type").value === "checkbox") {
-            configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.matches(":checked") ? "checked" : "";
+            configPreferences[name].value = event.target.matches(":checked") ? "checked" : "";
             checkboxEvent(event.target.id, event.target.matches(":checked"));
+            if (event.target.closest("li").attributes.getNamedItem("active")) {
+              event.target.closest("li").attributes.getNamedItem("active").value = configPreferences[name].value ? "true" : "false";
+            }
           } else {
-            configPreferences[event.target.attributes.getNamedItem("name").value].value = event.target.valueAsNumber;
+            configPreferences[name].value = event.target.valueAsNumber;
             rangeEvent(event.target.id, event.target.valueAsNumber);
           };
           updatePreferences();
