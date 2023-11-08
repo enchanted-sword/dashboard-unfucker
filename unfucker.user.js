@@ -49,7 +49,14 @@ const main = async function () {
     disableTumblrLive: { type: "checkbox", value: "checked" },
     disableTumblrDomains: { type: "checkbox", value: "checked" },
     revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
-    revertMessagingRedesign: { type: "checkbox", value: "checked" },
+    revertMessagingRedesign: { 
+      type: "checkbox",
+      value: "checked",
+      style: "1",
+      messageColor: "f0f0f0",
+      backgroundColor: "ffffff",
+      textColor: "121212"
+    },
     revertSearchbarRedesign: { type: "checkbox", value: "checked" },
     enableCustomTabs: { type: "checkbox", value: "" },
     enableReblogPolls: { type: "checkbox", value: "" },
@@ -300,7 +307,7 @@ const main = async function () {
           }
           #__m ul.submenu {
             margin: 0;
-            padding: 0 16px 8px;
+            padding: 0 16px;
             display: none;
             border-bottom: 1px solid rgba(var(--black),.07);
           }
@@ -339,7 +346,8 @@ const main = async function () {
             margin: 0 4px;
             border-radius: 3px 3px 0 0;
           }
-          .configInput[type="checkbox"] {
+          .configInput[type="checkbox"],
+          .subConfigInput[type="radio"] {
             height: 0;
             width: 0;
             visibility: hidden;
@@ -374,6 +382,43 @@ const main = async function () {
             background: rgb(var(--white-on-dark));
           }
           .configInput[type="checkbox"] + label:active:after { width: 20px; }
+          .subConfigInput[type="radio"] + label {
+            cursor: pointer;
+            text-indent: -9999px;
+            position: relative;
+            height: 12px;
+            width: 12px;
+            border: 2px solid rgb(var(--accent));
+            border-radius: 50%;
+          }
+          .subConfigInput[type="radio"] + label:after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+          }
+          .subConfigInput[type="radio"]:checked + label:after {  background: rgb(var(--accent)); }
+          .subConfigInput[type="radio"]:not(:checked) + label:hover:after {  background: rgba(var(--accent),.3); }
+          .textInput {
+            border: 2px solid rgb(var(--accent));
+            border-radius: 3px;
+            width: 48px;
+          }
+          .textInput + span:after {
+            padding-left: 5px;
+            font-weight: bold;
+          }
+          .textInput:invalid + span:after {
+            content: "✖";
+            color: rgb(var(--red));
+          }
+          .textInput:valid + span::after {
+            content: "✓";
+            color: rgb(var(--green));
+          }
           .rangeInput {
             width: 160px;
             display: flex;
@@ -996,12 +1041,85 @@ const main = async function () {
                 <label for="__disableScrollingAvatars">Toggle</label>
               </li>
               <li active="${configPreferences.revertMessagingRedesign.value ? true : false}">
-                <span class="submenuHeader">revert messaging redesign</span>
+                <span>revert messaging redesign</span>
                 <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
                 <label for="__revertMessagingRedesign">Toggle</label>
               </li>
               <ul class="submenu">
-                
+                <li>
+                  <span>use blog colors</span>
+                  <input 
+                    class="subConfigInput" 
+                    type="radio" 
+                    id="__messaging1" 
+                    name="revertMessagingRedesign" 
+                    index="1"
+                    ${configPreferences.revertMessagingRedesign.style === "1" ? "checked" : ""}
+                  >
+                  <label for="__messaging1">Toggle</label>
+                </li>
+                <li>
+                  <span>use theme colors</span>
+                  <input 
+                    class="subConfigInput" 
+                    type="radio" 
+                    id="__messaging2" 
+                    name="revertMessagingRedesign" 
+                    index="2"
+                    ${configPreferences.revertMessagingRedesign.style === "2" ? "checked" : ""}
+                  >
+                  <label for="__messaging2">Toggle</label>
+                </li>
+                <li active="${configPreferences.revertMessagingRedesign.style === "3" ? true : false}">
+                  <span>use custom colors</span>
+                  <input 
+                    class="subConfigInput" 
+                    type="radio" 
+                    id="__messaging3" 
+                    name="revertMessagingRedesign" 
+                    index="3" 
+                    ${configPreferences.revertMessagingRedesign.style === "3" ? "checked" : ""}
+                  >
+                  <label for="__messaging3">Toggle</label>
+                </li>
+                <ul class="submenu">
+                  <li>
+                    <span style="flex-basis: 100%;">message color</span>
+                    <input 
+                      class="textInput msgHexSelect" 
+                      type="text" 
+                      placeholder="${configPreferences.revertMessagingRedesign.messageColor || "f0f0f0"}" 
+                      pattern="[a-f0-9]{6}" 
+                      maxlength="6"
+                      name="messageColor"
+                    >
+                    <span></span>
+                  </li>
+                  <li>
+                    <span style="flex-basis: 100%;">background color</span>
+                    <input 
+                      class="textInput msgHexSelect" 
+                      type="text" 
+                      placeholder="${configPreferences.revertMessagingRedesign.backgroundColor || "ffffff"}" 
+                      pattern="[a-f0-9]{6}" 
+                      maxlength="6"
+                      name="backgroundColor"
+                    >
+                    <span></span>
+                  </li>
+                  <li>
+                    <span style="flex-basis: 100%;">text color</span>
+                    <input 
+                      class="textInput msgHexSelect" 
+                      type="text" 
+                      placeholder="${configPreferences.revertMessagingRedesign.textColor || "121212"}" 
+                      pattern="[a-f0-9]{6}" 
+                      maxlength="6"
+                      name="textColor"
+                    >
+                    <span></span>
+                  </li>
+                </ul>
               </ul>
               <li>
                 <span>content positioning</span>
@@ -1158,6 +1276,14 @@ const main = async function () {
           ${keyToCss("messages")} { background: transparent !important; }
           ${keyToCss("message")} img { width: 100% !important; }
           ${keyToCss("conversation")} ${keyToCss("textareaContainer")} { border-radius: 3px; }
+          ${keyToCss("minimizedConversation")} ${keyToCss("avatarWrapper")} {
+            background: transparent !important;
+            padding: 0 !important;
+          }
+          ${keyToCss("minimizedConversation")} ${keyToCss("avatar")}, ${keyToCss("minimizedConversation")} img {
+            width: 48px !important;
+            height: 48px !important;
+          }
         `, `${keyToCss("conversationWindow")} {
           width: calc(400px * $NUM); 
           height: calc(560px * $NUM);
@@ -1250,6 +1376,23 @@ const main = async function () {
             configPreferences[name].value = event.target.valueAsNumber;
             rangeEvent(event.target.id, event.target.valueAsNumber);
           };
+          updatePreferences();
+        })});
+        $a(".subConfigInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
+          const name = event.target.attributes.getNamedItem("name").value;
+          const index = event.target.attributes.getNamedItem("index").value;
+          if (event.target.matches(":checked")) configPreferences[name].style = index;
+          checkboxEvent(event.target.id, event.target.matches(":checked"));
+          if (event.target.closest("li").attributes.getNamedItem("active")) {
+            event.target.closest("li").attributes.getNamedItem("active").value = "true";
+          } else {
+            event.target.closest(".submenu").querySelector("[active='true']").attributes.getNamedItem("active").value = "false";
+          }
+          updatePreferences();
+        })});
+        $a(".msgHexSelect").forEach(currentValue => {currentValue.addEventListener("change", event => {
+          const name = event.target.attributes.getNamedItem("name").value;
+          configPreferences.revertMessagingRedesign[name] = event.target.value;
           updatePreferences();
         })});
       };
