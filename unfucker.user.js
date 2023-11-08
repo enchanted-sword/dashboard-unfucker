@@ -206,6 +206,13 @@ const main = async function () {
       const currentKeys = Object.keys(currentPreferences);
       for (const key in configPreferences) {
         if (currentKeys.includes(key)) {
+          if (typeof configPreferences[key] === "object") {
+            Object.keys(configPreferences[key]).forEach(val => {
+              if (!(val in currentPreferences[key])) {
+                currentPreferences[key][val] = configPreferences[key][val];
+              }
+            });
+          }
           configPreferences[key] = currentPreferences[key];
         };
       };
@@ -747,19 +754,41 @@ const main = async function () {
       const styleMessaging = conversations => {
         for (const conversation of conversations) {
           fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName}) => {
-            conversation.id = `messaging-${otherParticipantName}`
-            conversation.style.backgroundColor = backgroundColor;
+            conversation.id = `messaging-${otherParticipantName}`;
+            const colorStyle = configPreferences.revertMessagingRedesign.style;
+            let msgBackground;
+            let tsColor;
+            let headerBackground;
+            if (colorStyle === "1") {
+              headerBackground = `no-repeat top/100% url(${headerImageFocused})`;
+              msgBackground = contrastBW(titleColor);
+              tsColor = contrastBW(backgroundColor);
+              if (contrast(linkColor, backgroundColor) > 0.33) {
+                linkColor = tsColor;
+              } else linkColor = rgbToString(hexToRgb(linkColor));
+              titleColor = rgbToString(hexToRgb(titleColor));
+            } else if (colorStyle === "2") {
+              headerBackground = "rgb(var(--white))";
+              backgroundColor = headerBackground;
+              msgBackground = "var(--secondary-accent)";
+              titleColor = "var(--black)";
+              linkColor = titleColor;
+              tsColor = titleColor;
+            } else if (colorStyle === "3") {
+              headerBackground = "rgb(var(--white))"
+              backgroundColor = `#${configPreferences.revertMessagingRedesign.backgroundColor}`;
+              msgBackground = rgbToString(hexToRgb(configPreferences.revertMessagingRedesign.messageColor));
+              titleColor = rgbToString(hexToRgb(configPreferences.revertMessagingRedesign.textColor));
+              linkColor = titleColor;
+              tsColor = titleColor;
+            } else console.error("invalid style index");
+
             const style = document.createElement("style");
             style.classList.add("customMessagingStyle");
             conversation.append(style);
-            const msgBackground = contrastBW(titleColor);
-            const tsColor = contrastBW(backgroundColor);
-            if (contrast(linkColor, backgroundColor) > 0.33) {
-              linkColor = tsColor;
-            }
-            titleColor = rgbToString(hexToRgb(titleColor));
             style.innerText = `
-              #messaging-${otherParticipantName} ${keyToCss("headerWrapper")} { background: no-repeat top/100% url(${headerImageFocused}) }
+              #messaging-${otherParticipantName} { background: ${backgroundColor}; }
+              #messaging-${otherParticipantName} ${keyToCss("headerWrapper")} { background: ${headerBackground} }
               #messaging-${otherParticipantName} ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
               #messaging-${otherParticipantName} ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
               #messaging-${otherParticipantName} ${keyToCss("statusWithCaption")} { color: ${linkColor} !important; }
@@ -889,6 +918,11 @@ const main = async function () {
               remove($a(".customMessagingStyle"));
             }
             featureStyles.toggleScalable("__ms", value, configPreferences.messagingScale.value);
+            break;
+          case "__messaging1":
+          case "__messaging2":
+          case "__messaging3":
+            if (configPreferences.revertMessagingRedesign.value) mutationManager.start(styleMessaging, conversationSelector);
             break;
         };
       };
@@ -1089,7 +1123,7 @@ const main = async function () {
                       class="textInput msgHexSelect" 
                       type="text" 
                       placeholder="${configPreferences.revertMessagingRedesign.messageColor || "f0f0f0"}" 
-                      pattern="[a-f0-9]{6}" 
+                      pattern="[a-f\\d]{6}" 
                       maxlength="6"
                       name="messageColor"
                     >
@@ -1101,7 +1135,7 @@ const main = async function () {
                       class="textInput msgHexSelect" 
                       type="text" 
                       placeholder="${configPreferences.revertMessagingRedesign.backgroundColor || "ffffff"}" 
-                      pattern="[a-f0-9]{6}" 
+                      pattern="[a-f\\d]{6}" 
                       maxlength="6"
                       name="backgroundColor"
                     >
@@ -1113,7 +1147,7 @@ const main = async function () {
                       class="textInput msgHexSelect" 
                       type="text" 
                       placeholder="${configPreferences.revertMessagingRedesign.textColor || "121212"}" 
-                      pattern="[a-f0-9]{6}" 
+                      pattern="[a-f\\d]{6}" 
                       maxlength="6"
                       name="textColor"
                     >
@@ -1385,14 +1419,15 @@ const main = async function () {
           checkboxEvent(event.target.id, event.target.matches(":checked"));
           if (event.target.closest("li").attributes.getNamedItem("active")) {
             event.target.closest("li").attributes.getNamedItem("active").value = "true";
-          } else {
-            event.target.closest(".submenu").querySelector("[active='true']").attributes.getNamedItem("active").value = "false";
+          } else if (event.target.closest(".submenu").querySelector("[active='true]")) {
+            event.target.closest(".submenu").querySelector("[active='true]").attributes.getNamedItem("active").value = "false";
           }
           updatePreferences();
         })});
         $a(".msgHexSelect").forEach(currentValue => {currentValue.addEventListener("change", event => {
           const name = event.target.attributes.getNamedItem("name").value;
           configPreferences.revertMessagingRedesign[name] = event.target.value;
+          if (configPreferences.revertMessagingRedesign.value) mutationManager.start(styleMessaging, conversationSelector);
           updatePreferences();
         })});
       };
