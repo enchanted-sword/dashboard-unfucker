@@ -44,6 +44,13 @@ Prevents the avatars beside posts from scrolling with the posts.
 ### Revert messaging redesign
 Changes the messaging window to look more like the old design.
 
+- Use blog colors (default)
+  - Uses the theme colours of the blog you're messaging
+- Use theme colors
+  - Uses the current dashboard palette colours
+- Use custom colors
+  - Uses the three custom hex colours supplied by the user in the text areas
+
 ### Content positioning
 Controls the horizontal offset of the dashboard's content.
 
