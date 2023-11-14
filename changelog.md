@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.4.0
+  - Fixed the 'revert activity feed redesign' feature
+
+## v5.3.3
+- Added two additional options for messaging style: theme colours and custom colours
+
 ## v5.3.2
 - Import blog title and link colours for messaging
 - Fixed issue with messaging stylesheets affecting post timestamps
