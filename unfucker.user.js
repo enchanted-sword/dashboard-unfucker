@@ -231,7 +231,6 @@ const main = async function () {
     {"name": "liveStreamingWeb", "value": !configPreferences.disableTumblrLive.value},
     {"name": "liveSteamingWebPayments", "value": !configPreferences.disableTumblrLive.value},
     {"name": "domainsSettings", "value": !configPreferences.disableTumblrDomains.value},
-    {"name": "activityRedesignM3", "value": !configPreferences.revertActivityFeedRedesign.value},
     {"name": "improvedSearchTypeahead", "value": !configPreferences.revertSearchbarRedesign.value},
     {"name": "configurableTabbedDash", "value": configPreferences.enableCustomTabs.value?true:false},
     {"name": "allowAddingPollsToReblogs", "value": configPreferences.enableReblogPolls.value?true:false},
@@ -890,6 +889,9 @@ const main = async function () {
             }
             featureStyles.toggleScalable("__ms", value, configPreferences.messagingScale.value);
             break;
+          case "__revertActivityFeedRedesign":
+            featureStyles.toggle("__acs", configPreferences.revertActivityFeedRedesign.value);
+            break;
         };
       };
       const rangeEvent = (id, value) => {
@@ -1040,6 +1042,11 @@ const main = async function () {
                 <input class="configInput" type="checkbox" id="__disableScrollingAvatars" name="disableScrollingAvatars" ${configPreferences.disableScrollingAvatars.value}>
                 <label for="__disableScrollingAvatars">Toggle</label>
               </li>
+              <li>
+                <span>revert activity feed redesign</span>
+                <input class="configInput" type="checkbox" id="__revertActivityFeedRedesign" name="revertActivityFeedRedesign" ${configPreferences.revertActivityFeedRedesign.value}>
+                <label for="__revertActivityFeedRedesign">Toggle</label>
+              </li>
               <li active="${configPreferences.revertMessagingRedesign.value ? true : false}">
                 <span>revert messaging redesign</span>
                 <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
@@ -1170,11 +1177,6 @@ const main = async function () {
                 <label for="__disableTumblrDomains">Toggle</label>
               </li>
               <li>
-                <span>revert activity feed redesign</span>
-                <input class="configInput" type="checkbox" id="__revertActivityFeedRedesign" name="revertActivityFeedRedesign" ${configPreferences.revertActivityFeedRedesign.value}>
-                <label for="__revertActivityFeedRedesign">Toggle</label>
-              </li>
-              <li>
                 <span>revert searchbar update</span>
                 <input class="configInput" type="checkbox" id="__revertSearchbarRedesign" name="revertSearchbarRedesign" ${configPreferences.revertSearchbarRedesign.value}>
                 <label for="__revertSearchbarRedesign">Toggle</label>
@@ -1251,6 +1253,43 @@ const main = async function () {
             });
           };
         };
+        featureStyles.build("__acs", `
+          [role="tablist"] { padding: 0 !important; }
+          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")} {
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            padding: 8px !important;
+            border-radius: unset !important;
+            background: none !important;
+          }
+          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")}[aria-selected="true"] {
+            color: rgb(var(--accent)) !important;
+            box-shadow: inset 0px -2px 0px rgb(var(--accent));
+          }
+          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")}:first-of-type [tabindex] { font-size: 0; }
+          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")}:first-of-type [tabindex]::after {
+            font-size: 1rem;
+            content: "${tr("All")}";
+          }
+          [role="tabpanel"] ${keyToCss("dateSeparator")} {
+            background: rgba(var(--black),.07) !important;
+            padding: 8px 16px important;
+          }
+          [role="tabpanel"] ${keyToCss("backgroundColor")} { border-top: 1px solid rgba(var(--black),.13); }
+          ${keyToCss("linkToActivity")} {
+            padding: 0 !important;
+            height: 30px !important;
+          }
+          [role="tabpanel"] ${keyToCss("avatarWrapper")} ${keyToCss("avatar")},[role="tabpanel"] ${keyToCss("anonymousAvatar")} {
+            height: 25px !important;
+            width: 25px !important;
+          }
+          [role="tabpanel"] ${keyToCss("verticallyCentered")} { align-self: start !important; }
+          [role="tabpanel"] ${keyToCss("avatarWrapperInner")},[role="tabpanel"] ${keyToCss("circleAvatar")} {border-radius: 3px !important; }
+          [role="tabpanel"] ${keyToCss("badge")} ${keyToCss("border")} {border: none !important; }
+          [role="tabpanel"] ${keyToCss("underlined")} span { text-decoration: none !important; }
+          ${keyToCss("linkToActivity")} a { color: rgba(var(--black),.65) !important; }
+        `, "", configPreferences.revertActivityFeedRedesign.value);
         featureStyles.buildScalable("__ms", `
           ${keyToCss("conversationWindow")} {
             border-radius: 5px;
