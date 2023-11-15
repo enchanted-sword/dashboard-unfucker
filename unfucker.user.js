@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.4.1
+// @version      5.4.2
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.4.1";
+  const version = "5.4.2";
   const match = [
     "",
     "dashboard",
@@ -617,7 +617,7 @@ const main = async function () {
           <span class="customLabelInfo ${icon}">${desc}</span>
         </div>
       `);
-      const fetchNpf = obj => { //shoutout to xkit rewritten for showing me this method
+      const fetchNpf = obj => {
         const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
         let fiber = obj[fiberKey];
 
@@ -1313,14 +1313,16 @@ const main = async function () {
             padding: 0 !important;
             height: 30px !important;
           }
-          [role="tabpanel"] ${keyToCss("avatarWrapper")} ${keyToCss("avatar")},[role="tabpanel"] ${keyToCss("anonymousAvatar")} {
+          [role="tabpanel"] ${keyToCss("avatarWrapper")} ${keyToCss("avatar")},[role="tabpanel"] ${keyToCss("anonymousAvatar")},
+          [role="tabpanel"] ${keyToCss('avatar')} img {
             height: 25px !important;
             width: 25px !important;
           }
           [role="tabpanel"] ${keyToCss("verticallyCentered")} { align-self: start !important; }
           [role="tabpanel"] ${keyToCss("avatarWrapperInner")},[role="tabpanel"] ${keyToCss("circleAvatar")} {border-radius: 3px !important; }
           [role="tabpanel"] ${keyToCss("badge")} ${keyToCss("border")},
-          [role="tabpanel"] ${keyToCss("rollupBadge")} ${keyToCss("border")} {border: none !important; }
+          [role="tabpanel"] ${keyToCss("rollupBadge")} ${keyToCss("border")},
+          [role="tabpanel"] ${keyToCss("rollupAvatar")} {border: none !important; }
           [role="tabpanel"] ${keyToCss("underlined")} span { text-decoration: none !important; }
           ${keyToCss("linkToActivity")} a { color: rgba(var(--black),.65) !important; }
         `, "", configPreferences.revertActivityFeedRedesign.value);

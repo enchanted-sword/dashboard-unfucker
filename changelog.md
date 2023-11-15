@@ -1,5 +1,9 @@
 # Changelog
 
+##v5.4.2
+  - Fixed background borders on rollup avatars
+  - Fixed avatars being cut off in the activity feed
+
 ##v5.4.1
   - Fixed borders showing on rollup badges
 
