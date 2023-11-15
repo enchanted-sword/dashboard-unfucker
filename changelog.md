@@ -1,5 +1,8 @@
 # Changelog
 
+##v5.4.1
+  - Fixed borders showing on rollup badges
+
 ## v5.4.0
   - Fixed the 'revert activity feed redesign' feature
 

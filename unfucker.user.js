@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.4.0
+// @version      5.4.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.4.0";
+  const version = "5.4.1";
   const match = [
     "",
     "dashboard",
@@ -1319,7 +1319,8 @@ const main = async function () {
           }
           [role="tabpanel"] ${keyToCss("verticallyCentered")} { align-self: start !important; }
           [role="tabpanel"] ${keyToCss("avatarWrapperInner")},[role="tabpanel"] ${keyToCss("circleAvatar")} {border-radius: 3px !important; }
-          [role="tabpanel"] ${keyToCss("badge")} ${keyToCss("border")} {border: none !important; }
+          [role="tabpanel"] ${keyToCss("badge")} ${keyToCss("border")},
+          [role="tabpanel"] ${keyToCss("rollupBadge")} ${keyToCss("border")} {border: none !important; }
           [role="tabpanel"] ${keyToCss("underlined")} span { text-decoration: none !important; }
           ${keyToCss("linkToActivity")} a { color: rgba(var(--black),.65) !important; }
         `, "", configPreferences.revertActivityFeedRedesign.value);
