@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.4.2
+// @version      5.4.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.4.2";
+  const version = "5.4.3";
   const match = [
     "",
     "dashboard",
@@ -1227,7 +1227,7 @@ const main = async function () {
               <li>
                 <span>disable "post without tags" nag</span>
                 <input class="configInput" type="checkbox" id="__disableTagNag" name="disableTagNag" ${configPreferences.disableTagNag.value}>
-                <label for="disableTagNag">Toggle</label>
+                <label for="__disableTagNag">Toggle</label>
               </li>
               <li>
                 <span>re-add unread post notifications to the corner of the home icon</span>

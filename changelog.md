@@ -1,5 +1,8 @@
 # Changelog
 
+##v5.4.3
+  - Fixed the "disable post without tags nag" toggle not having a correctly assigned label
+
 ##v5.4.2
   - Fixed background borders on rollup avatars
   - Fixed avatars being cut off in the activity feed
