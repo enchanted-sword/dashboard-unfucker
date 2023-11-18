@@ -1,17 +1,20 @@
 # Changelog
 
-##v5.4.3
-  - Fixed the "disable post without tags nag" toggle not having a correctly assigned label
+## v5.4.4
+- Fixed the potential bot filter not identifying bots with non-english titles
 
-##v5.4.2
-  - Fixed background borders on rollup avatars
-  - Fixed avatars being cut off in the activity feed
+## v5.4.3
+- Fixed the "disable post without tags nag" toggle not having a correctly assigned label
+
+## v5.4.2
+- Fixed background borders on rollup avatars
+- Fixed avatars being cut off in the activity feed
 
 ##v5.4.1
-  - Fixed borders showing on rollup badges
+- Fixed borders showing on rollup badges
 
 ## v5.4.0
-  - Fixed the 'revert activity feed redesign' feature
+- Fixed the 'revert activity feed redesign' feature
 
 ## v5.3.3
 - Added two additional options for messaging style: theme colours and custom colours
