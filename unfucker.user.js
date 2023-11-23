@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.4.3
+// @version      5.4.4
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -568,6 +568,8 @@ const main = async function () {
           article header { border-radius: 3px 3px 0 0 !important; }
 
           ${keyToCss("toastHolder")} { display: none; }
+
+          aside > button${keyToCss("expandOnHover")} { display: none !important; }
         </style>
       `);
       const untitledStrings = [

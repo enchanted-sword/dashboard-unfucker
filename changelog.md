@@ -2,6 +2,7 @@
 
 ## v5.4.4
 - Fixed the potential bot filter not identifying bots with non-english titles
+- Hid the new "ad-free" sidebar popup
 
 ## v5.4.3
 - Fixed the "disable post without tags nag" toggle not having a correctly assigned label
