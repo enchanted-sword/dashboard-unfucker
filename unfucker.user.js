@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.4.3";
+  const version = "5.4.4";
   const match = [
     "",
     "dashboard",
@@ -570,6 +570,23 @@ const main = async function () {
           ${keyToCss("toastHolder")} { display: none; }
         </style>
       `);
+      const untitledStrings = [
+        "Untitled", //en
+        "Sans titre", //fr
+        "Intitulado", //es
+        "Ohne titel", //de
+        "Senza titolo", //it
+        "無題", //jp
+        "Başlıksız", //tr
+        "Без названия", //ru
+        "Bez tytułu", //pl
+        "Sem título", //pt
+        "Ongetiteld", //nl
+        "무제", //ko
+        "无标题", //zh
+        "Tanpa judul", //id
+        "शीर्षकहीन", //hi
+      ];
 
       const hexToRgb = (hex = "") => {
         hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => {
@@ -688,8 +705,8 @@ const main = async function () {
             if (configPreferences.highlightLikelyBots.value && type === "follower") {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
                 const { title, name, posts, likes } = response.response.blog;
-                if ((posts === 0 && title === tr("Untitled"))
-                || (likes === 0 && title === tr("Untitled"))
+                if ((posts === 0 && untitledStrings.includes(title))
+                || (likes === 0 && untitledStrings.includes(title))
                 || (name === title && posts === 1)) {
                   hide(note.querySelector(".customLabelContainer"));
                   css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
