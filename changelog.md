@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.4.5
+- Changed the "hide recommended blogs" feature to also hide the recommended blog and tag carousels between posts in the timeline
+
 ## v5.4.4
 - Fixed the potential bot filter not identifying bots with non-english titles
 - Hid the new "ad-free" sidebar popup
