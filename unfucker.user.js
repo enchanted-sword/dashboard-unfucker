@@ -36,7 +36,7 @@ const main = async function () {
   let configPreferences = {
     lastVersion: version,
     hideDashboardTabs: { type: "checkbox", value: "" },
-    hideRecommendedBlogs: { type: "checkbox", value: "" },
+    hideRecommended: { type: "checkbox", value: "" },
     hideTumblrRadar: { type: "checkbox", value: "" },
     hideExplore: { type: "checkbox", value: "" },
     hideTumblrShop: { type: "checkbox", value: "checked" },
@@ -84,7 +84,8 @@ const main = async function () {
     else elem.style.display = null;
   };
   const toggle = (elem, toggle = "ignore") => {
-    if (toggle === "ignore") {
+    if (!elem || elem.length === 0) return;
+    else if (toggle === "ignore") {
       elem.style.display === "none" ?
         show(elem)
         : hide(elem);
@@ -277,7 +278,8 @@ const main = async function () {
       const postSelector = "[tabindex='-1'][data-id] article";
       const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
-      const conversationSelector = `[data-skip-glass-focus-trap]`;
+      const conversationSelector = "[data-skip-glass-focus-trap]";
+      const cellSelector = "[data-cell-id]";
       const newNodes = [];
       const target = document.getElementById("root");
       const styleElement = $str(`
@@ -675,6 +677,14 @@ const main = async function () {
           };
         };
       };
+      const labelCells = cells => {
+        for (const cell of cells) {
+          const cid = cell.getAttribute("data-cell-id"); 
+          if (cid.includes("title")) cell.setAttribute("data-title-cell", "");
+          else if (cid.includes("timelineObject:carousel")) cell.setAttribute("data-carousel-cell", "");
+          else if (cid.includes("watermark_carousel")) cell.setAttribute("data-watermark-carousel-cell", "");
+        }
+      };
       const fixHeader = posts => {
         for (const post of posts) {
           const { id } = fetchNpf(post);
@@ -884,8 +894,8 @@ const main = async function () {
           case "__hideDashboardTabs":
             toggle($(keyToCss("timelineHeader")), !value);
             break;
-          case "__hideRecommendedBlogs":
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !value);
+          case "__hideRecommended":
+            featureStyles.toggle("__rb", value);
             break;
           case "__hideTumblrRadar":
             toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !value);
@@ -1050,9 +1060,9 @@ const main = async function () {
                 <label for="__hideDashboardTabs">Toggle</label>
               </li>
               <li>
-                <span>hide recommended blogs</span>
-                <input class="configInput" type="checkbox" id="__hideRecommendedBlogs" name="hideRecommendedBlogs" ${configPreferences.hideRecommendedBlogs.value}>
-                <label for="__hideRecommendedBlogs">Toggle</label>
+                <span>hide recommended blogs and tags between posts</span>
+                <input class="configInput" type="checkbox" id="__hideRecommended" name="hideRecommended" ${configPreferences.hideRecommended.value}>
+                <label for="__hideRecommended">Toggle</label>
               </li>
               <li>
                 <span>hide tumblr radar</span>
@@ -1266,10 +1276,14 @@ const main = async function () {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
 
         mutationManager.start(fixHeader, postSelector);
+        mutationManager.start(labelCells, cellSelector);
 
-        waitFor(keyToCss("recommendedBlogs")).then(() => {
-          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
-        });
+        featureStyles.build("__rb", `
+          [data-title-cell]:has(+ [data-carousel-cell]), [data-carousel-cell] { position: relative; }
+          [data-title-cell]:has(+ [data-carousel-cell]) > div, [data-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
+          [data-title-cell]:has(+ [data-carousel-cell]) > div canvas, [data-carousel-cell] > div canvas { visibility: hidden; }
+          ${keyToCss("sidebarItem")}:has(${keyToCss("recommendedBlogs")}) { display: none !important; }
+        `, "", configPreferences.hideRecommended.value);
         waitFor(keyToCss("radar")).then(() => {
           toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences.hideTumblrRadar.value);
         });
