@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.4.5
+// @version      5.4.5.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -35,6 +35,7 @@ const main = async function () {
   let state = window.___INITIAL_STATE___;
   let configPreferences = {
     lastVersion: version,
+    canShowMetricPost: true,
     hideDashboardTabs: { type: "checkbox", value: "" },
     hideRecommended: { type: "checkbox", value: "" },
     hideTumblrRadar: { type: "checkbox", value: "" },
@@ -220,16 +221,221 @@ const main = async function () {
       updatePreferences();
     };
   };
+
+  let localMetricFlag = true;
+  const metricPost = {
+    "objectType": "post",
+    "type": "blocks",
+    "originalType": "regular",
+    "isBlocksPostFormat": true,
+    "blogName": "dragongirlsnout",
+    "blog": {
+      "name": "dragongirlsnout",
+      "avatar": [
+        {
+          "width": 512,
+          "height": 512,
+          "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s512x512u_c1/2e2453bc1595a6aa02946a2c5362741fb69ea6d8.pnj"
+        },
+        {
+          "width": 128,
+          "height": 128,
+          "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s128x128u_c1/032993a7cc940d7a6c9c3f2f7ddf0b1de389a05a.pnj"
+        },
+        {
+          "width": 96,
+          "height": 96,
+          "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s96x96u_c1/de3ec6a00834afb9e15b212e7091ed441b910e56.pnj"
+        },
+        {
+          "width": 64,
+          "height": 64,
+          "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s64x64u_c1/38b8e85a053264786a658e34064760f1b118bc88.pnj"
+        }
+      ],
+      "title": "hot girl summer eternal",
+      "url": "https://dragongirlsnout.tumblr.com/",
+      "blogViewUrl": "https://www.tumblr.com/dragongirlsnout",
+      "isAdult": false,
+      "isMember": true,
+      "descriptionNpf": [
+        {
+          "type": "text",
+          "text": "april | she/it, adult | professional ice cream connoisseur & UL-certified hot girl | theme by me",
+          "formatting": [
+            {
+              "type": "link",
+              "start": 85,
+              "end": 96,
+              "url": "https://www.tumblr.com/theme/41222"
+            }
+          ]
+        }
+      ],
+      "uuid": "t:uFDXsPzIvurDZF7n4YxBtA",
+      "canBeFollowed": false,
+      "followed": true,
+      "theme": {
+        "headerFullWidth": 1800,
+        "headerFullHeight": 1800,
+        "headerFocusWidth": 1800,
+        "headerFocusHeight": 1013,
+        "avatarShape": "square",
+        "backgroundColor": "#040025",
+        "bodyFont": "Helvetica Neue",
+        "headerBounds": "787,1800,1800,0",
+        "headerImage": "https://64.media.tumblr.com/70b678ffe63c29e822e49391e5ddce6f/4f029fc238af0b3d-92/s1800x1800/12e84b8d026efcf10bd5a3595a595a24a668e1f2.png",
+        "headerImageFocused": "https://64.media.tumblr.com/70b678ffe63c29e822e49391e5ddce6f/4f029fc238af0b3d-92/s2048x3072_c0,43722,100000,100000/c4333ea0ac105e3d35ce92f9e9912d9615f43be8.png",
+        "headerImagePoster": "",
+        "headerImageScaled": "https://64.media.tumblr.com/70b678ffe63c29e822e49391e5ddce6f/4f029fc238af0b3d-92/s2048x3072/9d86312833226bc2b1d79695a7b54d502bc1c46b.png",
+        "headerStretch": true,
+        "linkColor": "#7a10f2",
+        "showAvatar": true,
+        "showDescription": true,
+        "showHeaderImage": true,
+        "showTitle": true,
+        "titleColor": "#c97dff",
+        "titleFont": "Sans Serif",
+        "titleFontWeight": "bold"
+      },
+      "primary": true,
+      "isPaywallOn": false,
+      "paywallAccess": "creator",
+      "subscriptionPlan": null,
+      "tumblrmartAccessories": [],
+      "liveNow": false,
+      "canShowBadges": false
+    },
+    "isNsfw": false,
+    "classification": "clean",
+    "ownerFlaggedNsfw": false,
+    "ownerFlaggedSensitive": false,
+    "ownerAppealNsfw": "none",
+    "communityLabelAppealState": "unavailable",
+    "nsfwScore": 0,
+    "id": "735624371937427456",
+    "idString": "735624371937427456",
+    "isBlazed": false,
+    "isBlazePending": false,
+    "canIgnite": false,
+    "canBlazeSingleUser": false,
+    "igniteStatus": "",
+    "canBlaze": false,
+    "postUrl": "https://dragongirlsnout.tumblr.com/post/735624371937427456/dashboard-unfucker-users-what-desktop-browser-do",
+    "slug": "dashboard-unfucker-users-what-desktop-browser-do",
+    "date": "2023-12-02 19:41:10 GMT",
+    "timestamp": 1701546070,
+    "state": "published",
+    "reblogKey": "Wm7TxztB",
+    "tags": [
+      "dashboard unfucker"
+    ],
+    "tagsV2": [
+      {
+        "name": "dashboard unfucker"
+      }
+    ],
+    "shortUrl": "https://tmblr.co/ZpKnyVerTdW1Sq00",
+    "summary": "Dashboard Unfucker users: what desktop browser do you use most?\nFirefox\nChrome\nSafari\nEdge\nOpera\nJust trying to get a rough idea...",
+    "shouldOpenInLegacy": false,
+    "recommendedSource": null,
+    "recommendedColor": null,
+    "followed": true,
+    "liked": false,
+    "noteCount": 0,
+    "likeCount": 0,
+    "reblogCount": 0,
+    "replyCount": 0,
+    "content": [
+      {
+        "type": "poll",
+        "clientId": "7ac904b6-f409-4df0-a55f-df697d9e3320",
+        "question": "Dashboard Unfucker users: what desktop browser do you use most?",
+        "answers": [
+          {
+            "clientId": "48ed74e2-85ea-4431-9ab2-c47fb0305554",
+            "answerText": "Firefox"
+          },
+          {
+            "clientId": "1f05fc27-a5ab-4742-a7ee-1c55dbe042a5",
+            "answerText": "Chrome"
+          },
+          {
+            "clientId": "0cfbc37b-4cfe-4578-aed8-52a071d38e65",
+            "answerText": "Safari"
+          },
+          {
+            "clientId": "4e11f618-178d-4306-8994-24bbdd0b055e",
+            "answerText": "Edge"
+          },
+          {
+            "clientId": "7f009617-7a4b-47b5-a870-c32d37e4e003",
+            "answerText": "Opera"
+          }
+        ],
+        "settings": {
+          "multipleChoice": false,
+          "closeStatus": "closed-after",
+          "expireAfter": 604800,
+          "source": "tumblr"
+        },
+        "createdAt": "2023-12-02 19:41:10 GMT",
+        "timestamp": 1701546070
+      },
+      {
+        "type": "text",
+        "text": "Just trying to get a rough idea of metrics for future development stuff."
+      },
+    ],
+    "layout": [],
+    "trail": [],
+    "canEdit": false,
+    "canDelete": false,
+    "canReply": true,
+    "shouldShowTip": false,
+    "canBeTipped": false,
+    "canLike": true,
+    "interactabilityReblog": "everyone",
+    "interactabilityBlaze": "noone",
+    "canReblog": true,
+    "canSendInMessage": true,
+    "muted": false,
+    "muteEndTimestamp": 0,
+    "canMute": true,
+    "canPin": false,
+    "communityLabels": {
+      "hasCommunityLabel": false,
+      "lastReporter": "author",
+      "categories": [],
+      "hasCommunityLabelOverride": false,
+      "overriddenCategories": []
+    },
+    "isBrandSafe": true,
+    "embedUrl": "https://dragongirlsnout.tumblr.com/post/735624371937427456/embed",
+    "displayAvatar": true,
+    "recommendationReason": null,
+    "dismissal": null,
+    "placementId": "gvCswNhdfiE9qYQfh2SIcgK76e2oIvxi7zNlEbL4oiHoFr9w6oLkgbA9eW5m+dkBoc804D+9BRmvULxDtRp1D7sU1s8QTng/D+NGjZjGWQJ5+e4iH2iCfjZz5vnUoy1GhQC/X5jbBP+JK2kQRtAei987WZchO1Zsx+O06rXp3ibJ04Gi7y0g4nqkuaEPfj6CdOY+S+WJC6nU1GMIkP03OjRZwaf/nxQbGwx+aYG2gm8SY+jWSH9XwGWVLJy/Zf46TdnnWBCJQXyssahWfqQoOO0EguKjxK1OKhPBj8pnUK71a82l42vAfoFgTI0PjESIzHF35W7CuZbwSqvbBbl+beEFILjX1TX2YGrj48VwrhiulQ0s09Ar1/Bdghz1hFdGHc6H6l64oYtoTQnk/M1BlvbHmr5aqjqituDxUb455qr7HSDdmUxZelwq0NMBWrSG2MlMO0zy6++bJAMmw0dz8UEwcfN1mrnxVVDBpKkO920XRfMcBWrRlFkX+ABTef+WI3vYuo6iTCOBvEURxPB9eBVsevEh8G/3QB6QT8gKgEup4PM+fWLtIFMgVgvoLFgtXRJ742L8gy5vjl7AYmNCHyBehQvCgImkQ5gXFcChnG8xq5dHCl3sLOYt+gRtzhmx1tCHbUt2ykHDeu7YIJ8wkhrwGKwAhozS1s9I5XMU1DuYOOCuXF++n8HXmgI3OaWY",
+    "serveId": "f39f9959bd1c78a714b631a97df4fde7",
+    "streamGlobalPosition": 1,
+    "streamSessionId": "69767e2d19916af02676b29a590726aa"
+  }
   const modifyInitialTimeline = (obj, context) => {
+    if (context === "dashboard" && configPreferences.canShowMetricPost && localMetricFlag) {
+      obj.dashboardTimeline.response.timeline.elements.push(metricPost);
+      configPreferences.canShowMetricPost = false;
+      updatePreferences();
+    }
     if (!obj || configPreferences.showNsfwPosts.value) return obj;
-    console.log(obj);
-    if (context === "dashboard") {
+    else if (context === "dashboard") {
       obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
     } else if (context === "peepr") {
       obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
     };
+    console.log(obj);
     return obj;
   };
+
   const featureSet = [
     {"name": "redpopDesktopVerticalNav", "value": false},
     {"name": "liveCustomMarqueeData", "value": !configPreferences.disableTumblrLive.value},
