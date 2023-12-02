@@ -421,7 +421,7 @@ const main = async function () {
     "streamSessionId": "69767e2d19916af02676b29a590726aa"
   }
   const modifyInitialTimeline = (obj, context) => {
-    if (context === "dashboard" && configPreferences.canShowMetricPost && localMetricFlag) {
+    if (obj && context === "dashboard" && configPreferences.canShowMetricPost && localMetricFlag) {
       obj.dashboardTimeline.response.timeline.elements.push(metricPost);
       configPreferences.canShowMetricPost = false;
       updatePreferences();
