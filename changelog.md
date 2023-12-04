@@ -1,5 +1,13 @@
 # Changelog
 
+## v5.4.7
+- Minor fix to visual ghosting with hidden dashboard blog recommendations
+- Changed the hide recommendations feature to use a different method pending the full release of Firefox 121
+- Removed temporary poll
+
+## v5.4.6
+- Added a temporary poll to investigate user browser choice metrics
+
 ## v5.4.5
 - Changed the "hide recommended blogs" feature to also hide the recommended blog and tag carousels between posts in the timeline
 
