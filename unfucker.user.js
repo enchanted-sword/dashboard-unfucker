@@ -35,21 +35,22 @@ const main = async function () {
   let state = window.___INITIAL_STATE___;
   let configPreferences = {
     lastVersion: version,
-    hideDashboardTabs: { type: "checkbox", value: "" },
-    hideRecommended: { type: "checkbox", value: "" },
-    hideTumblrRadar: { type: "checkbox", value: "" },
-    hideExplore: { type: "checkbox", value: "" },
-    hideTumblrShop: { type: "checkbox", value: "checked" },
-    hideBadges: { type: "checkbox", value: "" },
-    highlightLikelyBots: { type: "checkbox", value: "" },
-    showFollowingLabel: { type: "checkbox", value: "" },
-    contentPositioning: { type: "range", value: 0},
-    contentWidth: { type: "range", value: 990},
-    messagingScale: { type: "range", value: 1},
-    disableTumblrLive: { type: "checkbox", value: "checked" },
-    disableTumblrDomains: { type: "checkbox", value: "checked" },
-    revertActivityFeedRedesign: { type: "checkbox", value: "checked" },
-    revertMessagingRedesign: { 
+    hideDashboardTabs: { advanced: false, type: "checkbox", value: "" },
+    hideRecommended: { advanced: false, type: "checkbox", value: "" },
+    hideTumblrRadar: { advanced: false, type: "checkbox", value: "" },
+    hideExplore: { advanced: false, type: "checkbox", value: "" },
+    hideTumblrShop: { advanced: false, type: "checkbox", value: "checked" },
+    hideBadges: { advanced: false, type: "checkbox", value: "" },
+    highlightLikelyBots: { advanced: false, type: "checkbox", value: "" },
+    showFollowingLabel: { advanced: false, type: "checkbox", value: "" },
+    contentPositioning: { advanced: false, type: "range", value: 0},
+    contentWidth: { advanced: false, type: "range", value: 990},
+    messagingScale: { advanced: false, type: "range", value: 1},
+    disableTumblrLive: { advanced: true, type: "checkbox", value: "checked" },
+    disableTumblrDomains: { advanced: true, type: "checkbox", value: "checked" },
+    revertActivityFeedRedesign: { advanced: false, type: "checkbox", value: "checked" },
+    revertMessagingRedesign: {
+      advanced: false,
       type: "checkbox",
       value: "checked",
       style: "1",
@@ -57,14 +58,14 @@ const main = async function () {
       backgroundColor: "ffffff",
       textColor: "121212"
     },
-    revertSearchbarRedesign: { type: "checkbox", value: "checked" },
-    enableCustomTabs: { type: "checkbox", value: "" },
-    enableReblogPolls: { type: "checkbox", value: "" },
-    disableTagNag: { type: "checkbox", value: "checked" },
-    reAddHomeNotifications: { type: "checkbox", value: "checked" },
-    displayVoteCounts: { type: "checkbox", value: "" },
-    showNsfwPosts: { type: "checkbox", value: "" },
-    disableScrollingAvatars: { type: "checkbox", value: ""}
+    revertSearchbarRedesign: { advanced: true, type: "checkbox", value: "checked" },
+    enableCustomTabs: { advanced: true, type: "checkbox", value: "" },
+    enableReblogPolls: { advanced: true, type: "checkbox", value: "" },
+    disableTagNag: { advanced: true, type: "checkbox", value: "checked" },
+    reAddHomeNotifications: { advanced: true, type: "checkbox", value: "checked" },
+    displayVoteCounts: { advanced: false, type: "checkbox", value: "" },
+    showNsfwPosts: { advanced: true, type: "checkbox", value: "" },
+    disableScrollingAvatars: { advanced: false, type: "checkbox", value: ""}
   };
   let pathname = location.pathname.split("/")[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -1009,8 +1010,9 @@ const main = async function () {
           };
         });
       };
-      const configMenu = (version) => $str(`
-        <div id="__m">
+      const configMenu = (version, obj = {}) => {
+        const menuShell = $str(`
+          <div id="__m">
           <div id="__in">
             <h1>dashboard unfucker v${version}</h1>
             <button id="__ab">
@@ -1029,24 +1031,6 @@ const main = async function () {
               <span>about</span>
             </div>
             <ul id="__am">
-              <li>
-                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker">source</a>
-              </li>
-              <li>
-                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/blob/main/changelog.md">changelog</a>
-              </li>
-              <li>
-                <a target="_blank" href="https://github.com/enchanted-sword/dashboard-unfucker/issues/">report a bug</a>
-              </li>
-              <li>
-                <a target="_blank" href="https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js">update</a>
-              </li>
-              <li>
-                <a target="_blank" href="https://tumblr.com/dragongirlsnout">my tumblr!</a>
-              </li>
-              <li>
-                <a target="_blank" href="https://www.paypal.com/paypalme/dragongirled">support my work!</a>
-              </li>
             </ul>
           </div>
           <div id="__c" style="display: none;">
@@ -1057,225 +1041,219 @@ const main = async function () {
             <div class="infoHeader">
               <span>general configuration</span>
             </div>
-            <ul id="__ct">
-              <li>
-                <span>hide dashboard tabs</span>
-                <input class="configInput" type="checkbox" id="__hideDashboardTabs" name="hideDashboardTabs" ${configPreferences.hideDashboardTabs.value}>
-                <label for="__hideDashboardTabs">Toggle</label>
-              </li>
-              <li>
-                <span>hide recommended blogs and tags</span>
-                <input class="configInput" type="checkbox" id="__hideRecommended" name="hideRecommended" ${configPreferences.hideRecommended.value}>
-                <label for="__hideRecommended">Toggle</label>
-              </li>
-              <li>
-                <span>hide tumblr radar</span>
-                <input class="configInput" type="checkbox" id="__hideTumblrRadar" name="hideTumblrRadar" ${configPreferences.hideTumblrRadar.value}>
-                <label for="__hideTumblrRadar">Toggle</label>
-              </li>
-              <li>
-                <span>hide explore</span>
-                <input class="configInput" type="checkbox" id="__hideExplore" name="hideExplore" ${configPreferences.hideExplore.value}>
-                <label for="__hideExplore">Toggle</label>
-              </li>
-              <li>
-                <span>hide tumblr shop</span>
-                <input class="configInput" type="checkbox" id="__hideTumblrShop" name="hideTumblrShop" ${configPreferences.hideTumblrShop.value}>
-                <label for="__hideTumblrShop">Toggle</label>
-              </li>
-              <li>
-                <span>hide badges</span>
-                <input class="configInput" type="checkbox" id="__hideBadges" name="hideBadges" ${configPreferences.hideBadges.value}>
-                <label for="__hideBadges">Toggle</label>
-              </li>
-              <li>
-                <span>highlight likely bots in the activity feed</span>
-                <input class="configInput" type="checkbox" id="__highlightLikelyBots" name="highlightLikelyBots" ${configPreferences.highlightLikelyBots.value}>
-                <label for="__highlightLikelyBots">Toggle</label>
-              </li>
-              <li>
-                <span>show who follows you in the activity feed</span>
-                <input class="configInput" type="checkbox" id="__showFollowingLabel" name="showFollowingLabel" ${configPreferences.showFollowingLabel.value}>
-                <label for="__showFollowingLabel">Toggle</label>
-              </li>
-              <li>
-                <span>display exact vote counts on poll answers</span>
-                <input class="configInput" type="checkbox" id="__displayVoteCounts" name="displayVoteCounts" ${configPreferences.displayVoteCounts.value}>
-                <label for="__displayVoteCounts">Toggle</label>
-              </li>
-              <li>
-                <span>disable avatars scrolling with posts</span>
-                <input class="configInput" type="checkbox" id="__disableScrollingAvatars" name="disableScrollingAvatars" ${configPreferences.disableScrollingAvatars.value}>
-                <label for="__disableScrollingAvatars">Toggle</label>
-              </li>
-              <li>
-                <span>revert activity feed redesign</span>
-                <input class="configInput" type="checkbox" id="__revertActivityFeedRedesign" name="revertActivityFeedRedesign" ${configPreferences.revertActivityFeedRedesign.value}>
-                <label for="__revertActivityFeedRedesign">Toggle</label>
-              </li>
-              <li active="${configPreferences.revertMessagingRedesign.value ? true : false}">
-                <span>revert messaging redesign</span>
-                <input class="configInput" type="checkbox" id="__revertMessagingRedesign" name="revertMessagingRedesign" ${configPreferences.revertMessagingRedesign.value}>
-                <label for="__revertMessagingRedesign">Toggle</label>
-              </li>
-              <ul class="submenu">
-                <li>
-                  <span>use blog colors</span>
-                  <input 
-                    class="subConfigInput" 
-                    type="radio" 
-                    id="__messaging1" 
-                    name="revertMessagingRedesign" 
-                    index="1"
-                    ${configPreferences.revertMessagingRedesign.style === "1" ? "checked" : ""}
-                  >
-                  <label for="__messaging1">Toggle</label>
-                </li>
-                <li>
-                  <span>use theme colors</span>
-                  <input 
-                    class="subConfigInput" 
-                    type="radio" 
-                    id="__messaging2" 
-                    name="revertMessagingRedesign" 
-                    index="2"
-                    ${configPreferences.revertMessagingRedesign.style === "2" ? "checked" : ""}
-                  >
-                  <label for="__messaging2">Toggle</label>
-                </li>
-                <li active="${configPreferences.revertMessagingRedesign.style === "3" ? true : false}">
-                  <span>use custom colors</span>
-                  <input 
-                    class="subConfigInput" 
-                    type="radio" 
-                    id="__messaging3" 
-                    name="revertMessagingRedesign" 
-                    index="3" 
-                    ${configPreferences.revertMessagingRedesign.style === "3" ? "checked" : ""}
-                  >
-                  <label for="__messaging3">Toggle</label>
-                </li>
-                <ul class="submenu">
-                  <li>
-                    <span style="flex-basis: 100%;">message color</span>
-                    <input 
-                      class="textInput msgHexSelect" 
-                      type="text" 
-                      placeholder="${configPreferences.revertMessagingRedesign.messageColor || "f0f0f0"}" 
-                      pattern="[a-f\\d]{6}" 
-                      maxlength="6"
-                      name="messageColor"
-                    >
-                    <span></span>
-                  </li>
-                  <li>
-                    <span style="flex-basis: 100%;">background color</span>
-                    <input 
-                      class="textInput msgHexSelect" 
-                      type="text" 
-                      placeholder="${configPreferences.revertMessagingRedesign.backgroundColor || "ffffff"}" 
-                      pattern="[a-f\\d]{6}" 
-                      maxlength="6"
-                      name="backgroundColor"
-                    >
-                    <span></span>
-                  </li>
-                  <li>
-                    <span style="flex-basis: 100%;">text color</span>
-                    <input 
-                      class="textInput msgHexSelect" 
-                      type="text" 
-                      placeholder="${configPreferences.revertMessagingRedesign.textColor || "121212"}" 
-                      pattern="[a-f\\d]{6}" 
-                      maxlength="6"
-                      name="textColor"
-                    >
-                    <span></span>
-                  </li>
-                </ul>
-              </ul>
-              <li>
-                <span>content positioning</span>
-                <div class="rangeInput">
-                  <input class="configInput" type="range" id="__contentPositioning" name="contentPositioning" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${configPreferences.contentPositioning.value}">
-                  <datalist id="__cp">
-                    <option value="-${safeOffset}" label="left"></option>
-                    <option value="0" label="default"></option>
-                    <option value="${safeOffset}" label="right"></option>
-                  </datalist>
-                </div>
-              </li>
-              <li>
-                <span>content width</span>
-                <div class="rangeInput">
-                  <input class="configInput" type="range" id="__contentWidth" name="contentWidth" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences.contentWidth.value}">
-                  <datalist id="__cw">
-                    <option value="990" label="default"></option>
-                    <option value="${windowWidth}" label="full width"></option>
-                  </datalist>
-                </div>
-              </li>
-              <li>
-                <span>messaging window scale</span>
-                <div class="rangeInput">
-                  <input class="configInput" type="range" id="__messagingScale" name="messagingScale" list="__mss" min="1" max ="2" step="0.05" value="${configPreferences.messagingScale.value}">
-                  <datalist id="__mss">
-                    <option value="1" label="1x"></option>
-                    <option value="1.5" label="1.5x"></option>
-                    <option value="2" label="2x"></option>
-                  </datalist>
-                </div>
-              </li>
-            </ul>
+            <ul id="__ct"></ul>
             <li class="infoHeader" style="flex-flow: column wrap">
               <span style="width: 100%;">advanced configuration</span>
               <span style="width: 100%; font-size: .8em;">requires a page reload</span>
             </li>
-            <ul id="__cta">
-              <li>
-                <span>disable tumblr live</span>
-                <input class="configInput" type="checkbox" id="__disableTumblrLive" name="disableTumblrLive" ${configPreferences.disableTumblrLive.value}>
-                <label for="__disableTumblrLive">Toggle</label>
-              </li>
-              <li>
-                <span>disable tumblr domains</span>
-                <input class="configInput" type="checkbox" id="__disableTumblrDomains" name="disableTumblrDomains" ${configPreferences.disableTumblrDomains.value}>
-                <label for="__disableTumblrDomains">Toggle</label>
-              </li>
-              <li>
-                <span>revert searchbar update</span>
-                <input class="configInput" type="checkbox" id="__revertSearchbarRedesign" name="revertSearchbarRedesign" ${configPreferences.revertSearchbarRedesign.value}>
-                <label for="__revertSearchbarRedesign">Toggle</label>
-              </li>
-              <li>
-                <span>enable customizable dashboard tabs</span>
-                <input class="configInput" type="checkbox" id="__enableCustomTabs" name="enableCustomTabs" ${configPreferences.enableCustomTabs.value}>
-                <label for="__enableCustomTabs">Toggle</label>
-              </li>
-              <li>
-                <span>enable adding polls to reblogs</span>
-                <input class="configInput" type="checkbox" id="__enableReblogPolls" name="enableReblogPolls" ${configPreferences.enableReblogPolls.value}>
-                <label for="__enableReblogPolls">Toggle</label>
-              </li>
-              <li>
-                <span>disable "post without tags" nag</span>
-                <input class="configInput" type="checkbox" id="__disableTagNag" name="disableTagNag" ${configPreferences.disableTagNag.value}>
-                <label for="__disableTagNag">Toggle</label>
-              </li>
-              <li>
-                <span>re-add unread post notifications to the corner of the home icon</span>
-                <input class="configInput" type="checkbox" id="__reAddHomeNotifications" name="reAddHomeNotifications" ${configPreferences.reAddHomeNotifications.value}>
-                <label for="__reAddHomeNotifications">Toggle</label>
-              </li>
-              <li>
-                <span>show hidden NSFW posts in the timeline</span>
-                <input class="configInput" type="checkbox" id="__showNsfwPosts" name="showNsfwPosts" ${configPreferences.showNsfwPosts.value}>
-                <label for="__showNsfwPosts">Toggle</label>
-              </li>
-            </ul>
+            <ul id="__cta"></ul>
           </div>
         </div>
-      `);
+        `);
+        const info = [
+          { url: "https://github.com/enchanted-sword/dashboard-unfucker", text: "source" },
+          { url: "https://github.com/enchanted-sword/dashboard-unfucker/blob/main/changelog.md", text: "changelog" },
+          { url: "https://github.com/enchanted-sword/dashboard-unfucker/issues/", text: "report a bug" },
+          { url: "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js", text: "update" },
+          { url: "https://tumblr.com/dragongirlsnout", text: "my tumblr!" },
+          { url: "https://www.paypal.com/paypalme/dragongirled", text: "support my work!" }
+        ];
+
+        const infoList = menuShell.querySelector("#__am");
+        const infoEntry = (obj = {}) => $str(`
+          <li>
+            <a target="_blank" href="${obj.url}">${obj.text}</a>
+          </li>
+        `);
+        const configs = {
+          hideDashboardTabs: "hide dashboard tabs",
+          hideRecommended: "hide recommended blogs and tags",
+          hideTumblrRadar: "hide tumblr radar",
+          hideExplore: "hide explore",
+          hideTumblrShop: "hide tumblr shop",
+          hideBadges: "hide badges",
+          highlightLikelyBots: "highlight likely bots in activity feed",
+          showFollowingLabel: "show who follows you in the activity feed",
+          displayVoteCounts: "display exact vote counts on poll answers",
+          disableScrollingAvatars: "disable avatars scrolling with posts",
+          revertActivityFeedRedesign: "revert activity feed redesign",
+          revertMessagingRedesign: "revert messaging redesign",
+          contentPositioning: "content positioning",
+          contentWidth: "content width",
+          messagingScale: "messaging window scale",
+          disableTumblrLive: "disable tumblr live",
+          disableTumblrDomains: "disable tumblr domains",
+          revertSearchbarRedesign: "revert searchbar update",
+          enableCustomTabs: "enable customizable dashboard tabs",
+          enableReblogPolls: "enable adding polls to reblogs",
+          disableTagNag: "disable \"post without tags\" nag",
+          reAddHomeNotifications: "re-add unread post notifications to the corner of the home icon",
+          showNsfwPosts: "show hidden NSFW posts in the timeline"
+        }
+        const configEntry = (obj = {}) => {
+          let entry = [];
+
+          if (obj.type === "checkbox") {
+            if (obj.name == "revertMessagingRedesign") {
+              entry.push($str(`
+                <li active="${obj.value ? true : false}">
+                  <span>${configs[obj.name]}</span>
+                  <input class="configInput" type="checkbox" id="__${obj.name}" name="${obj.name}" ${obj.value}>
+                  <label for="__${obj.name}">Toggle</label>
+                </li>
+              `));
+              entry.push($str(`
+                <ul class="submenu">
+                  <li>
+                    <span>use blog colors</span>
+                    <input 
+                      class="subConfigInput" 
+                      type="radio" 
+                      id="__messaging1" 
+                      name="revertMessagingRedesign" 
+                      index="1"
+                      ${obj.style === "1" ? "checked" : ""}
+                    >
+                    <label for="__messaging1">Toggle</label>
+                  </li>
+                  <li>
+                    <span>use theme colors</span>
+                    <input 
+                      class="subConfigInput" 
+                      type="radio" 
+                      id="__messaging2" 
+                      name="revertMessagingRedesign" 
+                      index="2"
+                      ${obj.style === "2" ? "checked" : ""}
+                    >
+                    <label for="__messaging2">Toggle</label>
+                  </li>
+                  <li active="${obj.style === "3" ? true : false}">
+                    <span>use custom colors</span>
+                    <input 
+                      class="subConfigInput" 
+                      type="radio" 
+                      id="__messaging3" 
+                      name="revertMessagingRedesign" 
+                      index="3" 
+                      ${obj.style === "3" ? "checked" : ""}
+                    >
+                    <label for="__messaging3">Toggle</label>
+                  </li>
+                  <ul class="submenu">
+                    <li>
+                      <span style="flex-basis: 100%;">message color</span>
+                      <input 
+                        class="textInput msgHexSelect" 
+                        type="text" 
+                        placeholder="${obj.messageColor || "f0f0f0"}" 
+                        pattern="[a-f\\d]{6}" 
+                        maxlength="6"
+                        name="messageColor"
+                      >
+                      <span></span>
+                    </li>
+                    <li>
+                      <span style="flex-basis: 100%;">background color</span>
+                      <input 
+                        class="textInput msgHexSelect" 
+                        type="text" 
+                        placeholder="${obj.backgroundColor || "ffffff"}" 
+                        pattern="[a-f\\d]{6}" 
+                        maxlength="6"
+                        name="backgroundColor"
+                      >
+                      <span></span>
+                    </li>
+                    <li>
+                      <span style="flex-basis: 100%;">text color</span>
+                      <input 
+                        class="textInput msgHexSelect" 
+                        type="text" 
+                        placeholder="${obj.textColor || "121212"}" 
+                        pattern="[a-f\\d]{6}" 
+                        maxlength="6"
+                        name="textColor"
+                      >
+                      <span></span>
+                    </li>
+                  </ul>
+                </ul>
+              `));
+            } else {
+              entry.push($str(`
+                <li>
+                  <span>${configs[obj.name]}</span>
+                  <input class="configInput" type="checkbox" id="__${obj.name}" name="${obj.name}" ${obj.value}>
+                  <label for="__${obj.name}">Toggle</label>
+                </li>
+              `));
+            }
+          } else if (obj.type == "range") {
+            if (obj.name === "contentPositioning") {
+              entry.push($str(`
+                <li>
+                  <span>${configs[obj.name]}</span>
+                  <div class="rangeInput">
+                    <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
+                    <datalist id="__cp">
+                      <option value="-${safeOffset}" label="left"></option>
+                      <option value="0" label="default"></option>
+                      <option value="${safeOffset}" label="right"></option>
+                    </datalist>
+                  </div>
+                </li>
+              `));
+            } else if (obj.name === "contentWidth") {
+              entry.push($str(`
+                <li>
+                  <span>${configs[obj.name]}</span>
+                  <div class="rangeInput">
+                    <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__cw" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
+                    <datalist id="__cw">
+                    <option value="990" label="default"></option>
+                    <option value="${windowWidth}" label="full width"></option>
+                    </datalist>
+                  </div>
+                </li>
+              `));
+            } else if (obj.name === "messagingScale") {
+              entry.push($str(`
+                <li>
+                  <span>${configs[obj.name]}</span>
+                  <div class="rangeInput">
+                    <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__mss" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
+                    <datalist id="__mss">
+                      <option value="1" label="1x"></option>
+                      <option value="1.5" label="1.5x"></option>
+                      <option value="2" label="2x"></option>
+                    </datalist>
+                  </div>
+                </li>
+              `));
+            }
+          }
+           
+          return entry;
+        };
+        const generalList = menuShell.querySelector("#__ct");
+        const advancedList = menuShell.querySelector("#__cta");
+
+        info.forEach(infoItem => infoList.append(infoEntry(infoItem)));
+        Object.keys(obj).forEach(key => {
+          const configItem = obj[key];
+          configItem.name = key;
+          if (typeof configItem === "object") {
+            if (configItem.advanced) {
+              advancedList.append(...configEntry(configItem));
+            } else {
+              generalList.append(...configEntry(configItem));
+            }
+          }
+        });
+
+        return menuShell;
+      };
       const initializePreferences = () => {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
 
@@ -1516,7 +1494,7 @@ const main = async function () {
       const unfuck = async function () {
         if (!initialChecks()) return;
 
-        const menu = configMenu(version);
+        const menu = configMenu(version, configPreferences);
         pathname = location.pathname.split("/")[1];
 
         requestAnimationFrame(() => {
