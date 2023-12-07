@@ -17,8 +17,14 @@ The features of the script are fully customizable in the sidebar config menu (th
 ### Hide dashboard tabs
 Hides the tabs at the top of the dashboard.
 
-### Hide recommended blogs and tags bwtween posts
-Hides the Recommended Blogs sidebar item, and the blog and tag recommendation carousels between posts in the timeline.
+### Collapse the 'changes', 'staff picks', etc. carousel
+Replaces the carousel that appears in your timeline at the spot where you last left off reading posts with a simple dividing line (Adapted from XKit Rewritten)
+
+### Hide recommended blogs
+Hides the Recommended Blogs sidebar item and the blog recommendation carousels between posts in the timeline.
+
+### Hide recommended tags
+Hides the tag recommendation carousels between posts in the timeline.
 
 ### Hide Tumblr Radar
 Hides the Tumblr Radar.

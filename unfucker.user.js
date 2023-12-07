@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.4.7
+// @version      5.5.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.4.7";
+  const version = "5.5.0";
   const match = [
     "",
     "dashboard",
@@ -36,7 +36,9 @@ const main = async function () {
   let configPreferences = {
     lastVersion: version,
     hideDashboardTabs: { advanced: false, type: "checkbox", value: "" },
-    hideRecommended: { advanced: false, type: "checkbox", value: "" },
+    collapseCaughtUp: { advanced: false, type: "checkbox", value: "" },
+    hideRecommendedBlogs: { advanced: false, type: "checkbox", value: "" },
+    hideRecommendedTags: { advanced: false, type: "checkbox", value: "" },
     hideTumblrRadar: { advanced: false, type: "checkbox", value: "" },
     hideExplore: { advanced: false, type: "checkbox", value: "" },
     hideTumblrShop: { advanced: false, type: "checkbox", value: "checked" },
@@ -145,8 +147,8 @@ const main = async function () {
     }
     return btoa(JSON.stringify(obf));
   };
-  const waitFor = (selector, retried = 0,) => new Promise((resolve) => {
-    if ($a(selector).length) { resolve() } else if (retried < 50) { requestAnimationFrame(() => waitFor(selector, retried + 1).then(resolve)) }
+  const waitFor = (selector, scope = document, retried = 0,) => new Promise((resolve) => {
+    if (scope.querySelector(selector)) { resolve() } else if (retried < 50) { requestAnimationFrame(() => waitFor(selector, scope, retried + 1).then(resolve)) }
   });
   const updatePreferences = () => {
     localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
@@ -278,13 +280,16 @@ const main = async function () {
     getUtilities().then(({ keyToCss, keyToClasses, tr }) => {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
+
       const postSelector = "[tabindex='-1'][data-id] article";
       const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
       const conversationSelector = "[data-skip-glass-focus-trap]";
-      const cellSelector = "[data-cell-id]";
+      const carouselCellSelector = `[data-cell-id] ${keyToCss("tagCard")}, [data-cell-id] ${keyToCss("blogRecommendation")}, [data-cell-id] ${keyToCss("tagChicletLink")}`;
+
       const newNodes = [];
       const target = document.getElementById("root");
+
       const styleElement = $str(`
         <style id='__s'>
           #__m {
@@ -538,6 +543,8 @@ const main = async function () {
           #tumblr { --dashboard-tabs-header-height: 0px !important; }
           ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
           ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
+          [data-blog-container], [data-blog-container] ${keyToCss("layout")}, [data-blog-container] ${keyToCss("sidebar")},
+          [data-blog-container] ${keyToCss("sidebarTopContainer")} { width: fit-content !important; }
           ${keyToCss("main")} {
             position: relative;
             flex: 1;
@@ -577,6 +584,7 @@ const main = async function () {
           aside > button${keyToCss("expandOnHover")} { display: none !important; }
         </style>
       `);
+
       const untitledStrings = [
         "Untitled", //en
         "Sans titre", //fr
@@ -679,15 +687,6 @@ const main = async function () {
             fiber = fiber.return;
           };
         };
-      };
-      const labelCells = cells => {
-        for (const cell of cells) {
-          if (cell.getAttribute("data-cell-id").includes("timelineObject:carousel")) {
-            cell.setAttribute("data-carousel-cell", "");
-            const prevCell = cell.previousSibling;
-            if (prevCell.getAttribute("data-cell-id").includes("title")) prevCell.setAttribute("data-title-cell", "");
-          }
-        }
       };
       const fixHeader = posts => {
         for (const post of posts) {
@@ -838,6 +837,26 @@ const main = async function () {
         }
       };
 
+      const labelCells = cells => {
+        for (let cell of cells) {
+          cell = cell.closest("[data-cell-id]");
+          const prevCell = cell.previousSibling;
+
+          if (cell.getAttribute("data-cell-id").includes("timelineObject:carousel")) {
+            if (cell.querySelector(keyToCss("blogRecommendation"))) {
+              cell.setAttribute("data-blog-carousel-cell", "");
+              prevCell.setAttribute("data-blog-carousel-cell", "");
+            } else if (cell.querySelector(keyToCss("tagCard"))) {
+              cell.setAttribute("data-tag-carousel-cell", "");
+              prevCell.setAttribute("data-tag-carousel-cell", "");
+            }
+          } else if (cell.getAttribute("data-cell-id").includes("watermark_carousel")) {
+            cell.setAttribute("data-watermark-carousel-cell", "");
+            prevCell.setAttribute("data-watermark-carousel-title-cell", "");
+          }
+        }
+      };
+
       const mutationManager = Object.freeze({
         listeners: new Map(),
         start (func, selector) {
@@ -845,7 +864,11 @@ const main = async function () {
           this.listeners.set(func, selector);
           func(Array.from($a(selector)));
         },
-        stop (func) {this.listeners.delete(func);}
+        stop (func) {this.listeners.delete(func);},
+        toggle (func, selector) {
+          if (this.listeners.has(func)) this.stop(func);
+          else this.start(func, selector);
+        }
       });
       const sortNodes = () => {
         const nodes = newNodes.splice(0);
@@ -898,9 +921,31 @@ const main = async function () {
           case "__hideDashboardTabs":
             toggle($(keyToCss("timelineHeader")), !value);
             break;
-          case "__hideRecommended":
+          case "__collapseCaughtUp":
+            featureStyles.toggle("__cc", value);
+
+            if (!configPreferences.hideRecommendedTags.value && !configPreferences.hideRecommendedBlogs.value) {
+              if (value) mutationManager.start(labelCells, carouselCellSelector);
+              else mutationManager.stop(labelCells);
+            }
+            break;
+          case "__hideRecommendedBlogs":
             featureStyles.toggle("__rb", value);
             toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !value);
+            toggle(find($a(keyToCss("desktopContainer")), keyToCss("recommendedBlogs")), !value);
+
+            if (!configPreferences.hideRecommendedTags.value && !configPreferences.collapseCaughtUp.value) {
+              if (value) mutationManager.start(labelCells, carouselCellSelector);
+              else mutationManager.stop(labelCells);
+            }
+            break;
+          case "__hideRecommendedTags":
+            featureStyles.toggle("__rt", value);
+
+            if (!configPreferences.hideRecommendedBlogs.value && !configPreferences.collapseCaughtUp.value) {
+              if (value) mutationManager.start(labelCells, carouselCellSelector);
+              else mutationManager.stop(labelCells);
+            }
             break;
           case "__hideTumblrRadar":
             toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !value);
@@ -915,27 +960,25 @@ const main = async function () {
             featureStyles.toggle("__bs", value);
             break;
           case "__highlightLikelyBots":
-            if (value) {
+            if (value && !configPreferences.showFollowingLabel.value) {
               mutationManager.start(scanNotes, noteSelector);
             } else {
               remove($a("[label='Possible Bot']"));
-              if (!mutationManager.listeners.has(scanNotes)) mutationManager.stop(scanNotes);
+              if (!configPreferences.showFollowingLabel.value) mutationManager.stop(scanNotes);
             }
             break;
           case "__showFollowingLabel":
-            if (value) mutationManager.start(scanNotes, noteSelector);
+            if (value && !configPreferences.highlightLikelyBots.value) mutationManager.start(scanNotes, noteSelector);
             else {
               remove($a("[label='Follows You']"));
-              if (!mutationManager.listeners.has(scanNotes)) mutationManager.stop(scanNotes);
+              if (!configPreferences.highlightLikelyBots.value) mutationManager.stop(scanNotes);
             }
             break;
           case "__displayVoteCounts":
             featureStyles.toggle("__ps", value);
-            if (value) {
-              mutationManager.start(detailPolls, answerSelector);
-            }
-            else {
-              mutationManager.stop(detailPolls);
+            mutationManager.toggle(detailPolls, answerSelector);
+
+            if (!value) {
               document.getElementById("__ps").innerText = "";
               remove($a(".answerVoteCount"));
               $a(".pollDetailed").forEach(elem => elem.classList.remove("pollDetailed"));
@@ -945,9 +988,9 @@ const main = async function () {
             featureStyles.toggle("__as", value);
             break;
           case "__revertMessagingRedesign":
-            if (value) mutationManager.start(styleMessaging, conversationSelector);
-            else {
-              mutationManager.stop(styleMessaging);
+            mutationManager.toggle(detailPolls, answerSelector);
+
+             if (!value) {
               remove($a(".customMessagingStyle"));
             }
             featureStyles.toggleScalable("__ms", value, configPreferences.messagingScale.value);
@@ -1067,7 +1110,9 @@ const main = async function () {
         `);
         const configs = {
           hideDashboardTabs: "hide dashboard tabs",
-          hideRecommended: "hide recommended blogs and tags",
+          collapseCaughtUp: "collapse the 'changes', 'staff picks', etc. carousel",
+          hideRecommendedBlogs: "hide recommended blogs",
+          hideRecommendedTags: "hide recommended tags",
           hideTumblrRadar: "hide tumblr radar",
           hideExplore: "hide explore",
           hideTumblrShop: "hide tumblr shop",
@@ -1258,20 +1303,43 @@ const main = async function () {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
 
         mutationManager.start(fixHeader, postSelector);
-        mutationManager.start(labelCells, cellSelector);
-
-        featureStyles.build("__rb", `
-          [data-title-cell], [data-carousel-cell] { position: relative !important; }
-          [data-title-cell] > div, [data-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
-          [data-title-cell] > div canvas, [data-carousel-cell] > div canvas { visibility: hidden; }
-          [data-carousel-cell] ${keyToCss("carouselWrapper")} { display: none !important }
-        `, "", configPreferences.hideRecommended.value);
-        waitFor(keyToCss("recommendedBlogs")).then(() => {
-          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommended.value);
+        waitFor(containerSelector).then(() => {
+          if (state.routeName === "peepr-route" && !matchPathname()) $(containerSelector).setAttribute("data-blog-container", "");
         });
+
+        if (configPreferences.collapseCaughtUp.value || configPreferences.hideRecommendedBlogs.value || configPreferences.hideRecommendedTags.value) mutationManager.start(labelCells, carouselCellSelector);
+        featureStyles.build("__cc", `
+          [data-watermark-carousel-title-cell] { position: relative !important; }
+          [data-watermark-carousel-title-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
+          [data-watermark-carousel-title-cell] > div canvas { visibility: hidden; }
+          [data-watermark-carousel-cell] > div {
+            height: 0px;
+            overflow-y: hidden;
+            border: 4px solid rgb(var(--white));
+            border-radius: 3px;
+          }
+        `, "", configPreferences.collapseCaughtUp.value);
+        featureStyles.build("__rb", `
+          [data-blog-carousel-cell] { position: relative !important; }
+          [data-blog-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
+          [data-blog-carousel-cell] > div canvas { visibility: hidden; }
+          [data-blog-carousel-cell] ${keyToCss("carouselWrapper")} { display: none !important }
+        `, "", configPreferences.hideRecommendedBlogs.value);
+        waitFor(keyToCss("recommendedBlogs")).then(() => {
+          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
+          toggle(find($a(keyToCss("desktopContainer")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
+
+        });
+        featureStyles.build("__rt", `
+          [data-tag-carousel-cell] { position: relative !important; }
+          [data-tag-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
+          [data-tag-carousel-cell] > div canvas { visibility: hidden; }
+          [data-tag-carousel-cell] ${keyToCss("carouselWrapper")} { display: none !important }
+        `, "", configPreferences.hideRecommendedTags.value);
         waitFor(keyToCss("radar")).then(() => {
           toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences.hideTumblrRadar.value);
         });
+
         if (isDashboard()) {
           waitFor(keyToCss("timelineHeader")).then(() => {
             toggle($(keyToCss("timelineHeader")), !configPreferences.hideDashboardTabs.value);

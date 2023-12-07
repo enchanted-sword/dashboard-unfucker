@@ -1,5 +1,13 @@
 # Changelog
 
+## v5.5.0
+- Improvements to the menu rendering methods
+- Split the "hide recommended blogs and tags" feature into two features
+- Added the "collapse the 'changes', 'staff picks', etc. carousel"
+- Fixed the "hide recommended blogs" feature to target recommended blogs in blog view and tag pages
+- Set empty blog view sidebars to collapse automatically
+- Added the dragon
+
 ## v5.4.7
 - Minor fix to visual ghosting with hidden dashboard blog recommendations
 - Changed the hide recommendations feature to use a different method pending the full release of Firefox 121
