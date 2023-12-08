@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.5.1
+- Fixed a case where race conditions could cause the script to be injected without a nonce
+
 ## v5.5.0
 - Improvements to the menu rendering methods
 - Split the "hide recommended blogs and tags" feature into two features

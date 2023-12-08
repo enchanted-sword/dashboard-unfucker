@@ -1623,9 +1623,12 @@ const main = async function () {
     });
   });
 };
-const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+const getNonce = () => {
+  const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+  return nonce;
+}
 const script = $(`
-  <script id="__u" nonce="${nonce}">
+  <script id="__u" nonce="${getNonce()}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard();
   </script>
@@ -1636,6 +1639,7 @@ if ($("head").length === 0) {
     const nodes = newNodes.splice(0);
     if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
       const head = nodes.find(node => node.matches("head"));
+      script.attr("nonce", getNonce());
       $(head).append(script);
     }
   };
@@ -1649,3 +1653,4 @@ if ($("head").length === 0) {
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 } else $(document.head).append(script);
+if (script.attr("nonce") === "") console.error("empty script nonce attribute: script may not inject");
