@@ -1285,7 +1285,7 @@ const main = async function () {
                 <li>
                   <span>${configs[obj.name]}</span>
                   <div class="rangeInput">
-                    <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__cw" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
+                  <input class="configInput" type="range" id="__contentWidth" name="contentWidth" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences.contentWidth.value}">
                     <datalist id="__cw">
                     <option value="990" label="default"></option>
                     <option value="${windowWidth}" label="full width"></option>
