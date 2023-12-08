@@ -2,6 +2,8 @@
 
 ## v5.5.1
 - Fixed a case where race conditions could cause the script to be injected without a nonce
+- Fixed the content width slider having a negative lower bound
+- Rewrote the header fix function to work as intended
 
 ## v5.5.0
 - Improvements to the menu rendering methods
