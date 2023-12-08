@@ -30,6 +30,10 @@ const main = async function () {
       elem.style[property] = properties[property];
     };
   };
+  const hide = elem => {
+    if (elem.length) elem.forEach(item => item.style.display = "none");
+    else elem.style.display = "none";
+  };
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
     let obf = JSON.parse(atob(obfuscatedFeatures));
     for (let x of featureSet) {
@@ -113,6 +117,8 @@ const main = async function () {
               const classes = keyToClasses("rebloggedFromName");
               rebloggedFrom.classList.add(...classes);
               css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
+              const follow = rebloggedFrom.querySelector(keyToCss("followButton"));
+              if (follow) hide(follow);
             }
 
             attribution.innerHTML = "";

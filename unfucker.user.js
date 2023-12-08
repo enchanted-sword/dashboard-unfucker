@@ -496,6 +496,14 @@ const main = async function () {
             border-radius: var(--border-radius-small);
             opacity: 0;
           }
+
+          article header > ${keyToCss("avatar")} { display: none !important }
+          .__reblogIcon {
+            height: 14px;
+            display: inline-block;
+            transform: translateY(3px);
+            margin: 0 5px;
+          }
           
           .customLabelContainer[label="Follows You"] {
             color: rgb(var(--blue));
@@ -640,15 +648,6 @@ const main = async function () {
       }
       rgbToString = ({r, g, b}) => `${r},${g},${b}`;
 
-      const labelContainer = (label, icon, desc) => $str(`
-        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
-          ${label}
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: rgb(var(--${label === "Follows You" ? "blue" : "red"}))">
-            <use href="#managed-icon__${icon}"></use>
-          </svg>
-          <span class="customLabelInfo ${icon}">${desc}</span>
-        </div>
-      `);
       const fetchNpf = obj => {
         const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
         let fiber = obj[fiberKey];
@@ -662,6 +661,59 @@ const main = async function () {
           };
         };
       };
+
+      const reblogIcon = () => $str(`
+        <span class="__reblogIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);">
+            <use href="#managed-icon__reblog-compact"></use>
+          </svg>
+        </span>
+      `);
+      const fixHeader = posts => {
+        for (const post of posts) {  
+          try {
+            const { id } = fetchNpf(post);
+            post.id = `post${id}`;
+
+            const header = post.querySelector(keyToCss("header"));
+            let attribution = header.querySelector(keyToCss("attribution"));
+            const reblogParent = attribution.querySelector(keyToCss("targetWrapperInline")).cloneNode(true);
+            let rebloggedFrom = attribution.querySelector(keyToCss("rebloggedFromName"));
+
+            if (rebloggedFrom) {
+              rebloggedFrom = rebloggedFrom.cloneNode(true);
+            } else {
+              const labels = post.querySelectorAll(`${keyToCss("username")} ${keyToCss("label")}`);
+              rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
+              const classes = keyToClasses("rebloggedFromName");
+              rebloggedFrom.classList.add(...classes);
+              css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
+              const follow = rebloggedFrom.querySelector(keyToCss("followButton"));
+              if (follow) hide(follow);
+            }
+
+            attribution.innerHTML = "";
+            attribution.append(reblogParent);
+            attribution.append(reblogIcon());
+            attribution.append(rebloggedFrom);
+          } catch (e) {
+            console.error("an error occurred processing a post header:", e);
+            console.error(post);
+            console.error(fetchNpf(post));
+          };
+        };
+      };
+
+      const labelContainer = (label, icon, desc) => $str(`
+        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
+          ${label}
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: rgb(var(--${label === "Follows You" ? "blue" : "red"}))">
+            <use href="#managed-icon__${icon}"></use>
+          </svg>
+          <span class="customLabelInfo ${icon}">${desc}</span>
+        </div>
+      `);
+
       const fetchPercentage = obj => {
         const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
         let fiber = obj[fiberKey];
@@ -685,31 +737,6 @@ const main = async function () {
             return notification;
           } else {
             fiber = fiber.return;
-          };
-        };
-      };
-      const fixHeader = posts => {
-        for (const post of posts) {
-          const { id } = fetchNpf(post);
-          post.id = `post${id}`;
-          const header = post.querySelector(`:scope header${keyToCss("header")}`);
-          if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
-          && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
-            try {
-              const follow = header.querySelector(`:scope ${keyToCss("followButton")}`);
-              if (follow) hide(follow);
-              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
-              const label = labels.item(labels.length - 1).cloneNode(true);
-              header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
-              const classes = keyToClasses("rebloggedFromName")
-              label.classList.add(...classes);
-              css(label, { "display": "inline", "marginLeft": "5px" });
-              css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
-            } catch (e) {
-              console.error("an error occurred processing a post header:", e);
-              console.error(post);
-              console.error(fetchNpf(post));
-            };
           };
         };
       };
