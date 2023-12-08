@@ -104,7 +104,7 @@ const main = async function () {
             const { id } = fetchNpf(post);
             post.id = `post${id}`;
 
-            const header = post.querySelector(keyToCss("header"));
+            const header = post.querySelector("header");
             let attribution = header.querySelector(keyToCss("attribution"));
             const reblogParent = attribution.querySelector(keyToCss("targetWrapperInline")).cloneNode(true);
             let rebloggedFrom = attribution.querySelector(keyToCss("rebloggedFromName"));
@@ -168,6 +168,7 @@ const main = async function () {
           ${keyToCss("mainContentWrapper")}${keyToCss("reblogRedesignEnabled")} { min-width: 890px !important; flex-basis: 890px !important; }
 
           article header > ${keyToCss("avatar")} { display: none !important }
+          article header ${keyToCss("communityLabel")} { display: none !important; }
 
           .__reblogIcon {
             height: 14px;
