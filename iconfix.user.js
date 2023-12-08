@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         iconfix
-// @version      2.0
+// @version      2.1
 // @description  fixes tumblr post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -19,7 +19,12 @@ var $ = window.jQuery;
 const main = async function () {
   let state = window.___INITIAL_STATE___;
   const $a = selector => document.querySelectorAll(selector);
-  const hide = elem => {elem.style.display = "none"};
+  const $str = str => {
+    let elem = document.createElement("div");
+    elem.innerHTML = str;
+    elem = elem.firstElementChild;
+    return elem;
+  };
   const css = (elem, properties = {}) => {
     for (let property in properties) {
       elem.style[property] = properties[property];
@@ -69,25 +74,55 @@ const main = async function () {
       const postSelector = "[tabindex='-1'][data-id] article";
       const newNodes = [];
       const target = document.getElementById("root");
+      const reblogIcon = () => $str(`
+        <span class="__reblogIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);">
+            <use href="#managed-icon__reblog-compact"></use>
+          </svg>
+        </span>
+      `);
+      const fetchNpf = obj => {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        let fiber = obj[fiberKey];
+
+        while (fiber !== null) {
+          const { timelineObject } = fiber.memoizedProps || {};
+          if (timelineObject !== undefined) {
+            return timelineObject;
+          } else {
+            fiber = fiber.return;
+          };
+        };
+      };
       const fixHeader = posts => {
-        for (const post of posts) {
-          const header = post.querySelector(`:scope header${keyToCss("header")}`);
-          if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
-          && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
-            try {
-              const follow = header.querySelector(`:scope ${keyToCss("followButton")}`);
-              if (follow) hide(follow);
-              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
-              const label = labels.item(labels.length - 1).cloneNode(true);
-              header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
-              const classes = keyToClasses("rebloggedFromName")
-              label.classList.add(...classes);
-              css(label, { "display": "inline", "marginLeft": "5px" });
-              css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
-            } catch (e) {
-              console.error("an error occurred processing a post header:", e);
-              console.error(post);
-            };
+        for (const post of posts) {  
+          try {
+            const { id } = fetchNpf(post);
+            post.id = `post${id}`;
+
+            const header = post.querySelector(keyToCss("header"));
+            let attribution = header.querySelector(keyToCss("attribution"));
+            const reblogParent = attribution.querySelector(keyToCss("targetWrapperInline")).cloneNode(true);
+            let rebloggedFrom = attribution.querySelector(keyToCss("rebloggedFromName"));
+
+            if (rebloggedFrom) {
+              rebloggedFrom = rebloggedFrom.cloneNode(true);
+            } else {
+              const labels = post.querySelectorAll(`${keyToCss("username")} ${keyToCss("label")}`);
+              rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
+              const classes = keyToClasses("rebloggedFromName");
+              rebloggedFrom.classList.add(...classes);
+              css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
+            }
+
+            attribution.innerHTML = "";
+            attribution.append(reblogParent);
+            attribution.append(reblogIcon());
+            attribution.append(rebloggedFrom);
+          } catch (e) {
+            console.error("an error occurred processing a post header:", e);
+            console.error(post);
+            console.error(fetchNpf(post));
           };
         };
       };
@@ -98,9 +133,8 @@ const main = async function () {
             ...nodes.filter(node => node.matches(postSelector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
           ].filter((value, index, array) => index === array.indexOf(value));
-          fixHeader(posts);
+          if (posts.length) fixHeader(posts);
         }
-        else return
       };
       const observer = new MutationObserver(mutations => {
         const nodes = mutations
@@ -115,17 +149,24 @@ const main = async function () {
           observer.observe(target, { childList: true, subtree: true });
           fixHeader(Array.from($a(postSelector)));
         });
-        console.log("dashboard fixed!");
+        console.log("headers fixed!");
       };
-      let style = document.createElement("div");
-      style.innerHTML = `
+      const style = $str(`
         <style>
           ${keyToCss("main")}${keyToCss("reblogRedesignEnabled")} { max-width: 625px !important; }
           ${keyToCss("tabsHeader")}${keyToCss("reblogRedesignEnabled")} { margin-left: -93px !important ;}
           ${keyToCss("mainContentWrapper")}${keyToCss("reblogRedesignEnabled")} { min-width: 890px !important; flex-basis: 890px !important; }
+
+          article header > ${keyToCss("avatar")} { display: none !important }
+
+          .__reblogIcon {
+            height: 14px;
+            display: inline-block;
+            transform: translateY(3px);
+            margin: 0 5px;
+          }
         </style>
-      `;
-      style = style.firstElementChild;
+      `);
       document.head.appendChild(style);
 
       unfuck();
@@ -141,9 +182,12 @@ const main = async function () {
     });
   });
 };
-const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+const getNonce = () => {
+  const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+  return nonce;
+}
 const script = $(`
-  <script id="__u" nonce="${nonce}">
+  <script id="__u" nonce="${getNonce()}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard();
   </script>
@@ -154,6 +198,7 @@ if ($("head").length === 0) {
     const nodes = newNodes.splice(0);
     if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
       const head = nodes.find(node => node.matches("head"));
+      script.attr("nonce", getNonce());
       $(head).append(script);
     }
   };
@@ -167,3 +212,4 @@ if ($("head").length === 0) {
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 } else $(document.head).append(script);
+if (script.attr("nonce") === "") console.error("empty script nonce attribute: script may not inject");
