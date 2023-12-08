@@ -167,7 +167,7 @@ const main = async function () {
           ${keyToCss("tabsHeader")}${keyToCss("reblogRedesignEnabled")} { margin-left: -93px !important ;}
           ${keyToCss("mainContentWrapper")}${keyToCss("reblogRedesignEnabled")} { min-width: 890px !important; flex-basis: 890px !important; }
 
-          article header > ${keyToCss("avatar")} { display: none !important }
+          [data-timeline]:not(${keyToCss("masonry")}) article header > ${keyToCss("avatar")} { display: none !important }
           article header ${keyToCss("communityLabel")} { display: none !important; }
 
           .__reblogIcon {

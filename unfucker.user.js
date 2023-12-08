@@ -497,7 +497,7 @@ const main = async function () {
             opacity: 0;
           }
 
-          article header > ${keyToCss("avatar")} { display: none !important }
+          [data-timeline]:not(${keyToCss("masonry")}) article header > ${keyToCss("avatar")} { display: none !important }
           article header ${keyToCss("communityLabel")} { display: none !important; }
           .__reblogIcon {
             height: 14px;
