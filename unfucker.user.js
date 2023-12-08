@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.5.0
+// @version      5.5.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -17,7 +17,7 @@
 'use strict';
 var $ = window.jQuery;
 const main = async function () {
-  const version = "5.5.0";
+  const version = "5.5.1";
   const match = [
     "",
     "dashboard",
@@ -496,6 +496,14 @@ const main = async function () {
             border-radius: var(--border-radius-small);
             opacity: 0;
           }
+
+          article header > ${keyToCss("avatar")} { display: none !important }
+          .__reblogIcon {
+            height: 14px;
+            display: inline-block;
+            transform: translateY(3px);
+            margin: 0 5px;
+          }
           
           .customLabelContainer[label="Follows You"] {
             color: rgb(var(--blue));
@@ -640,15 +648,6 @@ const main = async function () {
       }
       rgbToString = ({r, g, b}) => `${r},${g},${b}`;
 
-      const labelContainer = (label, icon, desc) => $str(`
-        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
-          ${label}
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: rgb(var(--${label === "Follows You" ? "blue" : "red"}))">
-            <use href="#managed-icon__${icon}"></use>
-          </svg>
-          <span class="customLabelInfo ${icon}">${desc}</span>
-        </div>
-      `);
       const fetchNpf = obj => {
         const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
         let fiber = obj[fiberKey];
@@ -662,6 +661,63 @@ const main = async function () {
           };
         };
       };
+
+      const reblogIcon = () => $str(`
+        <span class="__reblogIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);">
+            <use href="#managed-icon__reblog-compact"></use>
+          </svg>
+        </span>
+      `);
+      const fixHeader = posts => {
+        for (const post of posts) {  
+          try {
+            const { id } = fetchNpf(post);
+            post.id = `post${id}`;
+
+            const header = post.querySelector(keyToCss("header"));
+            let attribution = header.querySelector(keyToCss("attribution"));
+            const reblogParent = attribution.querySelector(keyToCss("targetWrapperInline")).cloneNode(true);
+            let rebloggedFrom = attribution.querySelector(keyToCss("rebloggedFromName"));
+
+            if (rebloggedFrom) {
+              rebloggedFrom = rebloggedFrom.cloneNode(true);
+            } else {
+              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
+              if (labels.length !== 0) {
+                rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
+                const classes = keyToClasses("rebloggedFromName");
+                rebloggedFrom.classList.add(...classes);
+                css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
+                const follow = rebloggedFrom.querySelector(keyToCss("followButton"));
+                if (follow) hide(follow);
+              }
+            }
+
+            attribution.innerHTML = "";
+            attribution.append(reblogParent);
+            if (rebloggedFrom) {
+              attribution.append(reblogIcon());
+              attribution.append(rebloggedFrom);
+            }
+          } catch (e) {
+            console.error("an error occurred processing a post header:", e);
+            console.error(post);
+            console.error(fetchNpf(post));
+          };
+        };
+      };
+
+      const labelContainer = (label, icon, desc) => $str(`
+        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
+          ${label}
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: rgb(var(--${label === "Follows You" ? "blue" : "red"}))">
+            <use href="#managed-icon__${icon}"></use>
+          </svg>
+          <span class="customLabelInfo ${icon}">${desc}</span>
+        </div>
+      `);
+
       const fetchPercentage = obj => {
         const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
         let fiber = obj[fiberKey];
@@ -685,31 +741,6 @@ const main = async function () {
             return notification;
           } else {
             fiber = fiber.return;
-          };
-        };
-      };
-      const fixHeader = posts => {
-        for (const post of posts) {
-          const { id } = fetchNpf(post);
-          post.id = `post${id}`;
-          const header = post.querySelector(`:scope header${keyToCss("header")}`);
-          if (!header.querySelector(`:scope ${keyToCss("rebloggedFromName")}`)
-          && header.querySelector(`:scope ${keyToCss("reblogIcon")}`)) {
-            try {
-              const follow = header.querySelector(`:scope ${keyToCss("followButton")}`);
-              if (follow) hide(follow);
-              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
-              const label = labels.item(labels.length - 1).cloneNode(true);
-              header.querySelector(`:scope ${keyToCss("reblogIcon")}`).after(label);
-              const classes = keyToClasses("rebloggedFromName")
-              label.classList.add(...classes);
-              css(label, { "display": "inline", "marginLeft": "5px" });
-              css(label.querySelector(`:scope ${keyToCss("attribution")}`), { "color": "rgba(var(--black),.65)" });
-            } catch (e) {
-              console.error("an error occurred processing a post header:", e);
-              console.error(post);
-              console.error(fetchNpf(post));
-            };
           };
         };
       };
@@ -1254,7 +1285,7 @@ const main = async function () {
                 <li>
                   <span>${configs[obj.name]}</span>
                   <div class="rangeInput">
-                    <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__cw" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
+                  <input class="configInput" type="range" id="__contentWidth" name="contentWidth" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences.contentWidth.value}">
                     <datalist id="__cw">
                     <option value="990" label="default"></option>
                     <option value="${windowWidth}" label="full width"></option>
@@ -1623,9 +1654,12 @@ const main = async function () {
     });
   });
 };
-const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+const getNonce = () => {
+  const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+  return nonce;
+}
 const script = $(`
-  <script id="__u" nonce="${nonce}">
+  <script id="__u" nonce="${getNonce()}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard();
   </script>
@@ -1636,6 +1670,7 @@ if ($("head").length === 0) {
     const nodes = newNodes.splice(0);
     if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
       const head = nodes.find(node => node.matches("head"));
+      script.attr("nonce", getNonce());
       $(head).append(script);
     }
   };
@@ -1649,3 +1684,4 @@ if ($("head").length === 0) {
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 } else $(document.head).append(script);
+if (script.attr("nonce") === "") console.error("empty script nonce attribute: script may not inject");
