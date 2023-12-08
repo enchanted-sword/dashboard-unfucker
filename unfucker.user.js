@@ -683,19 +683,23 @@ const main = async function () {
             if (rebloggedFrom) {
               rebloggedFrom = rebloggedFrom.cloneNode(true);
             } else {
-              const labels = post.querySelectorAll(`${keyToCss("username")} ${keyToCss("label")}`);
-              rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
-              const classes = keyToClasses("rebloggedFromName");
-              rebloggedFrom.classList.add(...classes);
-              css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
-              const follow = rebloggedFrom.querySelector(keyToCss("followButton"));
-              if (follow) hide(follow);
+              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
+              if (labels.length !== 0) {
+                rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
+                const classes = keyToClasses("rebloggedFromName");
+                rebloggedFrom.classList.add(...classes);
+                css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
+                const follow = rebloggedFrom.querySelector(keyToCss("followButton"));
+                if (follow) hide(follow);
+              }
             }
 
             attribution.innerHTML = "";
             attribution.append(reblogParent);
-            attribution.append(reblogIcon());
-            attribution.append(rebloggedFrom);
+            if (rebloggedFrom) {
+              attribution.append(reblogIcon());
+              attribution.append(rebloggedFrom);
+            }
           } catch (e) {
             console.error("an error occurred processing a post header:", e);
             console.error(post);
