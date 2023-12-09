@@ -280,6 +280,9 @@ const main = async function () {
     getUtilities().then(({ keyToCss, keyToClasses, tr }) => {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
+      if (Math.abs(configPreferences.contentPositioning.value) > safeOffset) configPreferences.contentPositioning.value = 0;
+      if (configPreferences.contentWidth.value < 990 || configPreferences.contentWidth.value > windowWidth) configPreferences.contentWidth.value = 990;
+      if (configPreferences.messagingScale.value < 1 || configPreferences.messagingScale.value > 2) configPreferences.messagingScale = 1;
 
       const postSelector = "[tabindex='-1'][data-id] article";
       const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
@@ -1299,7 +1302,7 @@ const main = async function () {
                 <li>
                   <span>${configs[obj.name]}</span>
                   <div class="rangeInput">
-                    <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__mss" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
+                  <input class="configInput" type="range" id="__messagingScale" name="messagingScale" list="__mss" min="1" max ="2" step="0.05" value="${configPreferences.messagingScale.value}">
                     <datalist id="__mss">
                       <option value="1" label="1x"></option>
                       <option value="1.5" label="1.5x"></option>
