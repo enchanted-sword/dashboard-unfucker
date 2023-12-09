@@ -16,7 +16,8 @@
 
 'use strict';
 var $ = window.jQuery;
-const main = async function () {
+const main = async function (nonce) {
+  console.log(nonce);
   const version = "5.5.1";
   const match = [
     "",
@@ -165,7 +166,7 @@ const main = async function () {
     return { keyToClasses, keyToCss, tr };
   };
   const style = $str(`
-    <style>
+    <style nonce="${nonce}">
       #adBanner + div:not(#glass-container) > div:first-child {
         z-index: 100;
         border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
@@ -935,6 +936,7 @@ const main = async function () {
         build (name, on, off, state) {
           const style = document.createElement("style");
           style.id = name;
+          style.nonce = nonce;
           document.head.append(style);
           this.styles.set(name, { on, off });
           this.toggle(name, state);
@@ -942,6 +944,7 @@ const main = async function () {
         buildScalable (name, on, off, state, num) {
           const style = document.createElement("style");
           style.id = name;
+          style.nonce = nonce;
           document.head.append(style);
           this.styles.set(name, { on, off });
           this.toggleScalable(name, state, num);
@@ -1665,13 +1668,14 @@ const main = async function () {
   });
 };
 const getNonce = () => {
-  const { nonce } = [...document.scripts].find(script => script.getAttributeNames().includes("nonce")) || "";
+  const { nonce } = [...document.scripts].find(script => script.nonce) || "";
+  if (nonce === "") console.error("empty script nonce attribute: script may not inject");
   return nonce;
 }
-const script = $(`
+const script = () => $(`
   <script id="__u" nonce="${getNonce()}">
     const unfuckDashboard = ${main.toString()};
-    unfuckDashboard();
+    unfuckDashboard("${getNonce()}");
   </script>
 `);
 if ($("head").length === 0) {
@@ -1680,8 +1684,7 @@ if ($("head").length === 0) {
     const nodes = newNodes.splice(0);
     if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
       const head = nodes.find(node => node.matches("head"));
-      script.attr("nonce", getNonce());
-      $(head).append(script);
+      $(head).append(script());
     }
   };
   const observer = new MutationObserver(mutations => {
@@ -1693,5 +1696,4 @@ if ($("head").length === 0) {
     findHead();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-} else $(document.head).append(script);
-if (script.attr("nonce") === "") console.error("empty script nonce attribute: script may not inject");
+} else $(document.head).append(script());

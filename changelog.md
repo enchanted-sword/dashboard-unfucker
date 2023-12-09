@@ -1,9 +1,5 @@
 # Changelog
 
-## v5.5.2
-- Minor header fixes for specific cases
-- Extra fallback for out-of-bounds range inputs
-
 ## v5.5.1
 - Fixed a case where race conditions could cause the script to be injected without a nonce
 - Fixed the content width slider having a negative lower bound
