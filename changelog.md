@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.5.2
+- Minor header fixes for specific cases
+- Extra fallback for out-of-bounds range inputs
+- Set notes on masonry view posts to properly hide the word "notes" (for space reasons, the unmodified layout does this as well)
+- Use nonces on style tags
+
 ## v5.5.1
 - Fixed a case where race conditions could cause the script to be injected without a nonce
 - Fixed the content width slider having a negative lower bound
