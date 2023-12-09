@@ -289,6 +289,7 @@ const main = async function () {
       const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
       const conversationSelector = "[data-skip-glass-focus-trap]";
       const carouselCellSelector = `[data-cell-id] ${keyToCss("tagCard")}, [data-cell-id] ${keyToCss("blogRecommendation")}, [data-cell-id] ${keyToCss("tagChicletLink")}`;
+      const masonryNotesSelector = `[data-timeline]${keyToCss("masonry")} article ${keyToCss("formattedNoteCount")}`;
 
       const newNodes = [];
       const target = document.getElementById("root");
@@ -710,6 +711,10 @@ const main = async function () {
             console.error(fetchNpf(post));
           };
         };
+      };
+
+      const fixMasonryNotes = noteCounts => {
+        for (const noteCount of noteCounts) noteCount.innerHTML = `<span class="${keyToClasses("blackText").join(" ")}">${noteCount.querySelector("span").innerText}<span>`;
       };
 
       const labelContainer = (label, icon, desc) => $str(`
@@ -1338,6 +1343,7 @@ const main = async function () {
         const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
 
         mutationManager.start(fixHeader, postSelector);
+        mutationManager.start(fixMasonryNotes, masonryNotesSelector);
         waitFor(containerSelector).then(() => {
           if (state.routeName === "peepr-route" && !matchPathname()) $(containerSelector).setAttribute("data-blog-container", "");
         });
