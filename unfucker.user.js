@@ -12,96 +12,96 @@
 // @run-at       document-start
 // ==/UserScript==
 
-/* globals tumblr */
-
 'use strict';
-var $ = window.jQuery;
+const $ = window.jQuery;
+
 const main = async function (nonce) {
-  const version = "5.5.2";
+  const version = '5.5.2';
   const match = [
-    "",
-    "dashboard",
-    "settings",
-    "blog",
-    "domains",
-    "search",
-    "likes",
-    "following",
-    "inbox",
-    "tagged",
-    "explore",
-    "reblog"
+    '',
+    'dashboard',
+    'settings',
+    'blog',
+    'domains',
+    'search',
+    'likes',
+    'following',
+    'inbox',
+    'tagged',
+    'explore',
+    'reblog'
   ];
   let state = window.___INITIAL_STATE___;
   let configPreferences = {
     lastVersion: version,
-    hideDashboardTabs: { advanced: false, type: "checkbox", value: "" },
-    collapseCaughtUp: { advanced: false, type: "checkbox", value: "" },
-    hideRecommendedBlogs: { advanced: false, type: "checkbox", value: "" },
-    hideRecommendedTags: { advanced: false, type: "checkbox", value: "" },
-    hideTumblrRadar: { advanced: false, type: "checkbox", value: "" },
-    hideExplore: { advanced: false, type: "checkbox", value: "" },
-    hideTumblrShop: { advanced: false, type: "checkbox", value: "checked" },
-    hideBadges: { advanced: false, type: "checkbox", value: "" },
-    highlightLikelyBots: { advanced: false, type: "checkbox", value: "" },
-    showFollowingLabel: { advanced: false, type: "checkbox", value: "" },
-    contentPositioning: { advanced: false, type: "range", value: 0},
-    contentWidth: { advanced: false, type: "range", value: 990},
-    messagingScale: { advanced: false, type: "range", value: 1},
-    disableTumblrLive: { advanced: true, type: "checkbox", value: "checked" },
-    disableTumblrDomains: { advanced: true, type: "checkbox", value: "checked" },
-    revertActivityFeedRedesign: { advanced: false, type: "checkbox", value: "checked" },
+    hideDashboardTabs: { advanced: false, type: 'checkbox', value: '' },
+    collapseCaughtUp: { advanced: false, type: 'checkbox', value: '' },
+    hideRecommendedBlogs: { advanced: false, type: 'checkbox', value: '' },
+    hideRecommendedTags: { advanced: false, type: 'checkbox', value: '' },
+    hideTumblrRadar: { advanced: false, type: 'checkbox', value: '' },
+    hideExplore: { advanced: false, type: 'checkbox', value: '' },
+    hideTumblrShop: { advanced: false, type: 'checkbox', value: 'checked' },
+    hideBadges: { advanced: false, type: 'checkbox', value: '' },
+    highlightLikelyBots: { advanced: false, type: 'checkbox', value: '' },
+    showFollowingLabel: { advanced: false, type: 'checkbox', value: '' },
+    contentPositioning: { advanced: false, type: 'range', value: 0 },
+    contentWidth: { advanced: false, type: 'range', value: 990 },
+    messagingScale: { advanced: false, type: 'range', value: 1 },
+    disableTumblrLive: { advanced: true, type: 'checkbox', value: 'checked' },
+    disableTumblrDomains: { advanced: true, type: 'checkbox', value: 'checked' },
+    revertActivityFeedRedesign: { advanced: false, type: 'checkbox', value: 'checked' },
     revertMessagingRedesign: {
       advanced: false,
-      type: "checkbox",
-      value: "checked",
-      style: "1",
-      messageColor: "f0f0f0",
-      backgroundColor: "ffffff",
-      textColor: "121212"
+      type: 'checkbox',
+      value: 'checked',
+      style: '1',
+      messageColor: 'f0f0f0',
+      backgroundColor: 'ffffff',
+      textColor: '121212'
     },
-    revertSearchbarRedesign: { advanced: true, type: "checkbox", value: "checked" },
-    enableCustomTabs: { advanced: true, type: "checkbox", value: "" },
-    enableReblogPolls: { advanced: true, type: "checkbox", value: "" },
-    disableTagNag: { advanced: true, type: "checkbox", value: "checked" },
-    reAddHomeNotifications: { advanced: true, type: "checkbox", value: "checked" },
-    displayVoteCounts: { advanced: false, type: "checkbox", value: "" },
-    showNsfwPosts: { advanced: true, type: "checkbox", value: "" },
-    disableScrollingAvatars: { advanced: false, type: "checkbox", value: ""}
+    revertSearchbarRedesign: { advanced: true, type: 'checkbox', value: 'checked' },
+    enableCustomTabs: { advanced: true, type: 'checkbox', value: '' },
+    enableReblogPolls: { advanced: true, type: 'checkbox', value: '' },
+    disableTagNag: { advanced: true, type: 'checkbox', value: 'checked' },
+    reAddHomeNotifications: { advanced: true, type: 'checkbox', value: 'checked' },
+    displayVoteCounts: { advanced: false, type: 'checkbox', value: '' },
+    showNsfwPosts: { advanced: true, type: 'checkbox', value: '' },
+    disableScrollingAvatars: { advanced: false, type: 'checkbox', value: '' }
   };
-  let pathname = location.pathname.split("/")[1];
+  let pathname = window.location.pathname.split('/')[1];
   const $a = selector => document.querySelectorAll(selector);
   const $ = selector => document.querySelector(selector);
   const $str = str => {
-    let elem = document.createElement("div");
+    let elem = document.createElement('div');
     elem.innerHTML = str;
     elem = elem.firstElementChild;
     return elem;
   };
-  const hide = elem => {
-    if (elem.length) elem.forEach(item => item.style.display = "none");
-    else elem.style.display = "none";
+  const hide = function (elem) {
+    if (elem.length) elem.forEach(function (item) { item.style.display = 'none'; });
+    else elem.style.display = 'none';
   };
-  const show = elem => {
-    if (elem.length) elem.forEach(item => item.style.display = null);
+  const show = function (elem) {
+    if (elem.length) elem.forEach(function (item) { item.style.display = null; });
     else elem.style.display = null;
   };
-  const toggle = (elem, toggle = "ignore") => {
-    if (!elem || elem.length === 0) return;
-    else if (toggle === "ignore") {
-      elem.style.display === "none" ?
-        show(elem)
-        : hide(elem);
-    } else {
-      toggle === true ?
-        show(elem)
-        : hide(elem);
+  const toggle = (elem, toggle = 'ignore') => {
+    if (elem & elem.length !== 0) {
+      if (toggle === 'ignore') {
+        elem.style.display === 'none'
+          ? show(elem)
+          : hide(elem);
+      } else {
+        toggle === true
+          ? show(elem)
+          : hide(elem);
+      }
     }
   };
   const css = (elem, properties = {}) => {
-    for (let property in properties) {
+    for (const property in properties) {
       elem.style[property] = properties[property];
-    };
+    }
   };
   const find = (nodeList, selector) => {
     let elem;
@@ -113,54 +113,54 @@ const main = async function (nonce) {
     return elem;
   };
   const remove = (nodeList) => {
-    nodeList.forEach(currentValue => {currentValue.remove()})
-  }
+    nodeList.forEach(currentValue => { currentValue.remove(); });
+  };
   const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));
   const matchPathname = () => match.includes(pathname);
-  const isDashboard = () => ["dashboard", ""].includes(pathname);
-  const notMasonry = () => !["search", "tagged", "explore"].includes(pathname);
-  const storageAvailable = type => { //thanks mdn web docs!
+  const isDashboard = () => ['dashboard', ''].includes(pathname);
+  const notMasonry = () => !['search', 'tagged', 'explore'].includes(pathname);
+  const storageAvailable = type => { // thanks mdn web docs!
     let storage;
     try {
       storage = window[type];
-      const x = "__storage_test__";
+      const x = '__storage_test__';
       storage.setItem(x, x);
       storage.removeItem(x);
       return true;
     } catch (e) {
       return (
         e instanceof DOMException && (
-          e.code === 22
-          || e.code === 1014
-          || e.name === "QuotaExceededError"
-          || e.name === "NS_ERROR_DOM_QUOTA_REACHED"
-          ) &&
+          e.code === 22 ||
+          e.code === 1014 ||
+          e.name === 'QuotaExceededError' ||
+          e.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+        ) &&
           storage &&
           storage.length !== 0
       );
     }
   };
   const modifyObfuscatedFeatures = (obfuscatedFeatures, featureSet) => {
-    let obf = JSON.parse(atob(obfuscatedFeatures));
-    for (let x of featureSet) {
+    const obf = JSON.parse(atob(obfuscatedFeatures));
+    for (const x of featureSet) {
       obf[x.name] = x.value;
     }
     return btoa(JSON.stringify(obf));
   };
-  const waitFor = (selector, scope = document, retried = 0,) => new Promise((resolve) => {
-    if (scope.querySelector(selector)) { resolve() } else if (retried < 50) { requestAnimationFrame(() => waitFor(selector, scope, retried + 1).then(resolve)) }
+  const waitFor = (selector, scope = document, retried = 0) => new Promise((resolve) => {
+    if (scope.querySelector(selector)) { resolve(); } else if (retried < 50) { window.requestAnimationFrame(() => waitFor(selector, scope, retried + 1).then(resolve)); }
   });
   const updatePreferences = () => {
-    localStorage.setItem("configPreferences", JSON.stringify(configPreferences))
+    window.localStorage.setItem('configPreferences', JSON.stringify(configPreferences));
   };
   const getUtilities = async function () {
     let retries = 0;
-    while (retries++ < 1000 && (typeof window.tumblr === "undefined" || typeof window.tumblr.getCssMap === "undefined")) {
+    while (retries++ < 1000 && (typeof window.tumblr === 'undefined' || typeof window.tumblr.getCssMap === 'undefined')) {
       await new Promise((resolve) => setTimeout(resolve));
     }
     const cssMap = await window.tumblr.getCssMap();
     const keyToClasses = (...keys) => keys.flatMap(key => cssMap[key]).filter(Boolean);
-    const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(", ")})`;
+    const keyToCss = (...keys) => `:is(${keyToClasses(...keys).map(className => `.${className}`).join(', ')})`;
     const tr = string => `${window.tumblr.languageData.translations[string] || string}`;
     return { keyToClasses, keyToCss, tr };
   };
@@ -191,9 +191,9 @@ const main = async function (nonce) {
       console.info(`modified data fetched from ${input}`);
       content = JSON.parse(content);
       const elements = content.response.timeline.elements;
-      elements.forEach(post => post.isNsfw = false);
+      elements.forEach(function (post) { post.isNsfw = false; });
       content = JSON.stringify(content);
-    };
+    }
     return new Response(content, {
       status: response.status,
       statusText: response.statusText,
@@ -201,82 +201,82 @@ const main = async function (nonce) {
     });
   };
 
-  if (storageAvailable("localStorage")) {
-    if (!localStorage.getItem("configPreferences") || Array.isArray(JSON.parse(localStorage.getItem("configPreferences")))) {
+  if (storageAvailable('localStorage')) {
+    if (!window.localStorage.getItem('configPreferences') || Array.isArray(JSON.parse(window.localStorage.getItem('configPreferences')))) {
       updatePreferences();
-      console.log("initialized preferences");
+      console.log('initialized preferences');
     } else {
-      const currentPreferences = JSON.parse(localStorage.getItem("configPreferences"));
+      const currentPreferences = JSON.parse(window.localStorage.getItem('configPreferences'));
       const currentKeys = Object.keys(currentPreferences);
       for (const key in configPreferences) {
         if (currentKeys.includes(key)) {
-          if (typeof configPreferences[key] === "object") {
-            Object.keys(configPreferences[key]).forEach(val => {
+          if (typeof configPreferences[key] === 'object') {
+            Object.keys(configPreferences[key]).forEach(function (val) {
               if (!(val in currentPreferences[key])) {
                 currentPreferences[key][val] = configPreferences[key][val];
               }
             });
           }
           configPreferences[key] = currentPreferences[key];
-        };
-      };
+        }
+      }
       updatePreferences();
-    };
-  };
+    }
+  }
 
   const modifyInitialTimeline = (obj, context) => {
     if (!obj || !configPreferences.showNsfwPosts.value) return obj;
-    else if (context === "dashboard") {
-      obj.dashboardTimeline.response.timeline.elements.forEach(post => post.isNsfw = false);
-    } else if (context === "peepr") {
-      obj.initialTimeline.objects.forEach(post => post.isNsfw = false);
-    };
+    else if (context === 'dashboard') {
+      obj.dashboardTimeline.response.timeline.elements.forEach(function (post) { post.isNsfw = false; });
+    } else if (context === 'peepr') {
+      obj.initialTimeline.objects.forEach(function (post) { post.isNsfw = false; });
+    }
     console.log(obj);
     return obj;
   };
 
   const featureSet = [
-    {"name": "redpopDesktopVerticalNav", "value": false},
-    {"name": "liveCustomMarqueeData", "value": !configPreferences.disableTumblrLive.value},
-    {"name": "liveStreaming", "value": !configPreferences.disableTumblrLive.value},
-    {"name": "liveStreamingUserAllowed", "value": !configPreferences.disableTumblrLive.value},
-    {"name": "liveStreamingUserEnabled", "value": !configPreferences.disableTumblrLive.value},
-    {"name": "liveStreamingWeb", "value": !configPreferences.disableTumblrLive.value},
-    {"name": "liveSteamingWebPayments", "value": !configPreferences.disableTumblrLive.value},
-    {"name": "domainsSettings", "value": !configPreferences.disableTumblrDomains.value},
-    {"name": "improvedSearchTypeahead", "value": !configPreferences.revertSearchbarRedesign.value},
-    {"name": "configurableTabbedDash", "value": configPreferences.enableCustomTabs.value?true:false},
-    {"name": "allowAddingPollsToReblogs", "value": configPreferences.enableReblogPolls.value?true:false},
-    {"name": "tagSuggestionTwoStepDialog", "value": !configPreferences.disableTagNag.value},
-    {"name": "redpopUnreadNotificationsOnTab", "value": !configPreferences.reAddHomeNotifications.value},
-    {"name": "reblogRedesignNew", "value": false},
-    {"name": "redpopDesktopVerticalNav", "value": false},
-    {"name": "crowdsignalPollsNpf", "value": true},
-    {"name": "crowdsignalPollsCreate", "value": true},
-    {"name": "adFreeCtaBanner", "value": false}
+    { name: 'redpopDesktopVerticalNav', value: false },
+    { name: 'liveCustomMarqueeData', value: !configPreferences.disableTumblrLive.value },
+    { name: 'liveStreaming', value: !configPreferences.disableTumblrLive.value },
+    { name: 'liveStreamingUserAllowed', value: !configPreferences.disableTumblrLive.value },
+    { name: 'liveStreamingUserEnabled', value: !configPreferences.disableTumblrLive.value },
+    { name: 'liveStreamingWeb', value: !configPreferences.disableTumblrLive.value },
+    { name: 'liveSteamingWebPayments', value: !configPreferences.disableTumblrLive.value },
+    { name: 'domainsSettings', value: !configPreferences.disableTumblrDomains.value },
+    { name: 'improvedSearchTypeahead', value: !configPreferences.revertSearchbarRedesign.value },
+    { name: 'configurableTabbedDash', value: !!configPreferences.enableCustomTabs.value },
+    { name: 'allowAddingPollsToReblogs', value: !!configPreferences.enableReblogPolls.value },
+    { name: 'tagSuggestionTwoStepDialog', value: !configPreferences.disableTagNag.value },
+    { name: 'redpopUnreadNotificationsOnTab', value: !configPreferences.reAddHomeNotifications.value },
+    { name: 'reblogRedesignNew', value: false },
+    { name: 'redpopDesktopVerticalNav', value: false },
+    { name: 'crowdsignalPollsNpf', value: true },
+    { name: 'crowdsignalPollsCreate', value: true },
+    { name: 'adFreeCtaBanner', value: false }
   ];
-  Object.defineProperty(window, "___INITIAL_STATE___", { // thanks twilight-sparkle-irl!
-    set(x) {
+  Object.defineProperty(window, '___INITIAL_STATE___', { // thanks twilight-sparkle-irl!
+    set (x) {
       state = x;
     },
-    get() {
+    get () {
       try {
         return {
           ...state,
-          Dashboard: modifyInitialTimeline(state.Dashboard, "dashboard"),
-          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, "peepr"),
+          Dashboard: modifyInitialTimeline(state.Dashboard, 'dashboard'),
+          PeeprRoute: modifyInitialTimeline(state.PeeprRoute, 'peepr'),
           obfuscatedFeatures: modifyObfuscatedFeatures(state.obfuscatedFeatures, featureSet)
         };
       } catch (e) {
-        console.error("Failed to modify features", e);
+        console.error('Failed to modify features', e);
       }
       return state;
     },
     enumerable: true,
-    configurable: true,
+    configurable: true
   });
   document.head.appendChild(style);
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener('DOMContentLoaded', () => {
     getUtilities().then(({ keyToCss, keyToClasses, tr }) => {
       let windowWidth = window.innerWidth;
       let safeOffset = (windowWidth - 1000) / 2;
@@ -285,14 +285,14 @@ const main = async function (nonce) {
       if (configPreferences.messagingScale.value < 1 || configPreferences.messagingScale.value > 2) configPreferences.messagingScale = 1;
 
       const postSelector = "[tabindex='-1'][data-id] article";
-      const noteSelector = `[aria-label="${tr("Notification")}"],[aria-label="${tr("Unread Notification")}"]`;
+      const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
-      const conversationSelector = "[data-skip-glass-focus-trap]";
-      const carouselCellSelector = `[data-cell-id] ${keyToCss("tagCard")}, [data-cell-id] ${keyToCss("blogRecommendation")}, [data-cell-id] ${keyToCss("tagChicletLink")}`;
-      const masonryNotesSelector = `[data-timeline]${keyToCss("masonry")} article ${keyToCss("formattedNoteCount")}`;
+      const conversationSelector = '[data-skip-glass-focus-trap]';
+      const carouselCellSelector = `[data-cell-id] ${keyToCss('tagCard')}, [data-cell-id] ${keyToCss('blogRecommendation')}, [data-cell-id] ${keyToCss('tagChicletLink')}`;
+      const masonryNotesSelector = `[data-timeline]${keyToCss('masonry')} article ${keyToCss('formattedNoteCount')}`;
 
       const newNodes = [];
-      const target = document.getElementById("root");
+      const target = document.getElementById('root');
 
       const styleElement = $str(`
         <style id='__s'>
@@ -501,8 +501,8 @@ const main = async function (nonce) {
             opacity: 0;
           }
 
-          [data-timeline]:not(${keyToCss("masonry")}) article header > ${keyToCss("avatar")} { display: none !important }
-          article header ${keyToCss("communityLabel")} { display: none !important; }
+          [data-timeline]:not(${keyToCss('masonry')}) article header > ${keyToCss('avatar')} { display: none !important }
+          article header ${keyToCss('communityLabel')} { display: none !important; }
           .__reblogIcon {
             height: 14px;
             display: inline-block;
@@ -554,37 +554,37 @@ const main = async function (nonce) {
           }
 
           #tumblr { --dashboard-tabs-header-height: 0px !important; }
-          ${keyToCss("navItem")}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
-          ${keyToCss("bluespaceLayout")} > ${keyToCss("container")} { position: relative; }
-          [data-blog-container], [data-blog-container] ${keyToCss("layout")}, [data-blog-container] ${keyToCss("sidebar")},
-          [data-blog-container] ${keyToCss("sidebarTopContainer")} { width: fit-content !important; }
-          ${keyToCss("main")} {
+          ${keyToCss('navItem')}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
+          ${keyToCss('bluespaceLayout')} > ${keyToCss('container')} { position: relative; }
+          [data-blog-container], [data-blog-container] ${keyToCss('layout')}, [data-blog-container] ${keyToCss('sidebar')},
+          [data-blog-container] ${keyToCss('sidebarTopContainer')} { width: fit-content !important; }
+          ${keyToCss('main')} {
             position: relative;
             flex: 1;
             min-width: 0;
             max-width: none !important;
           }
-          ${keyToCss("main")}:not(${keyToCss("body")} > ${keyToCss("main")}) {
+          ${keyToCss('main')}:not(${keyToCss('body')} > ${keyToCss('main')}) {
             top: -100px;
             padding-top: 100px;
           }
-          ${keyToCss("body")} > header,
-          ${keyToCss("body")} > ${keyToCss("toolbar")} {
+          ${keyToCss('body')} > header,
+          ${keyToCss('body')} > ${keyToCss('toolbar')} {
             z-index: 1;
           }
-          ${keyToCss("tabsHeader")} {
+          ${keyToCss('tabsHeader')} {
             top: 0;
             position: relative;
           }
-          ${keyToCss("postColumn")} { max-width: calc(100% - 85px); }
-          ${keyToCss("post")}, ${keyToCss("post")} > * { max-width: 100%; }
-          ${keyToCss("cell")},
-          ${keyToCss("link")},
-          ${keyToCss("reblog")},
-          ${keyToCss("videoBlock")},
-          ${keyToCss("videoBlock")} iframe,
-          ${keyToCss("audioBlock")} { max-width: none !important; }
-          ${keyToCss("queueSettings")} {
+          ${keyToCss('postColumn')} { max-width: calc(100% - 85px); }
+          ${keyToCss('post')}, ${keyToCss('post')} > * { max-width: 100%; }
+          ${keyToCss('cell')},
+          ${keyToCss('link')},
+          ${keyToCss('reblog')},
+          ${keyToCss('videoBlock')},
+          ${keyToCss('videoBlock')} iframe,
+          ${keyToCss('audioBlock')} { max-width: none !important; }
+          ${keyToCss('queueSettings')} {
             width: calc(100% - 85px);
             box-sizing: border-box;
           }
@@ -592,69 +592,71 @@ const main = async function (nonce) {
           [data-timeline] article { border-radius: 3px !important; }
           article header { border-radius: 3px 3px 0 0 !important; }
 
-          ${keyToCss("toastHolder")} { display: none; }
+          ${keyToCss('toastHolder')} { display: none; }
 
-          aside > button${keyToCss("expandOnHover")} { display: none !important; }
+          aside > button${keyToCss('expandOnHover')} { display: none !important; }
         </style>
       `);
 
       const untitledStrings = [
-        "Untitled", //en
-        "Sans titre", //fr
-        "Intitulado", //es
-        "Ohne titel", //de
-        "Senza titolo", //it
-        "無題", //jp
-        "Başlıksız", //tr
-        "Без названия", //ru
-        "Bez tytułu", //pl
-        "Sem título", //pt
-        "Ongetiteld", //nl
-        "무제", //ko
-        "无标题", //zh
-        "Tanpa judul", //id
-        "शीर्षकहीन", //hi
+        'Untitled', // en
+        'Sans titre', // fr
+        'Intitulado', // es
+        'Ohne titel', // de
+        'Senza titolo', // it
+        '無題', // jp
+        'Başlıksız', // tr
+        'Без названия', // ru
+        'Bez tytułu', // pl
+        'Sem título', // pt
+        'Ongetiteld', // nl
+        '무제', // ko
+        '无标题', // zh
+        'Tanpa judul', // id
+        'शीर्षकहीन' // hi
       ];
 
-      const hexToRgb = (hex = "") => {
+      const hexToRgb = (hex = '') => {
         hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => {
           return r + r + g + g + b + b;
         });
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16)
-        } : null;
-      }              
-      const luminance = ({r, g, b}) => {
+        return result
+          ? {
+              r: parseInt(result[1], 16),
+              g: parseInt(result[2], 16),
+              b: parseInt(result[3], 16)
+            }
+          : null;
+      };
+      const luminance = ({ r, g, b }) => {
         const a = [r, g, b].map(v => {
           v /= 255;
           return v <= 0.03928
             ? v / 12.92
-          : Math.pow((v + 0.055) / 1.055, 2.4);
+            : Math.pow((v + 0.055) / 1.055, 2.4);
         });
         return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-      }
+      };
       const ratio = (lum1, lum2) => lum1 > lum2 ? ((lum2 + 0.05) / (lum1 + 0.05)) : ((lum1 + 0.05) / (lum2 + 0.05));
       const contrast = (hex1, hex2) => {
         const lum1 = luminance(hexToRgb(hex1));
         const lum2 = luminance(hexToRgb(hex2));
         return ratio(lum1, lum2);
-      }
+      };
       const contrastBW = hex => {
         const lum = luminance(hexToRgb(hex));
         const lumBlk = luminance({ r: 12, g: 12, b: 12 });
         const lumWht = luminance({ r: 255, g: 255, b: 255 });
         const ratioBlk = ratio(lum, lumBlk);
         const ratioWht = ratio(lum, lumWht);
-        if (ratioBlk < ratioWht) return "12,12,12";
-        else return "255,255,255";
-      }
-      rgbToString = ({r, g, b}) => `${r},${g},${b}`;
+        if (ratioBlk < ratioWht) return '12,12,12';
+        else return '255,255,255';
+      };
+      const rgbToString = ({ r, g, b }) => `${r},${g},${b}`;
 
       const fetchNpf = obj => {
-        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        const fiberKey = Object.keys(obj).find(key => key.startsWith('__reactFiber'));
         let fiber = obj[fiberKey];
 
         while (fiber !== null) {
@@ -663,8 +665,8 @@ const main = async function (nonce) {
             return timelineObject;
           } else {
             fiber = fiber.return;
-          };
-        };
+          }
+        }
       };
 
       const reblogIcon = () => $str(`
@@ -675,52 +677,52 @@ const main = async function (nonce) {
         </span>
       `);
       const fixHeader = posts => {
-        for (const post of posts) {  
+        for (const post of posts) {
           try {
             const { id } = fetchNpf(post);
             post.id = `post${id}`;
 
-            const header = post.querySelector("header");
-            let attribution = header.querySelector(keyToCss("attribution"));
-            const reblogParent = attribution.querySelector(keyToCss("targetWrapperInline")).cloneNode(true);
-            let rebloggedFrom = attribution.querySelector(keyToCss("rebloggedFromName"));
+            const header = post.querySelector('header');
+            const attribution = header.querySelector(keyToCss('attribution'));
+            const reblogParent = attribution.querySelector(keyToCss('targetWrapperInline')).cloneNode(true);
+            let rebloggedFrom = attribution.querySelector(keyToCss('rebloggedFromName'));
 
             if (rebloggedFrom) {
               rebloggedFrom = rebloggedFrom.cloneNode(true);
             } else {
-              const labels = post.querySelectorAll(`:scope ${keyToCss("username")} ${keyToCss("label")}`);
+              const labels = post.querySelectorAll(`:scope ${keyToCss('username')} ${keyToCss('label')}`);
               if (labels.length !== 0) {
                 rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
-                const classes = keyToClasses("rebloggedFromName");
+                const classes = keyToClasses('rebloggedFromName');
                 rebloggedFrom.classList.add(...classes);
-                css(rebloggedFrom.querySelector(keyToCss("attribution")), { "color": "rgba(var(--black),.65)" });
-                const follow = rebloggedFrom.querySelector(keyToCss("followButton"));
+                css(rebloggedFrom.querySelector(keyToCss('attribution')), { color: 'rgba(var(--black),.65)' });
+                const follow = rebloggedFrom.querySelector(keyToCss('followButton'));
                 if (follow) hide(follow);
               }
             }
 
-            attribution.innerHTML = "";
+            attribution.innerHTML = '';
             attribution.append(reblogParent);
             if (rebloggedFrom) {
               attribution.append(reblogIcon());
               attribution.append(rebloggedFrom);
             }
           } catch (e) {
-            console.error("an error occurred processing a post header:", e);
+            console.error('an error occurred processing a post header:', e);
             console.error(post);
             console.error(fetchNpf(post));
-          };
-        };
+          }
+        }
       };
 
       const fixMasonryNotes = noteCounts => {
-        for (const noteCount of noteCounts) noteCount.innerHTML = `<span class="${keyToClasses("blackText").join(" ")}">${noteCount.querySelector("span").innerText}<span>`;
+        for (const noteCount of noteCounts) noteCount.innerHTML = `<span class="${keyToClasses('blackText').join(' ')}">${noteCount.querySelector('span').innerText}<span>`;
       };
 
       const labelContainer = (label, icon, desc) => $str(`
-        <div class="customLabelContainer ${keyToClasses("generalLabelContainer").join(" ")}" label="${label}" style="margin-left: 5px;">
+        <div class="customLabelContainer ${keyToClasses('generalLabelContainer').join(' ')}" label="${label}" style="margin-left: 5px;">
           ${label}
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses("secondaryIconContainer").join(" ")}" role="presentation" style="--icon-color-primary: rgb(var(--${label === "Follows You" ? "blue" : "red"}))">
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses('secondaryIconContainer').join(' ')}" role="presentation" style="--icon-color-primary: rgb(var(--${label === 'Follows You' ? 'blue' : 'red'}))">
             <use href="#managed-icon__${icon}"></use>
           </svg>
           <span class="customLabelInfo ${icon}">${desc}</span>
@@ -728,7 +730,7 @@ const main = async function (nonce) {
       `);
 
       const fetchPercentage = obj => {
-        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        const fiberKey = Object.keys(obj).find(key => key.startsWith('__reactFiber'));
         let fiber = obj[fiberKey];
 
         while (fiber !== null) {
@@ -737,11 +739,11 @@ const main = async function (nonce) {
             return percentage;
           } else {
             fiber = fiber.return;
-          };
-        };
+          }
+        }
       };
       const fetchNote = obj => {
-        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+        const fiberKey = Object.keys(obj).find(key => key.startsWith('__reactFiber'));
         let fiber = obj[fiberKey];
 
         while (fiber !== null) {
@@ -750,50 +752,50 @@ const main = async function (nonce) {
             return notification;
           } else {
             fiber = fiber.return;
-          };
-        };
+          }
+        }
       };
       const scanNotes = notes => {
         for (const note of notes) {
           try {
             const { followingYou, mutuals, type, fromTumblelogUuid } = fetchNote(note);
-            if (configPreferences.highlightLikelyBots.value && type === "follower") {
+            if (configPreferences.highlightLikelyBots.value && type === 'follower') {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
                 const { title, name, posts, likes } = response.response.blog;
-                if ((posts === 0 && untitledStrings.includes(title))
-                || (likes === 0 && untitledStrings.includes(title))
-                || (name === title && posts === 1)) {
-                  hide(note.querySelector(".customLabelContainer"));
-                  css(note, { "backgroundColor": "rgba(255,37,47,.15)" });
-                  note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Possible Bot", "warning-circle", "This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker."));
-                };
+                if ((posts === 0 && untitledStrings.includes(title)) ||
+                (likes === 0 && untitledStrings.includes(title)) ||
+                (name === title && posts === 1)) {
+                  hide(note.querySelector('.customLabelContainer'));
+                  css(note, { backgroundColor: 'rgba(255,37,47,.15)' });
+                  note.querySelector(keyToCss('blogLinkUserAttribution')).append(labelContainer('Possible Bot', 'warning-circle', 'This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker.'));
+                }
               });
-            };
-            if (configPreferences.showFollowingLabel.value && followingYou && !mutuals && !note.querySelector(".customLabelContainer")) {
-              note.querySelector(keyToCss("blogLinkUserAttribution")).append(labelContainer("Follows You", "profile-checkmark", "This blog follows you. This feature is a component of dashboard unfucker."));
-            };
+            }
+            if (configPreferences.showFollowingLabel.value && followingYou && !mutuals && !note.querySelector('.customLabelContainer')) {
+              note.querySelector(keyToCss('blogLinkUserAttribution')).append(labelContainer('Follows You', 'profile-checkmark', 'This blog follows you. This feature is a component of dashboard unfucker.'));
+            }
           } catch (e) {
-            console.error("an error occurred processing a notification:", e);
+            console.error('an error occurred processing a notification:', e);
             console.error(note);
             console.error(fetchNote(note));
-          };
-        };
+          }
+        }
       };
       const detailPolls = answers => {
         for (const answer of answers) {
-          if (answer.classList.contains("pollDetailed")) continue;
+          if (answer.classList.contains('pollDetailed')) continue;
           const post = answer.closest(postSelector);
-          const answers = Array.from(post.querySelectorAll(`:scope [data-testid="poll-answer"]`));
-          const voteCount = Number(post.querySelector(keyToCss("pollSummary")).innerText.replace(/,/, "").match(/\d+/)[0]);
+          const answers = Array.from(post.querySelectorAll(':scope [data-testid="poll-answer"]'));
+          const voteCount = Number(post.querySelector(keyToCss('pollSummary')).innerText.replace(/,/, '').match(/\d+/)[0]);
           answers.forEach((element) => {
             const percentage = fetchPercentage(element);
             element.append($str(`<span class="answerVoteCount">(${Math.round(voteCount * percentage / 100)})</span>`));
-            element.classList.add("pollDetailed");
+            element.classList.add('pollDetailed');
           });
         }
       };
-      const fetchOtherBlog =  async function (obj) {
-        const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+      const fetchOtherBlog = async function (obj) {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith('__reactFiber'));
         let fiber = obj[fiberKey];
         let conversationWindowObject;
         let headerImageFocused;
@@ -807,8 +809,8 @@ const main = async function (nonce) {
             break;
           } else {
             fiber = fiber.return;
-          };
-        };
+          }
+        }
 
         const { otherParticipantName, selectedBlogName } = conversationWindowObject;
 
@@ -820,17 +822,17 @@ const main = async function (nonce) {
           console.error(`failed to fetch the theme for blog ${otherParticipantName}`);
         }
 
-        return ({headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName });
+        return ({ headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName });
       };
       const styleMessaging = conversations => {
         for (const conversation of conversations) {
-          fetchOtherBlog(conversation).then(({headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName}) => {
+          fetchOtherBlog(conversation).then(({ headerImageFocused, backgroundColor, titleColor, linkColor, otherParticipantName, selectedBlogName }) => {
             conversation.id = `messaging-${otherParticipantName}`;
             const colorStyle = configPreferences.revertMessagingRedesign.style;
             let msgBackground;
             let tsColor;
             let headerBackground;
-            if (colorStyle === "1") {
+            if (colorStyle === '1') {
               headerBackground = `no-repeat top/100% url(${headerImageFocused})`;
               msgBackground = contrastBW(titleColor);
               tsColor = contrastBW(backgroundColor);
@@ -838,40 +840,40 @@ const main = async function (nonce) {
                 linkColor = tsColor;
               } else linkColor = rgbToString(hexToRgb(linkColor));
               titleColor = rgbToString(hexToRgb(titleColor));
-            } else if (colorStyle === "2") {
-              headerBackground = "rgb(var(--white))";
+            } else if (colorStyle === '2') {
+              headerBackground = 'rgb(var(--white))';
               backgroundColor = headerBackground;
-              msgBackground = "var(--secondary-accent)";
-              titleColor = "var(--black)";
+              msgBackground = 'var(--secondary-accent)';
+              titleColor = 'var(--black)';
               linkColor = titleColor;
               tsColor = titleColor;
-            } else if (colorStyle === "3") {
-              headerBackground = "rgb(var(--white))"
+            } else if (colorStyle === '3') {
+              headerBackground = 'rgb(var(--white))';
               backgroundColor = `#${configPreferences.revertMessagingRedesign.backgroundColor}`;
               msgBackground = rgbToString(hexToRgb(configPreferences.revertMessagingRedesign.messageColor));
               titleColor = rgbToString(hexToRgb(configPreferences.revertMessagingRedesign.textColor));
               linkColor = titleColor;
               tsColor = titleColor;
-            } else console.error("invalid style index");
+            } else console.error('invalid style index');
 
-            const style = document.createElement("style");
-            style.classList.add("customMessagingStyle");
+            const style = document.createElement('style');
+            style.classList.add('customMessagingStyle');
             conversation.append(style);
             style.innerText = `
               #messaging-${otherParticipantName} { background: ${backgroundColor}; }
-              #messaging-${otherParticipantName} ${keyToCss("headerWrapper")} { background: ${headerBackground} }
-              #messaging-${otherParticipantName} ${keyToCss("messageText")}${keyToCss("ownMessage")} ${keyToCss("messageHeader")}::before { content: "${selectedBlogName}"; }
-              #messaging-${otherParticipantName} ${keyToCss("messageText")}:not(${keyToCss("ownMessage")}) ${keyToCss("messageHeader")}::before { content: "${otherParticipantName}"; }
-              #messaging-${otherParticipantName} ${keyToCss("statusWithCaption")} { color: ${linkColor} !important; }
-              #messaging-${otherParticipantName} ${keyToCss("timestamp")} { color: rgba(${tsColor},.6) }
-              #messaging-${otherParticipantName} ${keyToCss("name")}, #messaging-${otherParticipantName} ${keyToCss("description")}, 
-              #messaging-${otherParticipantName} ${keyToCss("descriptionContainer")} { color: rgb(${tsColor}) !important; }
-              #messaging-${otherParticipantName} ${keyToCss("messageText")}, #messaging-${otherParticipantName} ${keyToCss("messagePost")} ${keyToCss("header")},
-              #messaging-${otherParticipantName} ${keyToCss("headerPreview")} ${keyToCss("action")} {
+              #messaging-${otherParticipantName} ${keyToCss('headerWrapper')} { background: ${headerBackground} }
+              #messaging-${otherParticipantName} ${keyToCss('messageText')}${keyToCss('ownMessage')} ${keyToCss('messageHeader')}::before { content: "${selectedBlogName}"; }
+              #messaging-${otherParticipantName} ${keyToCss('messageText')}:not(${keyToCss('ownMessage')}) ${keyToCss('messageHeader')}::before { content: "${otherParticipantName}"; }
+              #messaging-${otherParticipantName} ${keyToCss('statusWithCaption')} { color: ${linkColor} !important; }
+              #messaging-${otherParticipantName} ${keyToCss('timestamp')} { color: rgba(${tsColor},.6) }
+              #messaging-${otherParticipantName} ${keyToCss('name')}, #messaging-${otherParticipantName} ${keyToCss('description')}, 
+              #messaging-${otherParticipantName} ${keyToCss('descriptionContainer')} { color: rgb(${tsColor}) !important; }
+              #messaging-${otherParticipantName} ${keyToCss('messageText')}, #messaging-${otherParticipantName} ${keyToCss('messagePost')} ${keyToCss('header')},
+              #messaging-${otherParticipantName} ${keyToCss('headerPreview')} ${keyToCss('action')} {
                 background: rgb(${msgBackground}) !important;
                 color: rgb(${titleColor}) !important;
               }
-              #messaging-${otherParticipantName} ${keyToCss("headerPreview")} ${keyToCss("summary")} { color: rgba(${titleColor}, .6) !important; }
+              #messaging-${otherParticipantName} ${keyToCss('headerPreview')} ${keyToCss('summary')} { color: rgba(${titleColor}, .6) !important; }
             `;
           });
         }
@@ -879,20 +881,20 @@ const main = async function (nonce) {
 
       const labelCells = cells => {
         for (let cell of cells) {
-          cell = cell.closest("[data-cell-id]");
+          cell = cell.closest('[data-cell-id]');
           const prevCell = cell.previousSibling;
 
-          if (cell.getAttribute("data-cell-id").includes("timelineObject:carousel")) {
-            if (cell.querySelector(keyToCss("blogRecommendation"))) {
-              cell.setAttribute("data-blog-carousel-cell", "");
-              prevCell.setAttribute("data-blog-carousel-cell", "");
-            } else if (cell.querySelector(keyToCss("tagCard"))) {
-              cell.setAttribute("data-tag-carousel-cell", "");
-              prevCell.setAttribute("data-tag-carousel-cell", "");
+          if (cell.getAttribute('data-cell-id').includes('timelineObject:carousel')) {
+            if (cell.querySelector(keyToCss('blogRecommendation'))) {
+              cell.setAttribute('data-blog-carousel-cell', '');
+              prevCell.setAttribute('data-blog-carousel-cell', '');
+            } else if (cell.querySelector(keyToCss('tagCard'))) {
+              cell.setAttribute('data-tag-carousel-cell', '');
+              prevCell.setAttribute('data-tag-carousel-cell', '');
             }
-          } else if (cell.getAttribute("data-cell-id").includes("watermark_carousel")) {
-            cell.setAttribute("data-watermark-carousel-cell", "");
-            prevCell.setAttribute("data-watermark-carousel-title-cell", "");
+          } else if (cell.getAttribute('data-cell-id').includes('watermark_carousel')) {
+            cell.setAttribute('data-watermark-carousel-cell', '');
+            prevCell.setAttribute('data-watermark-carousel-title-cell', '');
           }
         }
       };
@@ -904,7 +906,7 @@ const main = async function (nonce) {
           this.listeners.set(func, selector);
           func(Array.from($a(selector)));
         },
-        stop (func) {this.listeners.delete(func);},
+        stop (func) { this.listeners.delete(func); },
         toggle (func, selector) {
           if (this.listeners.has(func)) this.stop(func);
           else this.start(func, selector);
@@ -912,8 +914,8 @@ const main = async function (nonce) {
       });
       const sortNodes = () => {
         const nodes = newNodes.splice(0);
-        if (nodes.length === 0) return
-        for ( const [func, selector] of mutationManager.listeners) {
+        if (nodes.length === 0) return;
+        for (const [func, selector] of mutationManager.listeners) {
           const matchingElements = [
             ...nodes.filter(node => node.matches(selector)),
             ...nodes.flatMap(node => [...node.querySelectorAll(selector)])
@@ -923,9 +925,9 @@ const main = async function (nonce) {
       };
       const observer = new MutationObserver(mutations => {
         const nodes = mutations
-        .flatMap(({ addedNodes }) => [...addedNodes])
-        .filter(node => node instanceof Element)
-        .filter(node => node.isConnected);
+          .flatMap(({ addedNodes }) => [...addedNodes])
+          .filter(node => node instanceof Element)
+          .filter(node => node.isConnected);
         newNodes.push(...nodes);
         sortNodes();
       });
@@ -933,7 +935,7 @@ const main = async function (nonce) {
       const featureStyles = Object.freeze({
         styles: new Map(),
         build (name, on, off, state) {
-          const style = document.createElement("style");
+          const style = document.createElement('style');
           style.id = name;
           style.nonce = nonce;
           document.head.append(style);
@@ -941,7 +943,7 @@ const main = async function (nonce) {
           this.toggle(name, state);
         },
         buildScalable (name, on, off, state, num) {
-          const style = document.createElement("style");
+          const style = document.createElement('style');
           style.id = name;
           style.nonce = nonce;
           document.head.append(style);
@@ -954,54 +956,54 @@ const main = async function (nonce) {
         },
         toggleScalable (name, state, num) {
           const style = document.getElementById(name);
-          style.innerText = state ? this.styles.get(name).on.replaceAll("$NUM", num) : this.styles.get(name).off.replaceAll("$NUM", num);
+          style.innerText = state ? this.styles.get(name).on.replaceAll('$NUM', num) : this.styles.get(name).off.replaceAll('$NUM', num);
         }
       });
 
       const checkboxEvent = (id, value) => {
         switch (id) {
-          case "__hideDashboardTabs":
-            toggle($(keyToCss("timelineHeader")), !value);
+          case '__hideDashboardTabs':
+            toggle($(keyToCss('timelineHeader')), !value);
             break;
-          case "__collapseCaughtUp":
-            featureStyles.toggle("__cc", value);
+          case '__collapseCaughtUp':
+            featureStyles.toggle('__cc', value);
 
             if (!configPreferences.hideRecommendedTags.value && !configPreferences.hideRecommendedBlogs.value) {
               if (value) mutationManager.start(labelCells, carouselCellSelector);
               else mutationManager.stop(labelCells);
             }
             break;
-          case "__hideRecommendedBlogs":
-            featureStyles.toggle("__rb", value);
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !value);
-            toggle(find($a(keyToCss("desktopContainer")), keyToCss("recommendedBlogs")), !value);
+          case '__hideRecommendedBlogs':
+            featureStyles.toggle('__rb', value);
+            toggle(find($a(keyToCss('sidebarItem')), keyToCss('recommendedBlogs')), !value);
+            toggle(find($a(keyToCss('desktopContainer')), keyToCss('recommendedBlogs')), !value);
 
             if (!configPreferences.hideRecommendedTags.value && !configPreferences.collapseCaughtUp.value) {
               if (value) mutationManager.start(labelCells, carouselCellSelector);
               else mutationManager.stop(labelCells);
             }
             break;
-          case "__hideRecommendedTags":
-            featureStyles.toggle("__rt", value);
+          case '__hideRecommendedTags':
+            featureStyles.toggle('__rt', value);
 
             if (!configPreferences.hideRecommendedBlogs.value && !configPreferences.collapseCaughtUp.value) {
               if (value) mutationManager.start(labelCells, carouselCellSelector);
               else mutationManager.stop(labelCells);
             }
             break;
-          case "__hideTumblrRadar":
-            toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !value);
+          case '__hideTumblrRadar':
+            toggle(find($a(keyToCss('sidebarItem')), keyToCss('radar')), !value);
             break;
-          case "__hideExplore":
-            toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !value);
+          case '__hideExplore':
+            toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__explore"]'), !value);
             break;
-          case "__hideTumblrShop":
-            toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !value);
+          case '__hideTumblrShop':
+            toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__shop"]'), !value);
             break;
-          case "__hideBadges":
-            featureStyles.toggle("__bs", value);
+          case '__hideBadges':
+            featureStyles.toggle('__bs', value);
             break;
-          case "__highlightLikelyBots":
+          case '__highlightLikelyBots':
             if (value && !configPreferences.showFollowingLabel.value) {
               mutationManager.start(scanNotes, noteSelector);
             } else {
@@ -1009,90 +1011,90 @@ const main = async function (nonce) {
               if (!configPreferences.showFollowingLabel.value) mutationManager.stop(scanNotes);
             }
             break;
-          case "__showFollowingLabel":
+          case '__showFollowingLabel':
             if (value && !configPreferences.highlightLikelyBots.value) mutationManager.start(scanNotes, noteSelector);
             else {
               remove($a("[label='Follows You']"));
               if (!configPreferences.highlightLikelyBots.value) mutationManager.stop(scanNotes);
             }
             break;
-          case "__displayVoteCounts":
-            featureStyles.toggle("__ps", value);
+          case '__displayVoteCounts':
+            featureStyles.toggle('__ps', value);
             mutationManager.toggle(detailPolls, answerSelector);
 
             if (!value) {
-              document.getElementById("__ps").innerText = "";
-              remove($a(".answerVoteCount"));
-              $a(".pollDetailed").forEach(elem => elem.classList.remove("pollDetailed"));
+              document.getElementById('__ps').innerText = '';
+              remove($a('.answerVoteCount'));
+              $a('.pollDetailed').forEach(elem => elem.classList.remove('pollDetailed'));
             }
             break;
-          case "__disableScrollingAvatars":
-            featureStyles.toggle("__as", value);
+          case '__disableScrollingAvatars':
+            featureStyles.toggle('__as', value);
             break;
-          case "__revertMessagingRedesign":
+          case '__revertMessagingRedesign':
             mutationManager.toggle(detailPolls, answerSelector);
 
-             if (!value) {
-              remove($a(".customMessagingStyle"));
+            if (!value) {
+              remove($a('.customMessagingStyle'));
             }
-            featureStyles.toggleScalable("__ms", value, configPreferences.messagingScale.value);
+            featureStyles.toggleScalable('__ms', value, configPreferences.messagingScale.value);
             break;
-          case "__messaging1":
-          case "__messaging2":
-          case "__messaging3":
+          case '__messaging1':
+          case '__messaging2':
+          case '__messaging3':
             if (configPreferences.revertMessagingRedesign.value) mutationManager.start(styleMessaging, conversationSelector);
             break;
-          case "__revertActivityFeedRedesign":
-            featureStyles.toggle("__acs", configPreferences.revertActivityFeedRedesign.value);
-        };
+          case '__revertActivityFeedRedesign':
+            featureStyles.toggle('__acs', configPreferences.revertActivityFeedRedesign.value);
+        }
       };
       const rangeEvent = (id, value) => {
         if (matchPathname() && notMasonry()) {
-          const posOffset = $("#__contentPositioning").valueAsNumber;
-          const widthOffset = ($("#__contentWidth").valueAsNumber - 990) / 2;
+          const posOffset = $('#__contentPositioning').valueAsNumber;
+          const widthOffset = ($('#__contentWidth').valueAsNumber - 990) / 2;
           let safeMax = Math.max(safeOffset - widthOffset, 0);
           if (Math.abs(posOffset) > safeMax) {
             safeMax = posOffset > 0 ? safeMax : -safeMax;
-            $("#__contentPositioning").value = safeMax.toString();
-            css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${safeMax}px`});
+            $('#__contentPositioning').value = safeMax.toString();
+            css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { left: `${safeMax}px` });
             configPreferences.contentPositioning.value = safeMax;
-            if (id === "__contentWidth") css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
+            if (id === '__contentWidth') css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { 'max-width': `${value}px` });
           } else {
             switch (id) {
-              case "__contentPositioning":
-                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "left": `${value}px`});
+              case '__contentPositioning':
+                css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { left: `${value}px` });
                 break;
-              case "__contentWidth":
-                css($(`${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`), { "max-width": `${value}px`});
+              case '__contentWidth':
+                css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { 'max-width': `${value}px` });
                 break;
-              case "__messagingScale":
-                featureStyles.toggleScalable("__ms", configPreferences.revertMessagingRedesign.value, value);
+              case '__messagingScale':
+                featureStyles.toggleScalable('__ms', configPreferences.revertMessagingRedesign.value, value);
                 break;
-            };
-          };
-          if (pathname === "likes") {
-            const gridWidth = $(keyToCss("gridded")).clientWidth;
+            }
+          }
+          if (pathname === 'likes') {
+            const gridWidth = $(keyToCss('gridded')).clientWidth;
             const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
-            featureStyles.toggleScalable("__gs", true, gridItemWidth);
-          };
-        };
+            featureStyles.toggleScalable('__gs', true, gridItemWidth);
+          }
+        }
       };
       const initialChecks = () => {
-        if ($a("#__m").length) { //initial status checks to determine whether to inject or not
-          console.log("no need to unfuck");
+        if ($a('#__m').length) { // initial status checks to determine whether to inject or not
+          console.log('no need to unfuck');
           return false;
         } else {
-          console.log("unfucking dashboard...");
+          console.log('unfucking dashboard...');
           return true;
-        };
+        }
       };
       const followingAsDefault = async function () {
-        waitFor(keyToCss("timeline")).then(() => {
-          if (isDashboard()
-            && $(keyToCss("timeline")).attributes.getNamedItem("data-timeline").value.includes("/v2/tabs/for_you")) {
-            window.tumblr.navigate("/dashboard/following");
-            console.log("navigating to following");
-          };
+        waitFor(keyToCss('timeline')).then(() => {
+          if (isDashboard() &&
+            $(keyToCss('timeline')).attributes.getNamedItem('data-timeline').value.includes('/v2/tabs/for_you')) {
+            window.tumblr.navigate('/dashboard/following');
+            console.log('navigating to following');
+          }
         });
       };
       const configMenu = (version, obj = {}) => {
@@ -1136,54 +1138,54 @@ const main = async function (nonce) {
         </div>
         `);
         const info = [
-          { url: "https://github.com/enchanted-sword/dashboard-unfucker", text: "source" },
-          { url: "https://github.com/enchanted-sword/dashboard-unfucker/blob/main/changelog.md", text: "changelog" },
-          { url: "https://github.com/enchanted-sword/dashboard-unfucker/issues/", text: "report a bug" },
-          { url: "https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js", text: "update" },
-          { url: "https://tumblr.com/dragongirlsnout", text: "my tumblr!" },
-          { url: "https://www.paypal.com/paypalme/dragongirled", text: "support my work!" }
+          { url: 'https://github.com/enchanted-sword/dashboard-unfucker', text: 'source' },
+          { url: 'https://github.com/enchanted-sword/dashboard-unfucker/blob/main/changelog.md', text: 'changelog' },
+          { url: 'https://github.com/enchanted-sword/dashboard-unfucker/issues/', text: 'report a bug' },
+          { url: 'https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js', text: 'update' },
+          { url: 'https://tumblr.com/dragongirlsnout', text: 'my tumblr!' },
+          { url: 'https://www.paypal.com/paypalme/dragongirled', text: 'support my work!' }
         ];
 
-        const infoList = menuShell.querySelector("#__am");
+        const infoList = menuShell.querySelector('#__am');
         const infoEntry = (obj = {}) => $str(`
           <li>
             <a target="_blank" href="${obj.url}">${obj.text}</a>
           </li>
         `);
         const configs = {
-          hideDashboardTabs: "hide dashboard tabs",
+          hideDashboardTabs: 'hide dashboard tabs',
           collapseCaughtUp: "collapse the 'changes', 'staff picks', etc. carousel",
-          hideRecommendedBlogs: "hide recommended blogs",
-          hideRecommendedTags: "hide recommended tags",
-          hideTumblrRadar: "hide tumblr radar",
-          hideExplore: "hide explore",
-          hideTumblrShop: "hide tumblr shop",
-          hideBadges: "hide badges",
-          highlightLikelyBots: "highlight likely bots in activity feed",
-          showFollowingLabel: "show who follows you in the activity feed",
-          displayVoteCounts: "display exact vote counts on poll answers",
-          disableScrollingAvatars: "disable avatars scrolling with posts",
-          revertActivityFeedRedesign: "revert activity feed redesign",
-          revertMessagingRedesign: "revert messaging redesign",
-          contentPositioning: "content positioning",
-          contentWidth: "content width",
-          messagingScale: "messaging window scale",
-          disableTumblrLive: "disable tumblr live",
-          disableTumblrDomains: "disable tumblr domains",
-          revertSearchbarRedesign: "revert searchbar update",
-          enableCustomTabs: "enable customizable dashboard tabs",
-          enableReblogPolls: "enable adding polls to reblogs",
-          disableTagNag: "disable \"post without tags\" nag",
-          reAddHomeNotifications: "re-add unread post notifications to the corner of the home icon",
-          showNsfwPosts: "show hidden NSFW posts in the timeline"
-        }
+          hideRecommendedBlogs: 'hide recommended blogs',
+          hideRecommendedTags: 'hide recommended tags',
+          hideTumblrRadar: 'hide tumblr radar',
+          hideExplore: 'hide explore',
+          hideTumblrShop: 'hide tumblr shop',
+          hideBadges: 'hide badges',
+          highlightLikelyBots: 'highlight likely bots in activity feed',
+          showFollowingLabel: 'show who follows you in the activity feed',
+          displayVoteCounts: 'display exact vote counts on poll answers',
+          disableScrollingAvatars: 'disable avatars scrolling with posts',
+          revertActivityFeedRedesign: 'revert activity feed redesign',
+          revertMessagingRedesign: 'revert messaging redesign',
+          contentPositioning: 'content positioning',
+          contentWidth: 'content width',
+          messagingScale: 'messaging window scale',
+          disableTumblrLive: 'disable tumblr live',
+          disableTumblrDomains: 'disable tumblr domains',
+          revertSearchbarRedesign: 'revert searchbar update',
+          enableCustomTabs: 'enable customizable dashboard tabs',
+          enableReblogPolls: 'enable adding polls to reblogs',
+          disableTagNag: 'disable "post without tags" nag',
+          reAddHomeNotifications: 're-add unread post notifications to the corner of the home icon',
+          showNsfwPosts: 'show hidden NSFW posts in the timeline'
+        };
         const configEntry = (obj = {}) => {
-          let entry = [];
+          const entry = [];
 
-          if (obj.type === "checkbox") {
-            if (obj.name == "revertMessagingRedesign") {
+          if (obj.type === 'checkbox') {
+            if (obj.name === 'revertMessagingRedesign') {
               entry.push($str(`
-                <li active="${obj.value ? true : false}">
+                <li active="${!!obj.value}">
                   <span>${configs[obj.name]}</span>
                   <input class="configInput" type="checkbox" id="__${obj.name}" name="${obj.name}" ${obj.value}>
                   <label for="__${obj.name}">Toggle</label>
@@ -1199,7 +1201,7 @@ const main = async function (nonce) {
                       id="__messaging1" 
                       name="revertMessagingRedesign" 
                       index="1"
-                      ${obj.style === "1" ? "checked" : ""}
+                      ${obj.style === '1' ? 'checked' : ''}
                     >
                     <label for="__messaging1">Toggle</label>
                   </li>
@@ -1211,11 +1213,11 @@ const main = async function (nonce) {
                       id="__messaging2" 
                       name="revertMessagingRedesign" 
                       index="2"
-                      ${obj.style === "2" ? "checked" : ""}
+                      ${obj.style === '2' ? 'checked' : ''}
                     >
                     <label for="__messaging2">Toggle</label>
                   </li>
-                  <li active="${obj.style === "3" ? true : false}">
+                  <li active="${obj.style === '3'}">
                     <span>use custom colors</span>
                     <input 
                       class="subConfigInput" 
@@ -1223,7 +1225,7 @@ const main = async function (nonce) {
                       id="__messaging3" 
                       name="revertMessagingRedesign" 
                       index="3" 
-                      ${obj.style === "3" ? "checked" : ""}
+                      ${obj.style === '3' ? 'checked' : ''}
                     >
                     <label for="__messaging3">Toggle</label>
                   </li>
@@ -1233,7 +1235,7 @@ const main = async function (nonce) {
                       <input 
                         class="textInput msgHexSelect" 
                         type="text" 
-                        placeholder="${obj.messageColor || "f0f0f0"}" 
+                        placeholder="${obj.messageColor || 'f0f0f0'}" 
                         pattern="[a-f\\d]{6}" 
                         maxlength="6"
                         name="messageColor"
@@ -1245,7 +1247,7 @@ const main = async function (nonce) {
                       <input 
                         class="textInput msgHexSelect" 
                         type="text" 
-                        placeholder="${obj.backgroundColor || "ffffff"}" 
+                        placeholder="${obj.backgroundColor || 'ffffff'}" 
                         pattern="[a-f\\d]{6}" 
                         maxlength="6"
                         name="backgroundColor"
@@ -1257,7 +1259,7 @@ const main = async function (nonce) {
                       <input 
                         class="textInput msgHexSelect" 
                         type="text" 
-                        placeholder="${obj.textColor || "121212"}" 
+                        placeholder="${obj.textColor || '121212'}" 
                         pattern="[a-f\\d]{6}" 
                         maxlength="6"
                         name="textColor"
@@ -1276,8 +1278,8 @@ const main = async function (nonce) {
                 </li>
               `));
             }
-          } else if (obj.type == "range") {
-            if (obj.name === "contentPositioning") {
+          } else if (obj.type === 'range') {
+            if (obj.name === 'contentPositioning') {
               entry.push($str(`
                 <li>
                   <span>${configs[obj.name]}</span>
@@ -1291,7 +1293,7 @@ const main = async function (nonce) {
                   </div>
                 </li>
               `));
-            } else if (obj.name === "contentWidth") {
+            } else if (obj.name === 'contentWidth') {
               entry.push($str(`
                 <li>
                   <span>${configs[obj.name]}</span>
@@ -1304,7 +1306,7 @@ const main = async function (nonce) {
                   </div>
                 </li>
               `));
-            } else if (obj.name === "messagingScale") {
+            } else if (obj.name === 'messagingScale') {
               entry.push($str(`
                 <li>
                   <span>${configs[obj.name]}</span>
@@ -1320,17 +1322,17 @@ const main = async function (nonce) {
               `));
             }
           }
-           
+
           return entry;
         };
-        const generalList = menuShell.querySelector("#__ct");
-        const advancedList = menuShell.querySelector("#__cta");
+        const generalList = menuShell.querySelector('#__ct');
+        const advancedList = menuShell.querySelector('#__cta');
 
         info.forEach(infoItem => infoList.append(infoEntry(infoItem)));
         Object.keys(obj).forEach(key => {
           const configItem = obj[key];
           configItem.name = key;
-          if (typeof configItem === "object") {
+          if (typeof configItem === 'object') {
             if (configItem.advanced) {
               advancedList.append(...configEntry(configItem));
             } else {
@@ -1342,16 +1344,16 @@ const main = async function (nonce) {
         return menuShell;
       };
       const initializePreferences = () => {
-        const containerSelector = `${keyToCss("bluespaceLayout")} > ${keyToCss("container")}`;
+        const containerSelector = `${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`;
 
         mutationManager.start(fixHeader, postSelector);
         mutationManager.start(fixMasonryNotes, masonryNotesSelector);
         waitFor(containerSelector).then(() => {
-          if (state.routeName === "peepr-route" && !matchPathname()) $(containerSelector).setAttribute("data-blog-container", "");
+          if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
         });
 
         if (configPreferences.collapseCaughtUp.value || configPreferences.hideRecommendedBlogs.value || configPreferences.hideRecommendedTags.value) mutationManager.start(labelCells, carouselCellSelector);
-        featureStyles.build("__cc", `
+        featureStyles.build('__cc', `
           [data-watermark-carousel-title-cell] { position: relative !important; }
           [data-watermark-carousel-title-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
           [data-watermark-carousel-title-cell] > div canvas { visibility: hidden; }
@@ -1361,134 +1363,133 @@ const main = async function (nonce) {
             border: 4px solid rgb(var(--white));
             border-radius: 3px;
           }
-        `, "", configPreferences.collapseCaughtUp.value);
-        featureStyles.build("__rb", `
+        `, '', configPreferences.collapseCaughtUp.value);
+        featureStyles.build('__rb', `
           [data-blog-carousel-cell] { position: relative !important; }
           [data-blog-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
           [data-blog-carousel-cell] > div canvas { visibility: hidden; }
-          [data-blog-carousel-cell] ${keyToCss("carouselWrapper")} { display: none !important }
-        `, "", configPreferences.hideRecommendedBlogs.value);
-        waitFor(keyToCss("recommendedBlogs")).then(() => {
-          toggle(find($a(keyToCss("sidebarItem")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
-          toggle(find($a(keyToCss("desktopContainer")), keyToCss("recommendedBlogs")), !configPreferences.hideRecommendedBlogs.value);
-
+          [data-blog-carousel-cell] ${keyToCss('carouselWrapper')} { display: none !important }
+        `, '', configPreferences.hideRecommendedBlogs.value);
+        waitFor(keyToCss('recommendedBlogs')).then(() => {
+          toggle(find($a(keyToCss('sidebarItem')), keyToCss('recommendedBlogs')), !configPreferences.hideRecommendedBlogs.value);
+          toggle(find($a(keyToCss('desktopContainer')), keyToCss('recommendedBlogs')), !configPreferences.hideRecommendedBlogs.value);
         });
-        featureStyles.build("__rt", `
+        featureStyles.build('__rt', `
           [data-tag-carousel-cell] { position: relative !important; }
           [data-tag-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
           [data-tag-carousel-cell] > div canvas { visibility: hidden; }
-          [data-tag-carousel-cell] ${keyToCss("carouselWrapper")} { display: none !important }
-        `, "", configPreferences.hideRecommendedTags.value);
-        waitFor(keyToCss("radar")).then(() => {
-          toggle(find($a(keyToCss("sidebarItem")), keyToCss("radar")), !configPreferences.hideTumblrRadar.value);
+          [data-tag-carousel-cell] ${keyToCss('carouselWrapper')} { display: none !important }
+        `, '', configPreferences.hideRecommendedTags.value);
+        waitFor(keyToCss('radar')).then(() => {
+          toggle(find($a(keyToCss('sidebarItem')), keyToCss('radar')), !configPreferences.hideTumblrRadar.value);
         });
 
         if (isDashboard()) {
-          waitFor(keyToCss("timelineHeader")).then(() => {
-            toggle($(keyToCss("timelineHeader")), !configPreferences.hideDashboardTabs.value);
+          waitFor(keyToCss('timelineHeader')).then(() => {
+            toggle($(keyToCss('timelineHeader')), !configPreferences.hideDashboardTabs.value);
           });
-        };
-        waitFor(keyToCss("menuRight")).then(() => {
-          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
-          toggle(find($a(keyToCss("menuContainer")), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
+        }
+        waitFor(keyToCss('menuRight')).then(() => {
+          toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
+          toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
         });
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value) {
           mutationManager.start(scanNotes, noteSelector);
-        };
-        featureStyles.build("__ps", `
-          ${keyToCss("pollAnswerPercentage")} { position: relative; bottom: 4px; }
-          ${keyToCss("results")} { overflow: hidden; }`, "", configPreferences.displayVoteCounts.value);
+        }
+        featureStyles.build('__ps', `
+          ${keyToCss('pollAnswerPercentage')} { position: relative; bottom: 4px; }
+          ${keyToCss('results')} { overflow: hidden; }`, '', configPreferences.displayVoteCounts.value);
         if (configPreferences.displayVoteCounts.value) {
           mutationManager.start(detailPolls, answerSelector);
-        };
-        featureStyles.build("__bs", `${keyToCss("badgeContainer")} { display: none; }`, "", configPreferences.hideBadges.value);
+        }
+        featureStyles.build('__bs', `${keyToCss('badgeContainer')} { display: none; }`, '', configPreferences.hideBadges.value);
         if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
-            css($(containerSelector), { "left": `${configPreferences.contentPositioning.value}px`, "max-width": `${configPreferences.contentWidth.value}px` });
+            css($(containerSelector), { left: `${configPreferences.contentPositioning.value}px`, 'max-width': `${configPreferences.contentWidth.value}px` });
           });
-          featureStyles.buildScalable("__gs", `${keyToCss("gridTimelineObject")} { width: calc($NUM% - 2px) !important; }`, "", true, 0);
-          if (configPreferences.contentWidth.value > 51.5 && pathname === "likes") {
-            waitFor(keyToCss("gridded")).then(() => {
-              const gridWidth = $(keyToCss("gridded")).clientWidth;
+          featureStyles.buildScalable('__gs', `${keyToCss('gridTimelineObject')} { width: calc($NUM% - 2px) !important; }`, '', true, 0);
+          if (configPreferences.contentWidth.value > 51.5 && pathname === 'likes') {
+            waitFor(keyToCss('gridded')).then(() => {
+              const gridWidth = $(keyToCss('gridded')).clientWidth;
               const gridItemWidth = Math.fround(100 / Math.round(gridWidth / 178));
-              featureStyles.toggleScalable("__gs", true, gridItemWidth);
+              featureStyles.toggleScalable('__gs', true, gridItemWidth);
             });
-          };
-        };
-        featureStyles.build("__acs", `
+          }
+        }
+        featureStyles.build('__acs', `
           [role="tablist"] { padding: 0 !important; }
-          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")} {
+          [role="tablist"] ${keyToCss('button')}${keyToCss('tab')} {
             font-size: 1rem !important;
             line-height: 1.5 !important;
             padding: 8px !important;
             border-radius: unset !important;
             background: none !important;
           }
-          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")}[aria-selected="true"] {
+          [role="tablist"] ${keyToCss('button')}${keyToCss('tab')}[aria-selected="true"] {
             color: rgb(var(--accent)) !important;
             box-shadow: inset 0px -2px 0px rgb(var(--accent));
           }
-          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")}:first-of-type [tabindex] { font-size: 0; }
-          [role="tablist"] ${keyToCss("button")}${keyToCss("tab")}:first-of-type [tabindex]::after {
+          [role="tablist"] ${keyToCss('button')}${keyToCss('tab')}:first-of-type [tabindex] { font-size: 0; }
+          [role="tablist"] ${keyToCss('button')}${keyToCss('tab')}:first-of-type [tabindex]::after {
             font-size: 1rem;
-            content: "${tr("All")}";
+            content: "${tr('All')}";
           }
-          [role="tabpanel"] ${keyToCss("dateSeparator")} {
+          [role="tabpanel"] ${keyToCss('dateSeparator')} {
             background: rgba(var(--black),.07) !important;
             padding: 8px 16px important;
           }
-          [role="tabpanel"] ${keyToCss("backgroundColor")} { border-top: 1px solid rgba(var(--black),.13); }
-          ${keyToCss("linkToActivity")} {
+          [role="tabpanel"] ${keyToCss('backgroundColor')} { border-top: 1px solid rgba(var(--black),.13); }
+          ${keyToCss('linkToActivity')} {
             padding: 0 !important;
             height: 30px !important;
           }
-          [role="tabpanel"] ${keyToCss("avatarWrapper")} ${keyToCss("avatar")},[role="tabpanel"] ${keyToCss("anonymousAvatar")},
+          [role="tabpanel"] ${keyToCss('avatarWrapper')} ${keyToCss('avatar')},[role="tabpanel"] ${keyToCss('anonymousAvatar')},
           [role="tabpanel"] ${keyToCss('avatar')} img {
             height: 25px !important;
             width: 25px !important;
           }
-          [role="tabpanel"] ${keyToCss("verticallyCentered")} { align-self: start !important; }
-          [role="tabpanel"] ${keyToCss("avatarWrapperInner")},[role="tabpanel"] ${keyToCss("circleAvatar")} {border-radius: 3px !important; }
-          [role="tabpanel"] ${keyToCss("badge")} ${keyToCss("border")},
-          [role="tabpanel"] ${keyToCss("rollupBadge")} ${keyToCss("border")},
-          [role="tabpanel"] ${keyToCss("rollupAvatar")} {border: none !important; }
-          [role="tabpanel"] ${keyToCss("underlined")} span { text-decoration: none !important; }
-          ${keyToCss("linkToActivity")} a { color: rgba(var(--black),.65) !important; }
-        `, "", configPreferences.revertActivityFeedRedesign.value);
-        featureStyles.buildScalable("__ms", `
-          ${keyToCss("conversationWindow")} {
+          [role="tabpanel"] ${keyToCss('verticallyCentered')} { align-self: start !important; }
+          [role="tabpanel"] ${keyToCss('avatarWrapperInner')},[role="tabpanel"] ${keyToCss('circleAvatar')} {border-radius: 3px !important; }
+          [role="tabpanel"] ${keyToCss('badge')} ${keyToCss('border')},
+          [role="tabpanel"] ${keyToCss('rollupBadge')} ${keyToCss('border')},
+          [role="tabpanel"] ${keyToCss('rollupAvatar')} {border: none !important; }
+          [role="tabpanel"] ${keyToCss('underlined')} span { text-decoration: none !important; }
+          ${keyToCss('linkToActivity')} a { color: rgba(var(--black),.65) !important; }
+        `, '', configPreferences.revertActivityFeedRedesign.value);
+        featureStyles.buildScalable('__ms', `
+          ${keyToCss('conversationWindow')} {
             border-radius: 5px;
             width: calc(280px * $NUM); 
             height: calc(500px * $NUM);
             max-height: calc(100vh - 80px) !important;
           }
-          ${keyToCss("conversationWindow")} ${keyToCss("headerDesktop")} {
+          ${keyToCss('conversationWindow')} ${keyToCss('headerDesktop')} {
             border-radius: 5px 5px 0 0 !important;
             background: rgba(255,255,255,.1);
             backdrop-filter: blur(6px);
             padding: 8px;
           }
-          ${keyToCss("conversationWindow")} ${keyToCss("footer")} {
+          ${keyToCss('conversationWindow')} ${keyToCss('footer')} {
             padding: 4px;
             border-radius: 0 0 5px 5px !important;
           }
-          ${keyToCss("conversationWindow")} ${keyToCss("timestamp")} {
+          ${keyToCss('conversationWindow')} ${keyToCss('timestamp')} {
             text-align: center !important;
             margin: 14px 0;
             font-size: 14px;
           }
-          ${keyToCss("messages")} { background: transparent !important; }
-          ${keyToCss("message")} img { width: 100% !important; }
-          ${keyToCss("conversation")} ${keyToCss("textareaContainer")} { border-radius: 3px; }
-          ${keyToCss("minimizedConversation")} ${keyToCss("avatarWrapper")} {
+          ${keyToCss('messages')} { background: transparent !important; }
+          ${keyToCss('message')} img { width: 100% !important; }
+          ${keyToCss('conversation')} ${keyToCss('textareaContainer')} { border-radius: 3px; }
+          ${keyToCss('minimizedConversation')} ${keyToCss('avatarWrapper')} {
             background: transparent !important;
             padding: 0 !important;
           }
-          ${keyToCss("minimizedConversation")} ${keyToCss("avatar")}, ${keyToCss("minimizedConversation")} img {
+          ${keyToCss('minimizedConversation')} ${keyToCss('avatar')}, ${keyToCss('minimizedConversation')} img {
             width: 48px !important;
             height: 48px !important;
           }
-        `, `${keyToCss("conversationWindow")} {
+        `, `${keyToCss('conversationWindow')} {
           width: calc(400px * $NUM); 
           height: calc(560px * $NUM);
           max-height: calc(100vh - 80px) !important;
@@ -1496,27 +1497,27 @@ const main = async function (nonce) {
         if (configPreferences.revertMessagingRedesign.value) {
           mutationManager.start(styleMessaging, conversationSelector);
         }
-        featureStyles.build("__as", `${keyToCss("stickyContainer")} > ${keyToCss("avatar")} { position: static !important; }`, "", configPreferences.disableScrollingAvatars.value);
-        
+        featureStyles.build('__as', `${keyToCss('stickyContainer')} > ${keyToCss('avatar')} { position: static !important; }`, '', configPreferences.disableScrollingAvatars.value);
+
         observer.observe(target, { childList: true, subtree: true });
       };
       const setupButtons = () => {
-        $("#__cb").addEventListener("click", () => {
-          if ($("#__c").style.display === "none") {
-            $("#__cb svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else $("#__cb svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
-          toggle($("#__c"));
+        $('#__cb').addEventListener('click', () => {
+          if ($('#__c').style.display === 'none') {
+            $('#__cb svg').style.setProperty('--icon-color-primary', 'rgb(var(--white-on-dark))');
+          } else $('#__cb svg').style.setProperty('--icon-color-primary', 'rgba(var(--white-on-dark),.65)');
+          toggle($('#__c'));
         });
-        $("#__ab").addEventListener("click", () => {
-          if ($("#__a").style.display === "none") {
-            $("#__ab svg").style.setProperty("--icon-color-primary", "rgb(var(--white-on-dark))");
-          } else $("#__ab svg").style.setProperty("--icon-color-primary", "rgba(var(--white-on-dark),.65)");
-          toggle($("#__a"));
+        $('#__ab').addEventListener('click', () => {
+          if ($('#__a').style.display === 'none') {
+            $('#__ab svg').style.setProperty('--icon-color-primary', 'rgb(var(--white-on-dark))');
+          } else $('#__ab svg').style.setProperty('--icon-color-primary', 'rgba(var(--white-on-dark),.65)');
+          toggle($('#__a'));
         });
-        $("#__co").addEventListener("click", () => {
+        $('#__co').addEventListener('click', () => {
           const configExport = new Blob([JSON.stringify(configPreferences, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(configExport);
-          const exportLink = document.createElement("a");
+          const exportLink = document.createElement('a');
           const date = new Date();
           const yy = date.getFullYear().toString();
           const mm = (date.getDay() + 1).toString();
@@ -1529,38 +1530,38 @@ const main = async function (nonce) {
           exportLink.remove();
           URL.revokeObjectURL(url);
         });
-        $("#__ci").addEventListener("click", () => {
-          const input = document.createElement("input");
-          input.id = "__cii";
-          input.type = "file";
-          input.accept = "application/json";
-          input.addEventListener("change", async function () {
+        $('#__ci').addEventListener('click', () => {
+          const input = document.createElement('input');
+          input.id = '__cii';
+          input.type = 'file';
+          input.accept = 'application/json';
+          input.addEventListener('change', async function () {
             const [file] = this.files;
 
             if (file) {
               let msg;
               let obj = await file.text();
               obj = JSON.parse(obj);
-              if (typeof obj === "object" && obj.lastVersion) {
+              if (typeof obj === 'object' && obj.lastVersion) {
                 configPreferences = obj;
                 updatePreferences();
-                console.info("imported preferences from file!");
-                msg = $str(`<span id="__im">successfully imported preferences from file!</span>`);
-                document.getElementById("__cio").append(msg);
+                console.info('imported preferences from file!');
+                msg = $str('<span id="__im">successfully imported preferences from file!</span>');
+                document.getElementById('__cio').append(msg);
                 await delay(100);
-                css(msg, { "opacity": "1" });
+                css(msg, { opacity: '1' });
                 await delay(3000);
-                css(msg, { "opacity": "0" });
+                css(msg, { opacity: '0' });
                 await delay(700);
                 msg.remove();
               } else {
-                console.error("failed to import preferences from file!");
-                msg = $str(`<span id="__im">failed to import preferences from file!</span>`);
-                document.getElementById("__cio").append(msg);
+                console.error('failed to import preferences from file!');
+                msg = $str('<span id="__im">failed to import preferences from file!</span>');
+                document.getElementById('__cio').append(msg);
                 await delay(100);
-                css(msg, { "opacity": "1" });
+                css(msg, { opacity: '1' });
                 await delay(3000);
-                css(msg, { "opacity": "0" });
+                css(msg, { opacity: '0' });
                 await delay(700);
                 msg.remove();
               }
@@ -1568,69 +1569,75 @@ const main = async function (nonce) {
           });
           input.click();
         });
-        $a(".configInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
-          const name = event.target.attributes.getNamedItem("name").value;
-          if (event.target.attributes.getNamedItem("type").value === "checkbox") {
-            configPreferences[name].value = event.target.matches(":checked") ? "checked" : "";
-            checkboxEvent(event.target.id, event.target.matches(":checked"));
-            if (event.target.closest("li").attributes.getNamedItem("active")) {
-              event.target.closest("li").attributes.getNamedItem("active").value = configPreferences[name].value ? "true" : "false";
+        $a('.configInput').forEach(currentValue => {
+          currentValue.addEventListener('change', event => {
+            const name = event.target.attributes.getNamedItem('name').value;
+            if (event.target.attributes.getNamedItem('type').value === 'checkbox') {
+              configPreferences[name].value = event.target.matches(':checked') ? 'checked' : '';
+              checkboxEvent(event.target.id, event.target.matches(':checked'));
+              if (event.target.closest('li').attributes.getNamedItem('active')) {
+                event.target.closest('li').attributes.getNamedItem('active').value = configPreferences[name].value ? 'true' : 'false';
+              }
+            } else {
+              configPreferences[name].value = event.target.valueAsNumber;
+              rangeEvent(event.target.id, event.target.valueAsNumber);
             }
-          } else {
-            configPreferences[name].value = event.target.valueAsNumber;
-            rangeEvent(event.target.id, event.target.valueAsNumber);
-          };
-          updatePreferences();
-        })});
-        $a(".subConfigInput").forEach(currentValue => {currentValue.addEventListener("change", event => {
-          const name = event.target.attributes.getNamedItem("name").value;
-          const index = event.target.attributes.getNamedItem("index").value;
-          if (event.target.matches(":checked")) configPreferences[name].style = index;
-          checkboxEvent(event.target.id, event.target.matches(":checked"));
-          if (event.target.closest("li").attributes.getNamedItem("active")) {
-            event.target.closest("li").attributes.getNamedItem("active").value = "true";
-          } else if (event.target.closest(".submenu").querySelector("[active='true]")) {
-            event.target.closest(".submenu").querySelector("[active='true]").attributes.getNamedItem("active").value = "false";
-          }
-          updatePreferences();
-        })});
-        $a(".msgHexSelect").forEach(currentValue => {currentValue.addEventListener("change", event => {
-          const name = event.target.attributes.getNamedItem("name").value;
-          configPreferences.revertMessagingRedesign[name] = event.target.value;
-          if (configPreferences.revertMessagingRedesign.value) mutationManager.start(styleMessaging, conversationSelector);
-          updatePreferences();
-        })});
+            updatePreferences();
+          });
+        });
+        $a('.subConfigInput').forEach(currentValue => {
+          currentValue.addEventListener('change', event => {
+            const name = event.target.attributes.getNamedItem('name').value;
+            const index = event.target.attributes.getNamedItem('index').value;
+            if (event.target.matches(':checked')) configPreferences[name].style = index;
+            checkboxEvent(event.target.id, event.target.matches(':checked'));
+            if (event.target.closest('li').attributes.getNamedItem('active')) {
+              event.target.closest('li').attributes.getNamedItem('active').value = 'true';
+            } else if (event.target.closest('.submenu').querySelector("[active='true]")) {
+              event.target.closest('.submenu').querySelector("[active='true]").attributes.getNamedItem('active').value = 'false';
+            }
+            updatePreferences();
+          });
+        });
+        $a('.msgHexSelect').forEach(currentValue => {
+          currentValue.addEventListener('change', event => {
+            const name = event.target.attributes.getNamedItem('name').value;
+            configPreferences.revertMessagingRedesign[name] = event.target.value;
+            if (configPreferences.revertMessagingRedesign.value) mutationManager.start(styleMessaging, conversationSelector);
+            updatePreferences();
+          });
+        });
       };
 
       const unfuck = async function () {
         if (!initialChecks()) return;
 
         const menu = configMenu(version, configPreferences);
-        pathname = location.pathname.split("/")[1];
+        pathname = window.location.pathname.split('/')[1];
 
-        requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
           document.head.appendChild(styleElement);
           followingAsDefault();
           if (matchPathname()) {
-            waitFor(keyToCss("sidebar")).then(() => {
-              waitFor(keyToCss("sidebarContent")).then(() => {
-                hide($(keyToCss("sidebarContent")));
+            waitFor(keyToCss('sidebar')).then(() => {
+              waitFor(keyToCss('sidebarContent')).then(() => {
+                hide($(keyToCss('sidebarContent')));
               });
-              $(keyToCss("sidebar")).insertBefore(menu, $(`${keyToCss("sidebar")} aside`));
+              $(keyToCss('sidebar')).insertBefore(menu, $(`${keyToCss('sidebar')} aside`));
               if (configPreferences.lastVersion !== version) {
-                $("#__in").append($str("<span class='__n'>new!</span>"));
-                $("#__cb").append($str("<span class='__n'></span>"));
-                $("#__ab").append($str("<span class='__n'></span>"));
-                $("#__in").addEventListener("click", () => {$a(".__n").forEach(value => hide(value))});
+                $('#__in').append($str("<span class='__n'>new!</span>"));
+                $('#__cb').append($str("<span class='__n'></span>"));
+                $('#__ab').append($str("<span class='__n'></span>"));
+                $('#__in').addEventListener('click', () => { $a('.__n').forEach(value => hide(value)); });
                 configPreferences.lastVersion = version;
                 updatePreferences();
-              };
+              }
               setupButtons();
             });
-          };
+          }
           initializePreferences();
         });
-        console.log("dashboard fixed!");
+        console.log('dashboard fixed!');
       };
 
       console.info(JSON.parse(atob(state.obfuscatedFeatures)));
@@ -1638,18 +1645,18 @@ const main = async function (nonce) {
 
       unfuck();
 
-      window.addEventListener("resize", () => {
+      window.addEventListener('resize', () => {
         windowWidth = window.innerWidth;
         safeOffset = (windowWidth - 1000) / 2;
-        $("#__contentPositioning").attributes.getNamedItem("min").value = `-${safeOffset}`;
-        $("#__contentPositioning").attributes.getNamedItem("max").value = `${safeOffset}`;
-        $("#__contentWidth").attributes.getNamedItem("max").value = `${windowWidth}`;
-        $("#__cp").innerHTML = `
+        $('#__contentPositioning').attributes.getNamedItem('min').value = `-${safeOffset}`;
+        $('#__contentPositioning').attributes.getNamedItem('max').value = `${safeOffset}`;
+        $('#__contentWidth').attributes.getNamedItem('max').value = `${windowWidth}`;
+        $('#__cp').innerHTML = `
           <option value="-${safeOffset}" label="left"></option>
           <option value="0" label="default"></option>
           <option value="${safeOffset}" label="right"></option>
         `;
-        $("#__cw").innerHTML = `
+        $('#__cw').innerHTML = `
           <option value="990" label="default"></option>
           <option value="${windowWidth}" label="full width"></option>
         `;
@@ -1657,40 +1664,41 @@ const main = async function (nonce) {
       window.tumblr.on('navigation', () => window.setTimeout(() => {
         unfuck().then(() => {
           window.setTimeout(() => {
-            if (!$a("#__m").length) unfuck();
-          }, 400)
+            if (!$a('#__m').length) unfuck();
+          }, 400);
         }).catch((e) =>
           window.setTimeout(unfuck, 400)
-        )}, 400
+        );
+      }, 400
       ));
     });
   });
 };
 const getNonce = () => {
-  const { nonce } = [...document.scripts].find(script => script.nonce) || "";
-  if (nonce === "") console.error("empty script nonce attribute: script may not inject");
+  const { nonce } = [...document.scripts].find(script => script.nonce) || '';
+  if (nonce === '') console.error('empty script nonce attribute: script may not inject');
   return nonce;
-}
+};
 const script = () => $(`
   <script id="__u" nonce="${getNonce()}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard("${getNonce()}");
   </script>
 `);
-if ($("head").length === 0) {
+if ($('head').length === 0) {
   const newNodes = [];
   const findHead = () => {
     const nodes = newNodes.splice(0);
-    if (nodes.length !== 0 && (nodes.some(node => node.matches("head") || node.querySelector("head") !== null))) {
-      const head = nodes.find(node => node.matches("head"));
+    if (nodes.length !== 0 && (nodes.some(node => node.matches('head') || node.querySelector('head') !== null))) {
+      const head = nodes.find(node => node.matches('head'));
       $(head).append(script());
     }
   };
   const observer = new MutationObserver(mutations => {
     const nodes = mutations
-    .flatMap(({ addedNodes }) => [...addedNodes])
-    .filter(node => node instanceof Element)
-    .filter(node => node.isConnected);
+      .flatMap(({ addedNodes }) => [...addedNodes])
+      .filter(node => node instanceof Element)
+      .filter(node => node.isConnected);
     newNodes.push(...nodes);
     findHead();
   });
