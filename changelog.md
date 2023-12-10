@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.5.3
+- Finally started using eslint
+- Cleaned up minor errors
+- Fixed note truncating on masonry pages to only come into effect when the string is longer than 9 chars
+
 ## v5.5.2
 - Minor header fixes for specific cases
 - Extra fallback for out-of-bounds range inputs

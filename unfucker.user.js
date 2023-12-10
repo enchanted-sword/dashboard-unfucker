@@ -716,7 +716,9 @@ const main = async function (nonce) {
       };
 
       const fixMasonryNotes = noteCounts => {
-        for (const noteCount of noteCounts) noteCount.innerHTML = `<span class="${keyToClasses('blackText').join(' ')}">${noteCount.querySelector('span').innerText}<span>`;
+        for (const noteCount of noteCounts) {
+          if (noteCount.innerText.length > 9) noteCount.innerHTML = `<span class="${keyToClasses('blackText').join(' ')}">${noteCount.querySelector('span').innerText}<span>`;
+        }
       };
 
       const labelContainer = (label, icon, desc) => $str(`
