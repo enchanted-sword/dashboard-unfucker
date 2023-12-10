@@ -86,7 +86,7 @@ const main = async function (nonce) {
     else elem.style.display = null;
   };
   const toggle = (elem, toggle = 'ignore') => {
-    if (elem & elem.length !== 0) {
+    if (elem && elem.length !== 0) {
       if (toggle === 'ignore') {
         elem.style.display === 'none'
           ? show(elem)
@@ -1666,7 +1666,7 @@ const main = async function (nonce) {
           window.setTimeout(() => {
             if (!$a('#__m').length) unfuck();
           }, 400);
-        }).catch((e) =>
+        }).catch(() =>
           window.setTimeout(unfuck, 400)
         );
       }, 400
@@ -1679,19 +1679,19 @@ const getNonce = () => {
   if (nonce === '') console.error('empty script nonce attribute: script may not inject');
   return nonce;
 };
-const script = () => $(`
+const script = () => $( `
   <script id="__u" nonce="${getNonce()}">
     const unfuckDashboard = ${main.toString()};
     unfuckDashboard("${getNonce()}");
   </script>
-`);
-if ($('head').length === 0) {
+` );
+if ($( 'head' ).length === 0) {
   const newNodes = [];
   const findHead = () => {
     const nodes = newNodes.splice(0);
     if (nodes.length !== 0 && (nodes.some(node => node.matches('head') || node.querySelector('head') !== null))) {
       const head = nodes.find(node => node.matches('head'));
-      $(head).append(script());
+      $( head ).append(script());
     }
   };
   const observer = new MutationObserver(mutations => {
@@ -1703,4 +1703,4 @@ if ($('head').length === 0) {
     findHead();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-} else $(document.head).append(script());
+} else $( document.head ).append(script());
