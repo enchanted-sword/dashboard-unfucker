@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.5.4
+- Fixed header bug
+
 ## v5.5.3
 - Finally started using eslint
 - Cleaned up minor errors
