@@ -166,7 +166,7 @@ const main = async function (nonce) {
   };
   const style = $str(`
     <style nonce="${nonce}">
-      #adBanner + div:not(#glass-container) > div:first-child {
+      #base-container > div[class]:not(#adBanner) > div:first-child {
         z-index: 100;
         border-bottom: 1px solid rgba(var(--white-on-dark),.13) !important;
         position: -webkit-sticky !important;
