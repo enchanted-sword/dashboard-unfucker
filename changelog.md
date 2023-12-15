@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.5.5
+- Fixed custom label styling
+- Added `peeprHeaderBadgesWrapper` to the filter for the "hide badges" feature
+
 ## v5.5.4
 - Fixed header bug
 

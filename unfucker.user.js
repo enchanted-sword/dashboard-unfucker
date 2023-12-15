@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.5.4
+// @version      5.5.5
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.5.4';
+  const version = '5.5.5';
   const match = [
     '',
     'dashboard',
@@ -510,6 +510,15 @@ const main = async function (nonce) {
             margin: 0 5px;
           }
           
+          .customLabelContainer {
+            white-space: nowrap;
+            border-radius: 4px;
+            padding: 0 4px;
+            font-size: .78125rem;
+            font-weight: 700;
+            line-height: 1.52;
+            display: inline-block;
+          }
           .customLabelContainer[label="Follows You"] {
             color: rgb(var(--blue));
             background-color: rgba(var(--blue),.2);
@@ -523,6 +532,12 @@ const main = async function (nonce) {
             border-bottom: 1px solid rgb(var(--red));
             font-size: 12px;
             margin-left: 5px;
+          }
+          .customLabelIcon {
+            vertical-align: middle;
+            margin-left: 4px;
+            position: relative;
+            bottom: 1px;
           }
           .customLabelInfo {
             visibility: hidden;
@@ -722,9 +737,9 @@ const main = async function (nonce) {
       };
 
       const labelContainer = (label, icon, desc) => $str(`
-        <div class="customLabelContainer ${keyToClasses('generalLabelContainer').join(' ')}" label="${label}" style="margin-left: 5px;">
+        <div class="customLabelContainer" label="${label}">
           ${label}
-          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="${keyToClasses('secondaryIconContainer').join(' ')}" role="presentation" style="--icon-color-primary: rgb(var(--${label === 'Follows You' ? 'blue' : 'red'}))">
+          <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" class="customLabelIcon" role="presentation" style="--icon-color-primary: rgb(var(--${label === 'Follows You' ? 'blue' : 'red'}))">
             <use href="#managed-icon__${icon}"></use>
           </svg>
           <span class="customLabelInfo ${icon}">${desc}</span>
@@ -769,12 +784,12 @@ const main = async function (nonce) {
                 (name === title && posts === 1)) {
                   hide(note.querySelector('.customLabelContainer'));
                   css(note, { backgroundColor: 'rgba(255,37,47,.15)' });
-                  note.querySelector(keyToCss('blogLinkUserAttribution')).append(labelContainer('Possible Bot', 'warning-circle', 'This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker.'));
+                  note.querySelector(keyToCss('tumblelogName')).append(labelContainer('Possible Bot', 'warning-circle', 'This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker.'));
                 }
               });
             }
             if (configPreferences.showFollowingLabel.value && followingYou && !mutuals && !note.querySelector('.customLabelContainer')) {
-              note.querySelector(keyToCss('blogLinkUserAttribution')).append(labelContainer('Follows You', 'profile-checkmark', 'This blog follows you. This feature is a component of dashboard unfucker.'));
+              note.querySelector(keyToCss('tumblelogName')).append(labelContainer('Follows You', 'profile-checkmark', 'This blog follows you. This feature is a component of dashboard unfucker.'));
             }
           } catch (e) {
             console.error('an error occurred processing a notification:', e);
@@ -1404,7 +1419,7 @@ const main = async function (nonce) {
         if (configPreferences.displayVoteCounts.value) {
           mutationManager.start(detailPolls, answerSelector);
         }
-        featureStyles.build('__bs', `${keyToCss('badgeContainer')} { display: none; }`, '', configPreferences.hideBadges.value);
+        featureStyles.build('__bs', `${keyToCss('badgeContainer')}, ${keyToCss('peeprHeaderBadgesWrapper')} { display: none; }`, '', configPreferences.hideBadges.value);
         if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
             css($(containerSelector), { left: `${configPreferences.contentPositioning.value}px`, 'max-width': `${configPreferences.contentWidth.value}px` });
