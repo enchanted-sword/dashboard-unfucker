@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.5.6
+- Improvements to the header fix method
+- Fixed bug where reblog parent badges were always overwritten
+
 ## v5.5.5
 - Fixed custom label styling
 - Added `peeprHeaderBadgesWrapper` to the filter for the "hide badges" feature

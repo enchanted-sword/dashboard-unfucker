@@ -700,11 +700,12 @@ const main = async function (nonce) {
             const header = post.querySelector('header');
             const attribution = header.querySelector(keyToCss('attribution'));
             const reblogParent = attribution.querySelector(keyToCss('targetWrapperInline')).cloneNode(true);
+            const reblogParentBadges = attribution.querySelector(`${keyToCss('attribution')} > ${keyToCss('badgeContainer')}`)
             let rebloggedFrom = attribution.querySelector(keyToCss('rebloggedFromName'));
+            let addingNewRebloggedFrom = false;
 
-            if (rebloggedFrom) {
-              rebloggedFrom = rebloggedFrom.cloneNode(true);
-            } else {
+            if (!rebloggedFrom) {
+              addingNewRebloggedFrom = true;
               const labels = post.querySelectorAll(`:scope ${keyToCss('username')} ${keyToCss('label')}`);
               if (labels.length !== 0) {
                 rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
@@ -716,11 +717,14 @@ const main = async function (nonce) {
               }
             }
 
-            attribution.innerHTML = '';
-            attribution.append(reblogParent);
+            attribution.normalize();
+            [...attribution.childNodes].filter(node => node.nodeName === '#text').map(node => node.remove()) 
+            if (reblogParentBadges) {
+              css(reblogParentBadges, { 'margin-left': '4px' });
+            }
+            if (addingNewRebloggedFrom) attribution.append(rebloggedFrom);
             if (rebloggedFrom) {
-              attribution.append(reblogIcon());
-              attribution.append(rebloggedFrom);
+              rebloggedFrom.before(reblogIcon());
             }
           } catch (e) {
             console.error('an error occurred processing a post header:', e);
@@ -1558,7 +1562,11 @@ const main = async function (nonce) {
             if (file) {
               let msg;
               let obj = await file.text();
-              obj = JSON.parse(obj);
+              try {
+                obj = JSON.parse(obj);
+              } catch (e) {
+                console.error('failed to import preferences from file!', e);
+              }
               if (typeof obj === 'object' && obj.lastVersion) {
                 configPreferences = obj;
                 updatePreferences();
@@ -1572,8 +1580,7 @@ const main = async function (nonce) {
                 await delay(700);
                 msg.remove();
               } else {
-                console.error('failed to import preferences from file!');
-                msg = $str('<span id="__im">failed to import preferences from file!</span>');
+                msg = $str('<span id="__im">invalid JSON data!</span>');
                 document.getElementById('__cio').append(msg);
                 await delay(100);
                 css(msg, { opacity: '1' });
