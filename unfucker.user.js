@@ -693,22 +693,23 @@ const main = async function (nonce) {
       `);
       const fixHeader = posts => {
         for (const post of posts) {
+          if (post.classList.contains('__headerFixed')) continue;
           try {
-            const { id } = fetchNpf(post);
+            const { id, parentPostUrl } = fetchNpf(post);
             post.id = `post${id}`;
 
             const header = post.querySelector('header');
             const attribution = header.querySelector(keyToCss('attribution'));
-            const reblogParent = attribution.querySelector(keyToCss('targetWrapperInline')).cloneNode(true);
-            const reblogParentBadges = attribution.querySelector(`${keyToCss('attribution')} > ${keyToCss('badgeContainer')}`)
             let rebloggedFrom = attribution.querySelector(keyToCss('rebloggedFromName'));
             let addingNewRebloggedFrom = false;
+            let rebloggedFromName;
+            if (parentPostUrl) rebloggedFromName = parentPostUrl.split('/')[3];
 
-            if (!rebloggedFrom) {
-              addingNewRebloggedFrom = true;
+            if (!rebloggedFrom && rebloggedFromName) {
               const labels = post.querySelectorAll(`:scope ${keyToCss('username')} ${keyToCss('label')}`);
               if (labels.length !== 0) {
-                rebloggedFrom = labels.item(labels.length - 1).cloneNode(true);
+                addingNewRebloggedFrom = true;
+                rebloggedFrom = [...labels].find(node => node.querySelector(keyToCss('attribution')).innerText === rebloggedFromName).cloneNode(true);
                 const classes = keyToClasses('rebloggedFromName');
                 rebloggedFrom.classList.add(...classes);
                 css(rebloggedFrom.querySelector(keyToCss('attribution')), { color: 'rgba(var(--black),.65)' });
@@ -719,13 +720,12 @@ const main = async function (nonce) {
 
             attribution.normalize();
             [...attribution.childNodes].filter(node => node.nodeName === '#text').map(node => node.remove()) 
-            if (reblogParentBadges) {
-              css(reblogParentBadges, { 'margin-left': '4px' });
-            }
             if (addingNewRebloggedFrom) attribution.append(rebloggedFrom);
             if (rebloggedFrom) {
               rebloggedFrom.before(reblogIcon());
             }
+
+            post.classList.add('__headerFixed');
           } catch (e) {
             console.error('an error occurred processing a post header:', e);
             console.error(post);

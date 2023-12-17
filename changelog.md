@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.5.7
+- More header fix improvments
+- Added validation for cloning the correct label
+- Fixed logic error with original posts having a 'null' label added
+- Prevented re-processing processed headers
+
 ## v5.5.6
 - Improvements to the header fix method
 - Fixed bug where reblog parent badges were always overwritten
