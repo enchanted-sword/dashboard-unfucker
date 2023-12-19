@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.5.8
+- Fixed the `border-radius` for the `bar` element
+- Re-added the user portrait beside the `bar` element
+
 ## v5.5.7
 - More header fix improvments
 - Added validation for cloning the correct label

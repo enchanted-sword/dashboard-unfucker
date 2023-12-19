@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.5.7
+// @version      5.5.8
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.5.7';
+  const version = '5.5.8';
   const match = [
     '',
     'dashboard',
@@ -509,6 +509,45 @@ const main = async function (nonce) {
             transform: translateY(3px);
             margin: 0 5px;
           }
+
+          .__avatarOuter {
+            pointer-events: auto;
+            top: calc(69px + var(--dashboard-tabs-header-height,0px));
+            transition: top .25s;
+            position: absolute;
+            top: 0;
+            left: -85px;
+          }
+          .__avatarWrapper { position: relative; }
+          .__blogLink {
+            cursor: pointer;
+            word-break: break-word;
+            text-decoration: none;
+          }
+          .__targetWrapper {
+            width: inherit;
+            vertical-align: top;
+            display: inline-block;
+          }
+          .__avatarInner { position: relative; }
+          .__avatarWrapperInner {
+            border-radius: var(--border-radius-small);
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+          .__placeholder {
+            width: 100%;
+            line-height: 0;
+            position: relative;
+          }
+          .__avatarImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            object-fit: cover;
+            visibility: visible;
+          }
           
           .customLabelContainer {
             white-space: nowrap;
@@ -604,7 +643,7 @@ const main = async function (nonce) {
             box-sizing: border-box;
           }
 
-          [data-timeline] article { border-radius: 3px !important; }
+          ${keyToCss('bar')}, [data-timeline] article { border-radius: 3px !important; }
           article header { border-radius: 3px 3px 0 0 !important; }
 
           ${keyToCss('toastHolder')} { display: none; }
@@ -630,6 +669,31 @@ const main = async function (nonce) {
         'Tanpa judul', // id
         'शीर्षकहीन' // hi
       ];
+
+      const { name } = state.queries.queries[0].state.data.user;
+      const userAvatar = $str(`
+        <div class="__avatarOuter">
+          <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
+            <span class="__targetWrapper">
+              <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
+                <div class="__avatarInner" style="width: 64px; height: 64px;">
+                  <div class="__avatarWrapperInner">
+                    <div class="__placeholder" style="padding-bottom: 100%;">
+                      <img
+                      class="__avatarImage"
+                      src="https://api.tumblr.com/v2/blog/${name}/avatar"
+                      sizes="64px" 
+                      alt="${tr("Avatar")}" 
+                      style="width: 64px; height: 64px;" 
+                      loading="eager">
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </span>
+          </div>
+        </div>
+      `);
 
       const hexToRgb = (hex = '') => {
         hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => {
@@ -1372,6 +1436,8 @@ const main = async function (nonce) {
         waitFor(containerSelector).then(() => {
           if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
         });
+
+        $(keyToCss('bar')).prepend(userAvatar);
 
         if (configPreferences.collapseCaughtUp.value || configPreferences.hideRecommendedBlogs.value || configPreferences.hideRecommendedTags.value) mutationManager.start(labelCells, carouselCellSelector);
         featureStyles.build('__cc', `
