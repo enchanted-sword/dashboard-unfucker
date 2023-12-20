@@ -1437,7 +1437,7 @@ const main = async function (nonce) {
           if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
         });
 
-        $(keyToCss('bar')).prepend(userAvatar);
+        $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`).prepend(userAvatar);
 
         if (configPreferences.collapseCaughtUp.value || configPreferences.hideRecommendedBlogs.value || configPreferences.hideRecommendedTags.value) mutationManager.start(labelCells, carouselCellSelector);
         featureStyles.build('__cc', `
