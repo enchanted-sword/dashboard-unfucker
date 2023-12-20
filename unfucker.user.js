@@ -1437,8 +1437,6 @@ const main = async function (nonce) {
           if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
         });
 
-        $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`).prepend(userAvatar);
-
         if (configPreferences.collapseCaughtUp.value || configPreferences.hideRecommendedBlogs.value || configPreferences.hideRecommendedTags.value) mutationManager.start(labelCells, carouselCellSelector);
         featureStyles.build('__cc', `
           [data-watermark-carousel-title-cell] { position: relative !important; }
@@ -1475,6 +1473,7 @@ const main = async function (nonce) {
           waitFor(keyToCss('timelineHeader')).then(() => {
             toggle($(keyToCss('timelineHeader')), !configPreferences.hideDashboardTabs.value);
           });
+          $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`).prepend(userAvatar);
         }
         waitFor(keyToCss('menuRight')).then(() => {
           toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
