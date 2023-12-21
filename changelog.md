@@ -1,8 +1,8 @@
 # Changelog
 
 ## v5.6.1
-- Fixed avatar popups on hover
 - Fixed avatars for the /blog pages and headers for the /explore page
+- Fixed clipped icons appearing in blog view pages where they weren't supposed to
 - Fixed author avatars not showing up
 
 ## v5.6.0

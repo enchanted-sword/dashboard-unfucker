@@ -1707,7 +1707,7 @@ const main = async function (nonce) {
         if (configPreferences.revertMessagingRedesign.value) {
           mutationManager.start(styleMessaging, conversationSelector);
         }
-        featureStyles.build('__as', `.__stickyContainer > .__avatarOuter { position: static !important; }`, '', configPreferences.disableScrollingAvatars.value);
+        featureStyles.build('__as', `.__stickyContainer > ${keyToCss('avatar')} { position: static !important; }`, '', configPreferences.disableScrollingAvatars.value);
 
         observer.observe(target, { childList: true, subtree: true });
       };
