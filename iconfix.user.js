@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         iconfix
-// @version      2.2
+// @version      2.3
 // @description  fixes tumblr post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -52,7 +52,8 @@ const main = async function () {
     const state = window.___INITIAL_STATE___
     const userName = state.queries.queries[0].state.data.user.name;
 
-    const postSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='blog'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.iconfix)`;
+    const postSelector = '[tabindex="-1"][data-id] article';
+    const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.ΘΔavatarFixed)`;
     const newNodes = [];
     const target = document.getElementById("root");
 
@@ -79,44 +80,42 @@ const main = async function () {
         </div>
       </div>
     `);
+    const fixHeaderAvatar = posts => {
+      for (const post of posts) {
+        try {
+          const stickyContainer = $str(`<div class="ΘΔstickyContainer"></div>`);
+          const avatar = post.querySelector(`header > ${keyToCss('avatar')}`);
+
+          post.prepend(stickyContainer);
+          stickyContainer.append(avatar);
+          post.classList.add('ΘΔavatarFixed');
+        } catch (e) {
+          console.error('an error occurred processing a post avatar:', e);
+          console.error(post);
+          console.error(fetchNpf(post));
+        }
+      }
+    };
     const reblogIcon = () => $str(`
-      <span class="__reblogIcon">
+      <span class="ΘΔreblogIcon">
         <svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);">
           <use href="#managed-icon__reblog-compact"></use>
         </svg>
       </span>
     `);
-    const fetchNpf = obj => {
-      const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
-      let fiber = obj[fiberKey];
-
-      while (fiber !== null) {
-        const { timelineObject } = fiber.memoizedProps || {};
-        if (timelineObject !== undefined) {
-          return timelineObject;
-        } else {
-          fiber = fiber.return;
-        };
-      };
-    };
     const fixHeader = posts => {
-      for (const post of posts) {  
+      for (const post of posts) {
         try {
-          const { blogName, id, parentPostUrl } = fetchNpf(post);
+          const { id, parentPostUrl } = fetchNpf(post);
           post.id = `post${id}`;
-
-          const stickyContainer = $str(`<div class="ΘΔstickyContainer"></div>`);
-
-          post.prepend(stickyContainer);
-          stickyContainer.append(userAvatar(blogName));
 
           const header = post.querySelector('header');
           const attribution = header.querySelector(keyToCss('attribution'));
           let rebloggedFrom = attribution.querySelector(keyToCss('rebloggedFromName'));
           let addingNewRebloggedFrom = false;
           let rebloggedFromName;
-          if (parentPostUrl) rebloggedFromName = parentPostUrl.split('/')[3];
 
+          if (parentPostUrl) rebloggedFromName = parentPostUrl.split('/')[3];
           if (!rebloggedFrom && rebloggedFromName) {
             const labels = post.querySelectorAll(`:scope ${keyToCss('username')} ${keyToCss('label')}`);
             if (labels.length !== 0) {
@@ -137,14 +136,28 @@ const main = async function () {
             rebloggedFrom.before(reblogIcon());
           }
 
-          post.classList.add('iconfix');
+          post.classList.add('ΘΔheaderFixed');
         } catch (e) {
-          console.error("an error occurred processing a post header:", e);
+          console.error('an error occurred processing a post header:', e);
           console.error(post);
           console.error(fetchNpf(post));
+        }
+      }
+    };
+    const fetchNpf = obj => {
+      const fiberKey = Object.keys(obj).find(key => key.startsWith("__reactFiber"));
+      let fiber = obj[fiberKey];
+
+      while (fiber !== null) {
+        const { timelineObject } = fiber.memoizedProps || {};
+        if (timelineObject !== undefined) {
+          return timelineObject;
+        } else {
+          fiber = fiber.return;
         };
       };
     };
+
     const sortNodes = () => {
       const nodes = newNodes.splice(0);
       if (nodes.length !== 0 && (nodes.some(node => node.matches(postSelector) || node.querySelector(postSelector)))) {
@@ -153,6 +166,13 @@ const main = async function () {
           ...nodes.flatMap(node => [...node.querySelectorAll(postSelector)])
         ].filter((value, index, array) => index === array.indexOf(value));
         if (posts.length) fixHeader(posts);
+      }
+      if (nodes.length !== 0 && (nodes.some(node => node.matches(postHeaderTargetSelector) || node.querySelector(postHeaderTargetSelector)))) {
+        const posts = [
+          ...nodes.filter(node => node.matches(postHeaderTargetSelector)),
+          ...nodes.flatMap(node => [...node.querySelectorAll(postHeaderTargetSelector)])
+        ].filter((value, index, array) => index === array.indexOf(value));
+        if (posts.length) fixHeaderAvatar(posts);
       }
     };
     const observer = new MutationObserver(mutations => {
@@ -163,29 +183,14 @@ const main = async function () {
       newNodes.push(...nodes);
       sortNodes();
     });
-    const unfuck = async function () {
-      requestAnimationFrame(() => {
-        observer.observe(target, { childList: true, subtree: true });
-        fixHeader(Array.from($a(postSelector)));
 
-        const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
-        if (bar) {
-          const userAvatarWrapper = $str('<div class="ΘΔuserAvatarWrapper"></div>');
-          bar.prepend(userAvatarWrapper);
-          userAvatarWrapper.append(userAvatar(userName));
-        }
-      });
-      console.log("headers fixed!");
-    };
-    
     const style = $str(`
       <style>
-        ${keyToCss("main")}${keyToCss("reblogRedesignEnabled")} { max-width: 625px !important; }
+        div:not(${keyToCss('mainContentIsMasonry')}) > div > ${keyToCss("main")}${keyToCss("reblogRedesignEnabled")} { max-width: 625px !important; }
         ${keyToCss("tabsHeader")} { margin-left: -93px !important ;}
         ${keyToCss("mainContentWrapper")}${keyToCss("reblogRedesignEnabled")} { min-width: 890px !important; flex-basis: 890px !important; }
 
-        [data-timeline]:not([data-timeline*='inbox'],[data-timeline*='blog'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article header > ${keyToCss("avatar")} { display: none !important }
-        article header ${keyToCss("communityLabel")} { display: none !important; }
+        [data-timeline]:not([data-timeline*='inbox'],[data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article.ΘΔheaderFixed header ${keyToCss('communityLabel')} { display: none !important; }
 
         .ΘΔreblogIcon {
           height: 14px;
@@ -209,6 +214,22 @@ const main = async function () {
           position: absolute;
           left: -84px;
         }
+        .ΘΔstickyContainer > ${keyToCss('avatar')} {
+          position: sticky;
+          top: 18px;
+          transition: top .25s;
+        }
+        .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')},
+          .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} img {
+          width: 64px !important;
+          height: 64px !important;
+        }
+        .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')},
+          .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} img {
+          width: 24px !important;
+          height: 24px !important;
+        }
+        .ΘΔstickyContainer ${keyToCss('badge')} { display: none; }
         .ΘΔavatarOuter {
           position: sticky;
           top: 18px;
@@ -247,7 +268,23 @@ const main = async function () {
       </style>
     `);
 
-    document.head.appendChild(style);
+    const unfuck = async function () {
+      requestAnimationFrame(() => {
+        observer.observe(target, { childList: true, subtree: true });
+        fixHeader(Array.from($a(postSelector)));
+        fixHeaderAvatar(Array.from($a(postHeaderTargetSelector)));
+
+        const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
+        if (bar) {
+          const userAvatarWrapper = $str('<div class="ΘΔuserAvatarWrapper"></div>');
+          bar.prepend(userAvatarWrapper);
+          userAvatarWrapper.append(userAvatar(userName));
+        }
+
+        document.head.appendChild(style);
+      });
+      console.log("icons fixed!");
+    };
 
     unfuck();
     window.tumblr.on('navigation', () => window.setTimeout(() => {
