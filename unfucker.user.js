@@ -343,7 +343,7 @@ const main = async function (nonce) {
             color: rgb(var(--black));
           }
           #__m li:last-of-type, #__m li[active="true"] { border: none; }
-          #__m li span { max-width: 240px; }
+          #__m li span:not(.infoHeader > span) { max-width: 240px; }
           .__n {
             position: absolute;
           }
