@@ -66,6 +66,7 @@ const main = async function (nonce) {
     disableTagNag: { advanced: true, type: 'checkbox', value: 'checked' },
     reAddHomeNotifications: { advanced: true, type: 'checkbox', value: 'checked' },
     displayVoteCounts: { advanced: false, type: 'checkbox', value: '' },
+    votelessResults : { advanced: false, type: 'checkbox', value: ''},
     showNsfwPosts: { advanced: true, type: 'checkbox', value: '' },
     disableScrollingAvatars: { advanced: false, type: 'checkbox', value: '' }
   };
@@ -287,7 +288,8 @@ const main = async function (nonce) {
       const postSelector = '[tabindex="-1"][data-id] article';
       const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='blog'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article`
       const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
-      const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
+      const answerSelector = "[data-testid='poll-answer']:not(.__pollDetailed)";
+      const voteSelector = `button${keyToCss('vote')}:not(.__pollResultsShown)`;
       const conversationSelector = '[data-skip-glass-focus-trap]';
       const carouselCellSelector = `[data-cell-id] ${keyToCss('tagCard')}, [data-cell-id] ${keyToCss('blogRecommendation')}, [data-cell-id] ${keyToCss('tagChicletLink')}`;
       const masonryNotesSelector = `[data-timeline]${keyToCss('masonry')} article ${keyToCss('formattedNoteCount')}`;
@@ -619,6 +621,16 @@ const main = async function (nonce) {
             font-size: 12px;
           }
 
+          .__percentage {
+            position: absolute;
+            content: "";
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(var(--blue),.2);
+            border-radius: 18px;
+          }
+
           #tumblr { --dashboard-tabs-header-height: 0px !important; }
           ${keyToCss('navItem')}:has(use[href="#managed-icon__sparkle"]) { display: none !important; }
           ${keyToCss('bluespaceLayout')} > ${keyToCss('container')} { position: relative; }
@@ -883,19 +895,44 @@ const main = async function (nonce) {
           }
         }
       };
+
       const detailPolls = answers => {
         for (const answer of answers) {
-          if (answer.classList.contains('pollDetailed')) continue;
+          if (answer.classList.contains('__pollDetailed')) continue;
           const post = answer.closest(postSelector);
           const answers = Array.from(post.querySelectorAll(':scope [data-testid="poll-answer"]'));
           const voteCount = Number(post.querySelector(keyToCss('pollSummary')).innerText.replace(/,/, '').match(/\d+/)[0]);
           answers.forEach((element) => {
             const percentage = fetchPercentage(element);
             element.append($str(`<span class="answerVoteCount">(${Math.round(voteCount * percentage / 100)})</span>`));
-            element.classList.add('pollDetailed');
+            element.classList.add('__pollDetailed');
           });
         }
       };
+      const fetchPollResults = obj => {
+        const fiberKey = Object.keys(obj).find(key => key.startsWith('__reactFiber'));
+        let fiber = obj[fiberKey];
+
+        while (fiber !== null) {
+          const { percentage, answer } = fiber.memoizedProps || {};
+          if (percentage !== undefined && answer !== undefined) {
+            return `${percentage}%`;
+          } else {
+            fiber = fiber.return;
+          }
+        }
+      }
+      const pollResults = buttons => {
+        for (const button of buttons) {
+          const percentage = $str('<div class="__percentage"></div>');
+
+          button.prepend(percentage);
+          percentage.style.width = fetchPollResults(button);
+
+          button.classList.add('__pollResultsShown');
+        }
+      }
+
       const fetchOtherBlog = async function (obj) {
         const fiberKey = Object.keys(obj).find(key => key.startsWith('__reactFiber'));
         let fiber = obj[fiberKey];
@@ -1093,6 +1130,13 @@ const main = async function (nonce) {
               else mutationManager.stop(labelCells);
             }
             break;
+          case '__originalHeaders': 
+            if (value) mutationManager.start(fixHeader, postHeaderTargetSelector);
+            else {
+              remove($a('__stickyContainer, .__userAvatarWrapper'));
+              mutationManager.stop(fixHeader);
+            }
+            break;
           case '__hideTumblrRadar':
             toggle(find($a(keyToCss('sidebarItem')), keyToCss('radar')), !value);
             break;
@@ -1122,12 +1166,20 @@ const main = async function (nonce) {
             break;
           case '__displayVoteCounts':
             featureStyles.toggle('__ps', value);
+            featureStyles.toggle('__ps', value);
             mutationManager.toggle(detailPolls, answerSelector);
 
             if (!value) {
-              document.getElementById('__ps').innerText = '';
               remove($a('.answerVoteCount'));
-              $a('.pollDetailed').forEach(elem => elem.classList.remove('pollDetailed'));
+              $a('.__pollDetailed').forEach(elem => elem.classList.remove('__pollDetailed'));
+            }
+            break;
+          case '__votelessResults':
+            mutationManager.toggle(pollResults, pollSelector);
+
+            if (!value) {
+              remove($a('.__percentage'));
+              $a('.__pollResultsShown').forEach(elem => elem.classList.remove('__pollResultsShown'));
             }
             break;
           case '__disableScrollingAvatars':
@@ -1267,6 +1319,7 @@ const main = async function (nonce) {
           highlightLikelyBots: 'highlight likely bots in activity feed',
           showFollowingLabel: 'show who follows you in the activity feed',
           displayVoteCounts: 'display exact vote counts on poll answers',
+          votelessResults: 'show poll results without voting',
           disableScrollingAvatars: 'disable avatars scrolling with posts',
           revertActivityFeedRedesign: 'revert activity feed redesign',
           revertMessagingRedesign: 'revert messaging redesign',
@@ -1512,9 +1565,8 @@ const main = async function (nonce) {
         featureStyles.build('__ps', `
           ${keyToCss('pollAnswerPercentage')} { position: relative; bottom: 4px; }
           ${keyToCss('results')} { overflow: hidden; }`, '', configPreferences.displayVoteCounts.value);
-        if (configPreferences.displayVoteCounts.value) {
-          mutationManager.start(detailPolls, answerSelector);
-        }
+        if (configPreferences.displayVoteCounts.value) mutationManager.start(detailPolls, answerSelector);
+        if (configPreferences.votelessResults.value) mutationManager.start(pollResults, voteSelector);
         featureStyles.build('__bs', `${keyToCss('badgeContainer')}, ${keyToCss('peeprHeaderBadgesWrapper')} { display: none; }`, '', configPreferences.hideBadges.value);
         if (matchPathname() && notMasonry()) {
           waitFor(containerSelector).then(() => {
