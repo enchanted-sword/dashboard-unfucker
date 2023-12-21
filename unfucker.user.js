@@ -814,7 +814,7 @@ const main = async function (nonce) {
             attribution.normalize();
             [...attribution.childNodes].filter(node => node.nodeName === '#text').forEach(node => node.remove());
             if (addingNewRebloggedFrom) attribution.append(rebloggedFrom);
-            if (rebloggedFrom) {
+            if (rebloggedFrom && !header.querySelector('.__reblogIcon')) {
               rebloggedFrom.before(reblogIcon());
             }
 
@@ -1131,9 +1131,18 @@ const main = async function (nonce) {
             }
             break;
           case '__originalHeaders': 
-            if (value) mutationManager.start(fixHeader, postHeaderTargetSelector);
+            if (value) {
+              const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
+              if (bar) {
+                const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
+                bar.prepend(userAvatarWrapper);
+                userAvatarWrapper.append(userAvatar(userName));
+              }
+              mutationManager.start(fixHeader, postHeaderTargetSelector);
+            }
             else {
-              remove($a('__stickyContainer, .__userAvatarWrapper'));
+              remove($a('.__stickyContainer, .__userAvatarWrapper'));
+              $a('.__headerFixed').forEach(elem => elem.classList.remove('__headerFixed'));
               mutationManager.stop(fixHeader);
             }
             break;
