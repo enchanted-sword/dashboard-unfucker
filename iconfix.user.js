@@ -53,7 +53,7 @@ const main = async function () {
     const userName = state.queries.queries[0].state.data.user.name;
 
     const postSelector = '[tabindex="-1"][data-id] article';
-    const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.ΘΔavatarFixed)`;
+    const postHeaderTargetSelector = `${keyToCss('main')} > :not(${keyToCss('blogTimeline')}) [data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.ΘΔavatarFixed)`;
     const newNodes = [];
     const target = document.getElementById("root");
 
@@ -199,7 +199,7 @@ const main = async function () {
         ${keyToCss("tabsHeader")} { margin-left: -93px !important ;}
         ${keyToCss("mainContentWrapper")}${keyToCss("reblogRedesignEnabled")} { min-width: 890px !important; flex-basis: 890px !important; }
 
-        [data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article.ΘΔheaderFixed header ${keyToCss('communityLabel')} { display: none !important; }
+        article.ΘΔheaderFixed header ${keyToCss('communityLabel')} { display: none !important; }
 
         .ΘΔreblogIcon {
           height: 14px;

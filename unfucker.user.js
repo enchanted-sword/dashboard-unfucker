@@ -286,7 +286,7 @@ const main = async function (nonce) {
       if (configPreferences.messagingScale.value < 1 || configPreferences.messagingScale.value > 2) configPreferences.messagingScale = 1;
 
       const postSelector = '[tabindex="-1"][data-id] article';
-      const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.__avatarFixed)`;
+      const postHeaderTargetSelector = `${keyToCss('main')} > :not(${keyToCss('blogTimeline')}) [data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.__avatarFixed)`;
       const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.__pollDetailed)";
       const voteSelector = `button${keyToCss('vote')}:not(.__pollResultsShown)`;
@@ -504,7 +504,7 @@ const main = async function (nonce) {
             opacity: 0;
           }
 
-          [data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article.__headerFixed header ${keyToCss('communityLabel')} { display: none !important; }
+          article.__headerFixed header ${keyToCss('communityLabel')} { display: none !important; }
           .__reblogIcon {
             height: 14px;
             display: inline-block;
@@ -765,7 +765,7 @@ const main = async function (nonce) {
         <div class="__avatarOuter">
           <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
             <span class="__targetWrapper">
-              <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="__blogLink" tabindex="0">
+              <a href="https://${name}.tumblr.com/" title="${name}" rel="noopener" role="link" class="__blogLink" tabindex="0">
                 <div class="__avatarInner" style="width: 64px; height: 64px;">
                   <div class="__avatarWrapperInner">
                     <div class="__placeholder" style="padding-bottom: 100%;">
@@ -848,13 +848,23 @@ const main = async function (nonce) {
           }
         }
       };
+      const blogViewLink = avatar => {
+        const links = avatar.querySelectorAll('a');
+        links.forEach(link => {
+          const name = link.getAttribute('title');
+          link.addEventListener('click', event => {
+            event.preventDefault();
+            window.tumblr.navigate(`/${name}`);
+          });
+        });
+      };
       const addUserPortrait = () => {
         const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
         if (bar) {
           const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
           bar.prepend(userAvatarWrapper);
           userAvatarWrapper.append(userAvatar(userName));
-          userAvatarWrapper.querySelector('.__blogLink').addEventListener('click', () => window.tumblr.navigate(`/${userName}`));
+          blogViewLink(userAvatarWrapper);
         }
       };
 
