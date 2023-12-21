@@ -229,13 +229,13 @@ const main = async function () {
           transition: top .25s;
         }
         .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')},
-          .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} img,
+          .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} ${keyToCss('image')},
           .ΘΔstickyContainer ${keyToCss('anonymous')} {
           width: 64px !important;
           height: 64px !important;
         }
         .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')},
-          .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} img {
+          .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} ${keyToCss('image')} {
           width: 24px !important;
           height: 24px !important;
         }

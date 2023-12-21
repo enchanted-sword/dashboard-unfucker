@@ -533,13 +533,13 @@ const main = async function (nonce) {
             transition: top .25s;
           }
           .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')},
-            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} img,
+            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} ${keyToCss('image')},
             .__stickyContainer ${keyToCss('anonymous')} {
             width: 64px !important;
             height: 64px !important;
           }
           .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')},
-            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} img {
+            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} ${keyToCss('image')} {
             width: 24px !important;
             height: 24px !important;
           }
