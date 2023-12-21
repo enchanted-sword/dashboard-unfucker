@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.6.0
+// @version      5.6.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.6.0';
+  const version = '5.6.1';
   const match = [
     '',
     'dashboard',
@@ -286,7 +286,7 @@ const main = async function (nonce) {
       if (configPreferences.messagingScale.value < 1 || configPreferences.messagingScale.value > 2) configPreferences.messagingScale = 1;
 
       const postSelector = '[tabindex="-1"][data-id] article';
-      const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.__avatarFixed)`;
+      const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.__avatarFixed)`;
       const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.__pollDetailed)";
       const voteSelector = `button${keyToCss('vote')}:not(.__pollResultsShown)`;
@@ -504,7 +504,7 @@ const main = async function (nonce) {
             opacity: 0;
           }
 
-          [data-timeline]:not([data-timeline*='inbox'],[data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article.__headerFixed header ${keyToCss('communityLabel')} { display: none !important; }
+          [data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article.__headerFixed header ${keyToCss('communityLabel')} { display: none !important; }
           .__reblogIcon {
             height: 14px;
             display: inline-block;
@@ -533,7 +533,8 @@ const main = async function (nonce) {
             transition: top .25s;
           }
           .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')},
-            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} img {
+            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} img,
+            .__stickyContainer ${keyToCss('anonymous')} {
             width: 64px !important;
             height: 64px !important;
           }
