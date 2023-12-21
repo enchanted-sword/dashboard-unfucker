@@ -44,6 +44,9 @@ Marks new followers that are likely to be bots. The filter can sometimes indicat
 ### Show who follows you in the activity feed
 Adds a "Following You" label to relevant notifications that matches the default "Mutuals" and "Following" labels.
 
+### Revert the post header design and re-add user avatars beside posts
+Moves the shrunken inline avatars back to scrolling containers beside the posts, shows who a post was reblogged from even if it was reblogged from the previous contributor to the post's content, and replaces the word "reblogged" with the classic icon.
+
 ### Disable avatars scrolling with posts
 Prevents the avatars beside posts from scrolling with the posts.
 
@@ -92,6 +95,9 @@ Re-adds the notification icon to the navbar's "home" icon that displays how many
 
 ### Display exact vote counts on poll answers
 Displays the number of votes each poll answer has recieved underneath the vote percentage.
+
+### Display poll results without voting
+Displays a colored bar inside of poll vote buttons whose width is proportional to the percentage of votes each option has recieved at the time of loading 
 
 ### Show hidden NSFW posts in the timeline
 Certain posts flagged as NSFW by Tumblr are delivered by internal API requests, but are not added to the dashboard feed. Enabling this feature will make these posts visible on the dashboard.

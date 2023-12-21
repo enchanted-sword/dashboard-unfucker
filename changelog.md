@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.6.0
+- Added the "Revert header design" feature
+- Added the "display poll results without voting" feature
+- Fixed a minor ui bug with the advanced config menu
+
 ## v5.5.8
 - Fixed the `border-radius` for the `bar` element
 - Re-added the user portrait beside the `bar` element

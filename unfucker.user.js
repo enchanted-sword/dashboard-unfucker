@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.5.8
+// @version      5.6.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.5.8';
+  const version = '5.6.0';
   const match = [
     '',
     'dashboard',
@@ -1184,7 +1184,7 @@ const main = async function (nonce) {
             }
             break;
           case '__votelessResults':
-            mutationManager.toggle(pollResults, pollSelector);
+            mutationManager.toggle(pollResults, voteSelector);
 
             if (!value) {
               remove($a('.__percentage'));
@@ -1328,7 +1328,7 @@ const main = async function (nonce) {
           highlightLikelyBots: 'highlight likely bots in activity feed',
           showFollowingLabel: 'show who follows you in the activity feed',
           displayVoteCounts: 'display exact vote counts on poll answers',
-          votelessResults: 'show poll results without voting',
+          votelessResults: 'display poll results without voting',
           disableScrollingAvatars: 'disable avatars scrolling with posts',
           revertActivityFeedRedesign: 'revert activity feed redesign',
           revertMessagingRedesign: 'revert messaging redesign',
