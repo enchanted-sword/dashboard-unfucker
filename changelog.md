@@ -1,9 +1,15 @@
 # Changelog
 
+## v5.6.1
+- Fixed avatar popups on hover
+- Fixed avatars for the /blog pages and headers for the /explore page
+- Fixed author avatars not showing up
+
 ## v5.6.0
 - Added the "Revert header design" feature
 - Added the "display poll results without voting" feature
 - Fixed a minor ui bug with the advanced config menu
+- Added the dragon
 
 ## v5.5.8
 - Fixed the `border-radius` for the `bar` element

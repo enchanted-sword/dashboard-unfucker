@@ -286,7 +286,7 @@ const main = async function (nonce) {
       if (configPreferences.messagingScale.value < 1 || configPreferences.messagingScale.value > 2) configPreferences.messagingScale = 1;
 
       const postSelector = '[tabindex="-1"][data-id] article';
-      const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='blog'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article`;
+      const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.__avatarFixed)`;
       const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.__pollDetailed)";
       const voteSelector = `button${keyToCss('vote')}:not(.__pollResultsShown)`;
@@ -504,8 +504,7 @@ const main = async function (nonce) {
             opacity: 0;
           }
 
-          [data-timeline]:not(${keyToCss('masonry')}) article header > ${keyToCss('avatar')} { display: none !important }
-          article header ${keyToCss('communityLabel')} { display: none !important; }
+          [data-timeline]:not([data-timeline*='inbox'],[data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article.__headerFixed header ${keyToCss('communityLabel')} { display: none !important; }
           .__reblogIcon {
             height: 14px;
             display: inline-block;
@@ -517,7 +516,7 @@ const main = async function (nonce) {
             position: absolute;
             left: -84px;
           }
-          .__userAvatarWrapper > .__avatarOuter {
+          .__userAvatarWrapper > ${keyToCss('avatar')} {
             position: absolute !important;
             top: 0 !important;
           }
@@ -526,12 +525,24 @@ const main = async function (nonce) {
             height: 100%;
             position: absolute;
             left: -84px;
+            padding: 0;
           }
-          .__avatarOuter {
+          .__stickyContainer > ${keyToCss('avatar')} {
             position: sticky;
             top: 69px;
             transition: top .25s;
           }
+          .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')},
+            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('avatar')} img {
+            width: 64px !important;
+            height: 64px !important;
+          }
+          .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')},
+            .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} img {
+            width: 24px !important;
+            height: 24px !important;
+          }
+          .__stickyContainer ${keyToCss('badge')} { display: none; }
           .__avatarWrapper { position: relative; }
           .__blogLink {
             cursor: pointer;
@@ -772,6 +783,22 @@ const main = async function (nonce) {
           </div>
         </div>
       `);
+      const fixHeaderAvatar = posts => {
+        for (const post of posts) {
+          try {
+            const stickyContainer = $str(`<div class="__stickyContainer"></div>`);
+            const avatar = post.querySelector(`header > ${keyToCss('avatar')}`);
+
+            post.prepend(stickyContainer);
+            stickyContainer.append(avatar);
+            post.classList.add('__avatarFixed');
+          } catch (e) {
+            console.error('an error occurred processing a post avatar:', e);
+            console.error(post);
+            console.error(fetchNpf(post));
+          }
+        }
+      };
       const reblogIcon = () => $str(`
         <span class="__reblogIcon">
           <svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);">
@@ -781,23 +808,17 @@ const main = async function (nonce) {
       `);
       const fixHeader = posts => {
         for (const post of posts) {
-          if (post.classList.contains('__headerFixed')) continue;
           try {
-            const { blogName, id, parentPostUrl } = fetchNpf(post);
+            const { id, parentPostUrl } = fetchNpf(post);
             post.id = `post${id}`;
-
-            const stickyContainer = $str(`<div class="__stickyContainer"></div>`);
-
-            post.prepend(stickyContainer);
-            stickyContainer.append(userAvatar(blogName));
 
             const header = post.querySelector('header');
             const attribution = header.querySelector(keyToCss('attribution'));
             let rebloggedFrom = attribution.querySelector(keyToCss('rebloggedFromName'));
             let addingNewRebloggedFrom = false;
             let rebloggedFromName;
-            if (parentPostUrl) rebloggedFromName = parentPostUrl.split('/')[3];
 
+            if (parentPostUrl) rebloggedFromName = parentPostUrl.split('/')[3];
             if (!rebloggedFrom && rebloggedFromName) {
               const labels = post.querySelectorAll(`:scope ${keyToCss('username')} ${keyToCss('label')}`);
               if (labels.length !== 0) {
@@ -1138,12 +1159,16 @@ const main = async function (nonce) {
                 bar.prepend(userAvatarWrapper);
                 userAvatarWrapper.append(userAvatar(userName));
               }
-              mutationManager.start(fixHeader, postHeaderTargetSelector);
+              mutationManager.start(fixHeader, postSelector);
+              mutationManager.start(fixHeaderAvatar, postHeaderTargetSelector);
             }
             else {
+              $a(`.__stickyContainer > ${keyToCss('avatar')}`).forEach(avatar => avatar.closest('article').querySelector('header').prepend(avatar));
               remove($a('.__stickyContainer, .__userAvatarWrapper'));
               $a('.__headerFixed').forEach(elem => elem.classList.remove('__headerFixed'));
+              $a('.__avatarFixed').forEach(elem => elem.classList.remove('__avatarFixed'));
               mutationManager.stop(fixHeader);
+              mutationManager.stop(fixHeaderAvatar);
             }
             break;
           case '__hideTumblrRadar':
@@ -1552,7 +1577,8 @@ const main = async function (nonce) {
             bar.prepend(userAvatarWrapper);
             userAvatarWrapper.append(userAvatar(userName));
           }
-          mutationManager.start(fixHeader, postHeaderTargetSelector);
+          mutationManager.start(fixHeader, postSelector);
+          mutationManager.start(fixHeaderAvatar, postHeaderTargetSelector);
         }
 
         waitFor(keyToCss('radar')).then(() => {
