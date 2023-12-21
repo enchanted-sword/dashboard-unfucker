@@ -38,6 +38,7 @@ const main = async function (nonce) {
     collapseCaughtUp: { advanced: false, type: 'checkbox', value: '' },
     hideRecommendedBlogs: { advanced: false, type: 'checkbox', value: '' },
     hideRecommendedTags: { advanced: false, type: 'checkbox', value: '' },
+    originalHeaders: { advanced: false, type: 'checkbox', value: 'checked'},
     hideTumblrRadar: { advanced: false, type: 'checkbox', value: '' },
     hideExplore: { advanced: false, type: 'checkbox', value: '' },
     hideTumblrShop: { advanced: false, type: 'checkbox', value: 'checked' },
@@ -249,7 +250,6 @@ const main = async function (nonce) {
     { name: 'allowAddingPollsToReblogs', value: !!configPreferences.enableReblogPolls.value },
     { name: 'tagSuggestionTwoStepDialog', value: !configPreferences.disableTagNag.value },
     { name: 'redpopUnreadNotificationsOnTab', value: !configPreferences.reAddHomeNotifications.value },
-    { name: 'reblogRedesignNew', value: false },
     { name: 'redpopDesktopVerticalNav', value: false },
     { name: 'crowdsignalPollsNpf', value: true },
     { name: 'crowdsignalPollsCreate', value: true },
@@ -284,7 +284,8 @@ const main = async function (nonce) {
       if (configPreferences.contentWidth.value < 990 || configPreferences.contentWidth.value > windowWidth) configPreferences.contentWidth.value = 990;
       if (configPreferences.messagingScale.value < 1 || configPreferences.messagingScale.value > 2) configPreferences.messagingScale = 1;
 
-      const postSelector = "[tabindex='-1'][data-id] article";
+      const postSelector = '[tabindex="-1"][data-id] article';
+      const postHeaderTargetSelector = `[data-timeline]:not([data-timeline*='inbox'],[data-timeline*='blog'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article`
       const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
       const answerSelector = "[data-testid='poll-answer']:not(.pollDetailed)";
       const conversationSelector = '[data-skip-glass-focus-trap]';
@@ -509,14 +510,25 @@ const main = async function (nonce) {
             transform: translateY(3px);
             margin: 0 5px;
           }
-
-          .__avatarOuter {
-            pointer-events: auto;
-            top: calc(69px + var(--dashboard-tabs-header-height,0px));
-            transition: top .25s;
-            position: absolute;
+          .__userAvatarWrapper {
             top: 0;
-            left: -85px;
+            position: absolute;
+            left: -84px;
+          }
+          .__userAvatarWrapper > .__avatarOuter {
+            position: absolute !important;
+            top: 0 !important;
+          }
+          .__stickyContainer {
+            color: RGB(var(--white-on-dark));
+            height: 100%;
+            position: absolute;
+            left: -84px;
+          }
+          .__avatarOuter {
+            position: sticky;
+            top: 69px;
+            transition: top .25s;
           }
           .__avatarWrapper { position: relative; }
           .__blogLink {
@@ -670,30 +682,7 @@ const main = async function (nonce) {
         'शीर्षकहीन' // hi
       ];
 
-      const { name } = state.queries.queries[0].state.data.user;
-      const userAvatar = $str(`
-        <div class="__avatarOuter">
-          <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
-            <span class="__targetWrapper">
-              <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
-                <div class="__avatarInner" style="width: 64px; height: 64px;">
-                  <div class="__avatarWrapperInner">
-                    <div class="__placeholder" style="padding-bottom: 100%;">
-                      <img
-                      class="__avatarImage"
-                      src="https://api.tumblr.com/v2/blog/${name}/avatar"
-                      sizes="64px" 
-                      alt="${tr("Avatar")}" 
-                      style="width: 64px; height: 64px;" 
-                      loading="eager">
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </span>
-          </div>
-        </div>
-      `);
+      const userName = state.queries.queries[0].state.data.user.name;
 
       const hexToRgb = (hex = '') => {
         hex = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => {
@@ -748,6 +737,29 @@ const main = async function (nonce) {
         }
       };
 
+      const userAvatar = name => $str(`
+        <div class="__avatarOuter">
+          <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
+            <span class="__targetWrapper">
+              <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
+                <div class="__avatarInner" style="width: 64px; height: 64px;">
+                  <div class="__avatarWrapperInner">
+                    <div class="__placeholder" style="padding-bottom: 100%;">
+                      <img
+                      class="__avatarImage"
+                      src="https://api.tumblr.com/v2/blog/${name}/avatar"
+                      sizes="64px" 
+                      alt="${tr("Avatar")}" 
+                      style="width: 64px; height: 64px;" 
+                      loading="eager">
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </span>
+          </div>
+        </div>
+      `);
       const reblogIcon = () => $str(`
         <span class="__reblogIcon">
           <svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" role="presentation" style="--icon-color-primary: rgba(var(--black), 0.65);">
@@ -759,8 +771,13 @@ const main = async function (nonce) {
         for (const post of posts) {
           if (post.classList.contains('__headerFixed')) continue;
           try {
-            const { id, parentPostUrl } = fetchNpf(post);
+            const { blogName, id, parentPostUrl } = fetchNpf(post);
             post.id = `post${id}`;
+
+            const stickyContainer = $str(`<div class="__stickyContainer"></div>`);
+
+            post.prepend(stickyContainer);
+            stickyContainer.append(userAvatar(blogName));
 
             const header = post.querySelector('header');
             const attribution = header.querySelector(keyToCss('attribution'));
@@ -783,7 +800,7 @@ const main = async function (nonce) {
             }
 
             attribution.normalize();
-            [...attribution.childNodes].filter(node => node.nodeName === '#text').map(node => node.remove()) 
+            [...attribution.childNodes].filter(node => node.nodeName === '#text').forEach(node => node.remove());
             if (addingNewRebloggedFrom) attribution.append(rebloggedFrom);
             if (rebloggedFrom) {
               rebloggedFrom.before(reblogIcon());
@@ -1242,6 +1259,7 @@ const main = async function (nonce) {
           collapseCaughtUp: "collapse the 'changes', 'staff picks', etc. carousel",
           hideRecommendedBlogs: 'hide recommended blogs',
           hideRecommendedTags: 'hide recommended tags',
+          originalHeaders: 'revert the post header design and re-add user avatars beside posts',
           hideTumblrRadar: 'hide tumblr radar',
           hideExplore: 'hide explore',
           hideTumblrShop: 'hide tumblr shop',
@@ -1431,7 +1449,6 @@ const main = async function (nonce) {
       const initializePreferences = () => {
         const containerSelector = `${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`;
 
-        mutationManager.start(fixHeader, postSelector);
         mutationManager.start(fixMasonryNotes, masonryNotesSelector);
         waitFor(containerSelector).then(() => {
           if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
@@ -1465,6 +1482,17 @@ const main = async function (nonce) {
           [data-tag-carousel-cell] > div canvas { visibility: hidden; }
           [data-tag-carousel-cell] ${keyToCss('carouselWrapper')} { display: none !important }
         `, '', configPreferences.hideRecommendedTags.value);
+
+        if (configPreferences.originalHeaders.value) {
+          const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
+          if (bar) {
+            const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
+            bar.prepend(userAvatarWrapper);
+            userAvatarWrapper.append(userAvatar(userName));
+          }
+          mutationManager.start(fixHeader, postHeaderTargetSelector);
+        }
+
         waitFor(keyToCss('radar')).then(() => {
           toggle(find($a(keyToCss('sidebarItem')), keyToCss('radar')), !configPreferences.hideTumblrRadar.value);
         });
@@ -1473,7 +1501,6 @@ const main = async function (nonce) {
           waitFor(keyToCss('timelineHeader')).then(() => {
             toggle($(keyToCss('timelineHeader')), !configPreferences.hideDashboardTabs.value);
           });
-          $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`).prepend(userAvatar);
         }
         waitFor(keyToCss('menuRight')).then(() => {
           toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
@@ -1583,7 +1610,7 @@ const main = async function (nonce) {
         if (configPreferences.revertMessagingRedesign.value) {
           mutationManager.start(styleMessaging, conversationSelector);
         }
-        featureStyles.build('__as', `${keyToCss('stickyContainer')} > ${keyToCss('avatar')} { position: static !important; }`, '', configPreferences.disableScrollingAvatars.value);
+        featureStyles.build('__as', `.__stickyContainer > .__avatarOuter { position: static !important; }`, '', configPreferences.disableScrollingAvatars.value);
 
         observer.observe(target, { childList: true, subtree: true });
       };
