@@ -61,7 +61,7 @@ const main = async function () {
       <div class="ΘΔavatarOuter">
         <div class="ΘΔavatarWrapper" role="figure" aria-label="${tr("avatar")}">
           <span class="ΘΔtargetWrapper">
-            <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
+            <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="ΘΔblogLink" tabindex="0">
               <div class="ΘΔavatarInner" style="width: 64px; height: 64px;">
                 <div class="ΘΔavatarWrapperInner">
                   <div class="ΘΔplaceholder" style="padding-bottom: 100%;">
@@ -80,6 +80,15 @@ const main = async function () {
         </div>
       </div>
     `);
+    const addUserPortrait = () => {
+      const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
+      if (bar) {
+        const userAvatarWrapper = $str('<div class="ΘΔuserAvatarWrapper"></div>');
+        bar.prepend(userAvatarWrapper);
+        userAvatarWrapper.append(userAvatar(userName));
+        userAvatarWrapper.querySelector('.ΘΔblogLink').addEventListener('click', () => window.tumblr.navigate(`/${userName}`));
+      }
+    };
     const fixHeaderAvatar = posts => {
       for (const post of posts) {
         try {
@@ -275,12 +284,7 @@ const main = async function () {
         fixHeader(Array.from($a(postSelector)));
         fixHeaderAvatar(Array.from($a(postHeaderTargetSelector)));
 
-        const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
-        if (bar) {
-          const userAvatarWrapper = $str('<div class="ΘΔuserAvatarWrapper"></div>');
-          bar.prepend(userAvatarWrapper);
-          userAvatarWrapper.append(userAvatar(userName));
-        }
+        addUserPortrait();
 
         document.head.appendChild(style);
       });

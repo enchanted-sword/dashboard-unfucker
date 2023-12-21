@@ -765,7 +765,7 @@ const main = async function (nonce) {
         <div class="__avatarOuter">
           <div class="__avatarWrapper" role="figure" aria-label="${tr("avatar")}">
             <span class="__targetWrapper">
-              <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="blogLink" tabindex="0">
+              <a href="https://${name}.tumblr.com/" title="${name}" target="_blank" rel="noopener" role="link" class="__blogLink" tabindex="0">
                 <div class="__avatarInner" style="width: 64px; height: 64px;">
                   <div class="__avatarWrapperInner">
                     <div class="__placeholder" style="padding-bottom: 100%;">
@@ -846,6 +846,15 @@ const main = async function (nonce) {
             console.error(post);
             console.error(fetchNpf(post));
           }
+        }
+      };
+      const addUserPortrait = () => {
+        const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
+        if (bar) {
+          const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
+          bar.prepend(userAvatarWrapper);
+          userAvatarWrapper.append(userAvatar(userName));
+          userAvatarWrapper.querySelector('.__blogLink').addEventListener('click', () => window.tumblr.navigate(`/${userName}`));
         }
       };
 
@@ -1154,12 +1163,7 @@ const main = async function (nonce) {
             break;
           case '__originalHeaders': 
             if (value) {
-              const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
-              if (bar) {
-                const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
-                bar.prepend(userAvatarWrapper);
-                userAvatarWrapper.append(userAvatar(userName));
-              }
+              addUserPortrait();
               mutationManager.start(fixHeader, postSelector);
               mutationManager.start(fixHeaderAvatar, postHeaderTargetSelector);
             }
@@ -1572,12 +1576,7 @@ const main = async function (nonce) {
         `, '', configPreferences.hideRecommendedTags.value);
 
         if (configPreferences.originalHeaders.value) {
-          const bar = $(`${keyToCss('postColumn')} > ${keyToCss('bar')}`);
-          if (bar) {
-            const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
-            bar.prepend(userAvatarWrapper);
-            userAvatarWrapper.append(userAvatar(userName));
-          }
+          addUserPortrait();
           mutationManager.start(fixHeader, postSelector);
           mutationManager.start(fixHeaderAvatar, postHeaderTargetSelector);
         }
