@@ -540,8 +540,8 @@ const main = async function (nonce) {
           }
           .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')},
             .__stickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} ${keyToCss('image')} {
-            width: 24px !important;
-            height: 24px !important;
+            width: 32px !important;
+            height: 32px !important;
           }
           .__stickyContainer ${keyToCss('badge')} { display: none; }
           .__avatarWrapper { position: relative; }
