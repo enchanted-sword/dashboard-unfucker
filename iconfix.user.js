@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         iconfix
-// @version      2.3
+// @version      2.4
 // @description  fixes tumblr post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -236,8 +236,8 @@ const main = async function () {
         }
         .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')},
           .ΘΔstickyContainer ${keyToCss('blogLink')} > ${keyToCss('subavatar')} ${keyToCss('image')} {
-          width: 24px !important;
-          height: 24px !important;
+          width: 32px !important;
+          height: 32px !important;
         }
         .ΘΔstickyContainer ${keyToCss('badge')} { display: none; }
         .ΘΔavatarOuter {
