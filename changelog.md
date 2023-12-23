@@ -1,8 +1,11 @@
 # Changelog
+## v5.6.2
+- Fixed clipped icons appearing in blog view pages where they weren't supposed to
+- Fixed the static avatars feature not working properly
+- Fixed draft and queue pages not showing floating avatars
 
 ## v5.6.1
 - Fixed avatars for the /blog pages and headers for the /explore page
-- Fixed clipped icons appearing in blog view pages where they weren't supposed to
 - Fixed author avatars not showing up
 
 ## v5.6.0
