@@ -120,7 +120,6 @@ const main = async function (nonce) {
   const delay = ms => new Promise(resolve => setTimeout(() => resolve(), ms));
   const matchPathname = () => match.includes(pathname);
   const isDashboard = () => ['dashboard', ''].includes(pathname);
-  const notMasonry = () => !['search', 'tagged', 'explore'].includes(pathname);
   const storageAvailable = type => { // thanks mdn web docs!
     let storage;
     try {
