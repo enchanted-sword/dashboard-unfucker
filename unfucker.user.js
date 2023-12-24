@@ -293,6 +293,7 @@ const main = async function (nonce) {
       const conversationSelector = '[data-skip-glass-focus-trap]';
       const carouselCellSelector = `[data-cell-id] ${keyToCss('tagCard')}, [data-cell-id] ${keyToCss('blogRecommendation')}, [data-cell-id] ${keyToCss('tagChicletLink')}`;
       const masonryNotesSelector = `[data-timeline]${keyToCss('masonry')} article ${keyToCss('formattedNoteCount')}`;
+      const containerSelector = `${keyToCss('bluespaceLayout')} > ${keyToCss('container')}:not(${keyToCss('mainContentIs4ColumnMasonry')})`;
 
       const newNodes = [];
       const target = document.getElementById('root');
@@ -1252,23 +1253,23 @@ const main = async function (nonce) {
         }
       };
       const rangeEvent = (id, value) => {
-        if (matchPathname() && notMasonry()) {
+        if (matchPathname()) {
           const posOffset = $('#__contentPositioning').valueAsNumber;
           const widthOffset = ($('#__contentWidth').valueAsNumber - 990) / 2;
           let safeMax = Math.max(safeOffset - widthOffset, 0);
           if (Math.abs(posOffset) > safeMax) {
             safeMax = posOffset > 0 ? safeMax : -safeMax;
             $('#__contentPositioning').value = safeMax.toString();
-            css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { left: `${safeMax}px` });
+            featureStyles.toggleScalable('__cp', true, safeMax);
             configPreferences.contentPositioning.value = safeMax;
-            if (id === '__contentWidth') css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { 'max-width': `${value}px` });
+            if (id === '__contentWidth') featureStyles.toggleScalable('__cw', true, value);
           } else {
             switch (id) {
               case '__contentPositioning':
-                css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { left: `${value}px` });
+                featureStyles.toggleScalable('__cp', true, value);
                 break;
               case '__contentWidth':
-                css($(`${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`), { 'max-width': `${value}px` });
+                featureStyles.toggleScalable('__cw', true, value);
                 break;
               case '__messagingScale':
                 featureStyles.toggleScalable('__ms', configPreferences.revertMessagingRedesign.value, value);
@@ -1549,9 +1550,8 @@ const main = async function (nonce) {
         return menuShell;
       };
       const initializePreferences = () => {
-        const containerSelector = `${keyToCss('bluespaceLayout')} > ${keyToCss('container')}`;
-
         mutationManager.start(fixMasonryNotes, masonryNotesSelector);
+
         waitFor(containerSelector).then(() => {
           if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
         });
@@ -1568,6 +1568,7 @@ const main = async function (nonce) {
             border-radius: 3px;
           }
         `, '', configPreferences.collapseCaughtUp.value);
+
         featureStyles.build('__rb', `
           [data-blog-carousel-cell] { position: relative !important; }
           [data-blog-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
@@ -1578,6 +1579,7 @@ const main = async function (nonce) {
           toggle(find($a(keyToCss('sidebarItem')), keyToCss('recommendedBlogs')), !configPreferences.hideRecommendedBlogs.value);
           toggle(find($a(keyToCss('desktopContainer')), keyToCss('recommendedBlogs')), !configPreferences.hideRecommendedBlogs.value);
         });
+
         featureStyles.build('__rt', `
           [data-tag-carousel-cell] { position: relative !important; }
           [data-tag-carousel-cell] > div { visibility: hidden; position: absolute !important; max-width: 100%; }
@@ -1600,10 +1602,12 @@ const main = async function (nonce) {
             toggle($(keyToCss('timelineHeader')), !configPreferences.hideDashboardTabs.value);
           });
         }
+
         waitFor(keyToCss('menuRight')).then(() => {
           toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__explore"]'), !configPreferences.hideExplore.value);
           toggle(find($a(keyToCss('menuContainer')), 'use[href="#managed-icon__shop"]'), !configPreferences.hideTumblrShop.value);
         });
+
         if (configPreferences.highlightLikelyBots.value || configPreferences.showFollowingLabel.value) {
           mutationManager.start(scanNotes, noteSelector);
         }
@@ -1611,12 +1615,13 @@ const main = async function (nonce) {
           ${keyToCss('pollAnswerPercentage')} { position: relative; bottom: 4px; }
           ${keyToCss('results')} { overflow: hidden; }`, '', configPreferences.displayVoteCounts.value);
         if (configPreferences.displayVoteCounts.value) mutationManager.start(detailPolls, answerSelector);
+
         if (configPreferences.votelessResults.value) mutationManager.start(pollResults, voteSelector);
+
         featureStyles.build('__bs', `${keyToCss('badgeContainer')}, ${keyToCss('peeprHeaderBadgesWrapper')} { display: none; }`, '', configPreferences.hideBadges.value);
-        if (matchPathname() && notMasonry()) {
-          waitFor(containerSelector).then(() => {
-            css($(containerSelector), { left: `${configPreferences.contentPositioning.value}px`, 'max-width': `${configPreferences.contentWidth.value}px` });
-          });
+        if (matchPathname()) {
+          featureStyles.buildScalable('__cp', `${containerSelector} { left: $NUMpx; }`, '', true, configPreferences.contentPositioning.value);
+          featureStyles.buildScalable('__cw', `${containerSelector} { max-width: $NUMpx; }`, '', true, configPreferences.contentWidth.value);
           featureStyles.buildScalable('__gs', `${keyToCss('gridTimelineObject')} { width: calc($NUM% - 2px) !important; }`, '', true, 0);
           if (configPreferences.contentWidth.value > 51.5 && pathname === 'likes') {
             waitFor(keyToCss('gridded')).then(() => {
@@ -1666,6 +1671,7 @@ const main = async function (nonce) {
           [role="tabpanel"] ${keyToCss('underlined')} span { text-decoration: none !important; }
           ${keyToCss('linkToActivity')} a { color: rgba(var(--black),.65) !important; }
         `, '', configPreferences.revertActivityFeedRedesign.value);
+
         featureStyles.buildScalable('__ms', `
           ${keyToCss('conversationWindow')} {
             border-radius: 5px;
@@ -1707,6 +1713,7 @@ const main = async function (nonce) {
         if (configPreferences.revertMessagingRedesign.value) {
           mutationManager.start(styleMessaging, conversationSelector);
         }
+
         featureStyles.build('__as', `.__stickyContainer > ${keyToCss('avatar')} { position: static !important; }`, '', configPreferences.disableScrollingAvatars.value);
 
         observer.observe(target, { childList: true, subtree: true });
