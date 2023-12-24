@@ -679,7 +679,9 @@ const main = async function (nonce) {
             box-sizing: border-box;
           }
 
-          ${keyToCss('bar')}, [data-timeline] article { border-radius: 3px !important; }
+          ${keyToCss('postColumn')} > ${keyToCss('bar')}, 
+            ${keyToCss('activityPopover')} ${keyToCss('selectorPopover')},
+            [data-timeline] article { border-radius: 3px !important; }
           article header { border-radius: 3px 3px 0 0 !important; }
 
           ${keyToCss('toastHolder')} { display: none; }
