@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.6.3
+- Fixed blog selector radius
+- Fixed narrow single column masonry layouts
+
 ## v5.6.2
 - Fixed clipped icons appearing in blog view pages where they weren't supposed to
 - Fixed the static avatars feature not working properly

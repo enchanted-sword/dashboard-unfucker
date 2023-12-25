@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.6.2
+// @version      5.6.3
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.6.2';
+  const version = '5.6.3';
   const match = [
     '',
     'dashboard',
