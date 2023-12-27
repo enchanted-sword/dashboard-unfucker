@@ -1492,7 +1492,7 @@ const main = async function (nonce) {
                   <span>${configs[obj.name]}</span>
                   <div class="rangeInput">
                     <input class="configInput" type="range" id="__${obj.name}" name="${obj.name}" list="__cp" min="-${safeOffset}" max="${safeOffset}" step="1" value="${obj.value}">
-                    <datalist id="__cp">
+                    <datalist id="__cps">
                       <option value="-${safeOffset}" label="left"></option>
                       <option value="0" label="default"></option>
                       <option value="${safeOffset}" label="right"></option>
@@ -1506,7 +1506,7 @@ const main = async function (nonce) {
                   <span>${configs[obj.name]}</span>
                   <div class="rangeInput">
                   <input class="configInput" type="range" id="__contentWidth" name="contentWidth" list="__cw" min="990" max="${windowWidth}" step="0.5" value="${configPreferences.contentWidth.value}">
-                    <datalist id="__cw">
+                    <datalist id="__cws">
                     <option value="990" label="default"></option>
                     <option value="${windowWidth}" label="full width"></option>
                     </datalist>
@@ -1867,17 +1867,19 @@ const main = async function (nonce) {
       unfuck();
 
       window.addEventListener('resize', () => {
+        if (!$('#__m')) return;
+
         windowWidth = window.innerWidth;
         safeOffset = (windowWidth - 1000) / 2;
         $('#__contentPositioning').attributes.getNamedItem('min').value = `-${safeOffset}`;
         $('#__contentPositioning').attributes.getNamedItem('max').value = `${safeOffset}`;
         $('#__contentWidth').attributes.getNamedItem('max').value = `${windowWidth}`;
-        $('#__cp').innerHTML = `
+        $('#__cps').innerHTML = `
           <option value="-${safeOffset}" label="left"></option>
           <option value="0" label="default"></option>
           <option value="${safeOffset}" label="right"></option>
         `;
-        $('#__cw').innerHTML = `
+        $('#__cws').innerHTML = `
           <option value="990" label="default"></option>
           <option value="${windowWidth}" label="full width"></option>
         `;
