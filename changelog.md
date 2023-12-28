@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.6.4
+- Fixed an id conflict with slider datalists
+
 ## v5.6.3
 - Fixed blog selector radius
 - Fixed narrow single column masonry layouts
