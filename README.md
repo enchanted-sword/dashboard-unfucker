@@ -106,10 +106,9 @@ Certain posts flagged as NSFW by Tumblr are delivered by internal API requests, 
 - Not fully tested on chromium or safari, but sources seem to say that it does work as intended.
 - If it injects, but ends up wonky, chances are you just need to do a full reload of the page (ctrl + shift + r).
 - If you've updated script versions but it doesn't fix a version-specific bug, it's likely because of browser caching, closing and reopening the browser usually fixes it.
-- If the script is seemingly hiding your inbox/activity feed/etc., remove any custom adblock filters that you were previously using to hide the live/shop/etc. icons.
+- If the inbox navigation icon isn't showing up, remove any custom adblock filters that you were previously using to hide the live/shop/etc. icons.
 
 ## Known issues / Incompatibilities
 - The script apparently conflicts with HTTPS Everywhere extension on Firefox.
 - The script may conflict with Legacy & New XKit. However, it works just fine with XKit Rewritten.
 - The header may rarely appear larger than normal. The exact cause of this is not known, but it seems to be fixed permanently by just searching something in the searchbar.
-- Navigating between posts with the "J" and "K" hotkeys scrolls 100px short of the correct position; this is an issue with the hotkey function on Tumblr's end.
