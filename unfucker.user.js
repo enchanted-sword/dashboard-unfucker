@@ -687,6 +687,8 @@ const main = async function (nonce) {
           ${keyToCss('toastHolder')} { display: none; }
 
           aside > button${keyToCss('expandOnHover')} { display: none !important; }
+
+          button${keyToCss('pollAnswer')} { overflow: clip; }
         </style>
       `);
 
