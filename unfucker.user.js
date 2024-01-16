@@ -813,6 +813,7 @@ const main = async function (nonce) {
       `);
       const fixHeader = posts => {
         for (const post of posts) {
+          if (window.location.pathname.split('/').some(x => ['inbox', 'messages'].includes(x))) return;
           try {
             const { id, parentPostUrl } = fetchNpf(post);
             post.id = `post${id}`;

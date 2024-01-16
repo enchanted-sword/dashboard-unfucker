@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         iconfix
-// @version      2.4
+// @version      2.5
 // @description  fixes tumblr post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -115,6 +115,7 @@ const main = async function () {
     `);
     const fixHeader = posts => {
       for (const post of posts) {
+        if (window.location.pathname.split('/').some(x => ['inbox', 'messages'].includes(x))) return;
         try {
           const { id, parentPostUrl } = fetchNpf(post);
           post.id = `post${id}`;
