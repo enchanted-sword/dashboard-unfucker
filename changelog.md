@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.6.5
+- Fixed the overflowing of the poll preview bar when at a low percentage
+- Fixed sideblog pages displaying the wrong user portrait
+- Fixed spaces being removed from the headers of asks in sideblog messages
+
 ## v5.6.4
 - Fixed an id conflict with slider datalists
 
