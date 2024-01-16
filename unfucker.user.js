@@ -867,7 +867,7 @@ const main = async function (nonce) {
         if (bar) {
           const userAvatarWrapper = $str('<div class="__userAvatarWrapper"></div>');
           bar.prepend(userAvatarWrapper);
-          if (pathname === 'blog') userAvatarWrapper.append(userAvatar(location.pathname.split('/')[2]))
+          if (pathname === 'blog') userAvatarWrapper.append(userAvatar(location.pathname.split('/')[2]));
           else userAvatarWrapper.append(userAvatar(userName));
           blogViewLink(userAvatarWrapper);
         }

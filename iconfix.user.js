@@ -85,7 +85,8 @@ const main = async function () {
       if (bar) {
         const userAvatarWrapper = $str('<div class="ΘΔuserAvatarWrapper"></div>');
         bar.prepend(userAvatarWrapper);
-        userAvatarWrapper.append(userAvatar(userName));
+        if (location.pathname.split('/')[1] === 'blog') userAvatarWrapper.append(userAvatar(location.pathname.split('/')[2]));
+        else userAvatarWrapper.append(userAvatar(userName));
         userAvatarWrapper.querySelector('.ΘΔblogLink').addEventListener('click', () => window.tumblr.navigate(`/${userName}`));
       }
     };
