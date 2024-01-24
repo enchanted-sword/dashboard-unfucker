@@ -48,7 +48,6 @@ const main = async function (nonce) {
     contentPositioning: { advanced: false, type: 'range', value: 0 },
     contentWidth: { advanced: false, type: 'range', value: 990 },
     messagingScale: { advanced: false, type: 'range', value: 1 },
-    disableTumblrLive: { advanced: true, type: 'checkbox', value: 'checked' },
     disableTumblrDomains: { advanced: true, type: 'checkbox', value: 'checked' },
     revertActivityFeedRedesign: { advanced: false, type: 'checkbox', value: 'checked' },
     revertMessagingRedesign: {
@@ -238,12 +237,6 @@ const main = async function (nonce) {
 
   const featureSet = [
     { name: 'redpopDesktopVerticalNav', value: false },
-    { name: 'liveCustomMarqueeData', value: !configPreferences.disableTumblrLive.value },
-    { name: 'liveStreaming', value: !configPreferences.disableTumblrLive.value },
-    { name: 'liveStreamingUserAllowed', value: !configPreferences.disableTumblrLive.value },
-    { name: 'liveStreamingUserEnabled', value: !configPreferences.disableTumblrLive.value },
-    { name: 'liveStreamingWeb', value: !configPreferences.disableTumblrLive.value },
-    { name: 'liveSteamingWebPayments', value: !configPreferences.disableTumblrLive.value },
     { name: 'domainsSettings', value: !configPreferences.disableTumblrDomains.value },
     { name: 'improvedSearchTypeahead', value: !configPreferences.revertSearchbarRedesign.value },
     { name: 'configurableTabbedDash', value: !!configPreferences.enableCustomTabs.value },
@@ -1381,7 +1374,6 @@ const main = async function (nonce) {
           contentPositioning: 'content positioning',
           contentWidth: 'content width',
           messagingScale: 'messaging window scale',
-          disableTumblrLive: 'disable tumblr live',
           disableTumblrDomains: 'disable tumblr domains',
           revertSearchbarRedesign: 'revert searchbar update',
           enableCustomTabs: 'enable customizable dashboard tabs',
