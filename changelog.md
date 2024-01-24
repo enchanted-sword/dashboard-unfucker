@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.6.6
+- Removed the deprecated "Disable tumblr live" feature
+
 ## v5.6.5
 - Fixed the overflowing of the poll preview bar when at a low percentage
 - Fixed sideblog pages displaying the wrong user portrait

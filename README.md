@@ -69,9 +69,6 @@ Controls the width of the dashboard's content.
 ### Messaging window scale
 Controls the relative height and width of the messaging window
 
-### Disable Tumblr Live
-Disables the Tumblr Live service and related icons (Where possible).
-
 ### Disable Tumblr Domains
 Disables the Tumblr Domains icons where possible.
 
