@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.6.7
+- Fixed avatar image scaling when using the "Revert post headers" feature
+
 ## v5.6.6
 - Removed the deprecated "Disable tumblr live" feature
 
