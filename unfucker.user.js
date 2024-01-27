@@ -795,7 +795,7 @@ const main = async function (nonce) {
             post.prepend(stickyContainer);
             stickyContainer.append(avatar);
             avatar.querySelector(`${keyToCss('targetWrapper')} img`).sizes = "64px";
-            avatar.querySelector(`${keyToCss('subAvatarTargetWrapper')} img`).sizes = "32px";
+            avatar.querySelectorAll(`${keyToCss('subAvatarTargetWrapper')} img`).forEach(img => img.sizes = "32px");
             post.classList.add('__avatarFixed');
           } catch (e) {
             console.error('an error occurred processing a post avatar:', e);
