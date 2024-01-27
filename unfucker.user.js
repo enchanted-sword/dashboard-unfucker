@@ -682,6 +682,8 @@ const main = async function (nonce) {
           aside > button${keyToCss('expandOnHover')} { display: none !important; }
 
           button${keyToCss('pollAnswer')} { overflow: clip; }
+
+          figure${keyToCss('anonymous')} { background-image: url(https://assets.tumblr.com/pop/src/assets/images/avatar/anonymous_avatar_96-223fabe0.png) !important; }
         </style>
       `);
 
@@ -792,8 +794,9 @@ const main = async function (nonce) {
 
             post.prepend(stickyContainer);
             stickyContainer.append(avatar);
+            avatar.querySelector(`${keyToCss('targetWrapper')} img`).sizes = "64px";
+            avatar.querySelector(`${keyToCss('subAvatarTargetWrapper')} img`).sizes = "32px";
             post.classList.add('__avatarFixed');
-            avatar.querySelector('img').sizes = "64px";
           } catch (e) {
             console.error('an error occurred processing a post avatar:', e);
             console.error(post);
@@ -1181,7 +1184,8 @@ const main = async function (nonce) {
               mutationManager.start(fixHeaderAvatar, postHeaderTargetSelector);
             }
             else {
-              $a(`.__stickyContainer > ${keyToCss('avatar')} img`).forEach(img => img.sizes = "32px");
+              $a(`.__stickyContainer > ${keyToCss('avatar')} ${keyToCss('targetWrapper')} img`).forEach(img => img.sizes = "32px");
+              $a(`.__stickyContainer > ${keyToCss('avatar')} ${keyToCss('subAvatarTargetWrapper')} img`).forEach(img => img.sizes = "16px");
               $a(`.__stickyContainer > ${keyToCss('avatar')}`).forEach(avatar => avatar.closest('article').querySelector('header').prepend(avatar));
               remove($a('.__stickyContainer, .__userAvatarWrapper'));
               $a('.__headerFixed').forEach(elem => elem.classList.remove('__headerFixed'));

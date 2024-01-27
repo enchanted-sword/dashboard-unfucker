@@ -98,6 +98,8 @@ const main = async function () {
 
           post.prepend(stickyContainer);
           stickyContainer.append(avatar);
+          avatar.querySelector(`${keyToCss('targetWrapper')} img`).sizes = "64px";
+          avatar.querySelector(`${keyToCss('subAvatarTargetWrapper')} img`).sizes = "32px";
           post.classList.add('ΘΔavatarFixed');
         } catch (e) {
           console.error('an error occurred processing a post avatar:', e);
@@ -277,6 +279,8 @@ const main = async function () {
           object-fit: cover;
           visibility: visible;
         }
+
+        figure${keyToCss('anonymous')} { background-image: url(https://assets.tumblr.com/pop/src/assets/images/avatar/anonymous_avatar_96-223fabe0.png) !important; }
       </style>
     `);
 
