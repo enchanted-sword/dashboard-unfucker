@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         iconfix
-// @version      2.5
+// @version      2.6
 // @description  fixes tumblr post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
