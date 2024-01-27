@@ -768,8 +768,11 @@ const main = async function (nonce) {
                     <div class="__placeholder" style="padding-bottom: 100%;">
                       <img
                       class="__avatarImage"
-                      src="https://api.tumblr.com/v2/blog/${name}/avatar"
-                      sizes="64px" 
+                      srcset="https://api.tumblr.com/v2/blog/${name}/avatar/64 64w,
+                              https://api.tumblr.com/v2/blog/${name}/avatar/96 96w,
+                              https://api.tumblr.com/v2/blog/${name}/avatar/128 128w,
+                              https://api.tumblr.com/v2/blog/${name}/avatar/512 512w"
+                      sizes="64px"
                       alt="${tr("Avatar")}" 
                       style="width: 64px; height: 64px;" 
                       loading="eager">
@@ -790,6 +793,7 @@ const main = async function (nonce) {
             post.prepend(stickyContainer);
             stickyContainer.append(avatar);
             post.classList.add('__avatarFixed');
+            avatar.querySelector('img').sizes = "64px";
           } catch (e) {
             console.error('an error occurred processing a post avatar:', e);
             console.error(post);
@@ -1177,6 +1181,7 @@ const main = async function (nonce) {
               mutationManager.start(fixHeaderAvatar, postHeaderTargetSelector);
             }
             else {
+              $a(`.__stickyContainer > ${keyToCss('avatar')} img`).forEach(img => img.sizes = "32px");
               $a(`.__stickyContainer > ${keyToCss('avatar')}`).forEach(avatar => avatar.closest('article').querySelector('header').prepend(avatar));
               remove($a('.__stickyContainer, .__userAvatarWrapper'));
               $a('.__headerFixed').forEach(elem => elem.classList.remove('__headerFixed'));
