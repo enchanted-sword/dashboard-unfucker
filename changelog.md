@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.6.8
+- Fixed incorrect vote counts for posts with multiple polls
+
 ## v5.6.7
 - Fixed avatar image scaling when using the "Revert post headers" feature
 

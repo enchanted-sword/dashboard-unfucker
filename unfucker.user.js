@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.6.7
+// @version      5.6.8
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.6.7';
+  const version = '5.6.8';
   const match = [
     '',
     'dashboard',
@@ -280,7 +280,8 @@ const main = async function (nonce) {
       const postSelector = '[tabindex="-1"][data-id] article';
       const postHeaderTargetSelector = `${keyToCss('main')} > :not(${keyToCss('blogTimeline')}) [data-timeline]:not([data-timeline*='posts/'],${keyToCss('masonry')}) [tabindex='-1'][data-id] article:not(.__avatarFixed)`;
       const noteSelector = `[aria-label="${tr('Notification')}"],[aria-label="${tr('Unread Notification')}"]`;
-      const answerSelector = "[data-testid='poll-answer']:not(.__pollDetailed)";
+      const answerSelector = '[data-testid="poll-answer"]:not(.__pollDetailed)';
+      const pollBlockSelector = '[data-attribution="poll-block"]';
       const voteSelector = `button${keyToCss('vote')}:not(.__pollResultsShown)`;
       const conversationSelector = '[data-skip-glass-focus-trap]';
       const carouselCellSelector = `[data-cell-id] ${keyToCss('tagCard')}, [data-cell-id] ${keyToCss('blogRecommendation')}, [data-cell-id] ${keyToCss('tagChicletLink')}`;
@@ -946,10 +947,10 @@ const main = async function (nonce) {
       const detailPolls = answers => {
         for (const answer of answers) {
           if (answer.classList.contains('__pollDetailed')) continue;
-          const post = answer.closest(postSelector);
-          const answers = Array.from(post.querySelectorAll(':scope [data-testid="poll-answer"]'));
-          const voteCount = Number(post.querySelector(keyToCss('pollSummary')).innerText.replace(/,/, '').match(/\d+/)[0]);
-          answers.forEach((element) => {
+          const pollBlock = answer.closest(pollBlockSelector);
+          const answers = Array.from(pollBlock.querySelectorAll(':scope [data-testid="poll-answer"]'));
+          const voteCount = Number(pollBlock.querySelector(keyToCss('pollSummary')).innerText.replace(/,/, '').match(/\d+/)[0]);
+          answers.forEach(element => {
             const percentage = fetchPercentage(element);
             element.append($str(`<span class="answerVoteCount">(${Math.round(voteCount * percentage / 100)})</span>`));
             element.classList.add('__pollDetailed');
