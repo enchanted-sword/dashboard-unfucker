@@ -974,9 +974,9 @@ const main = async function (nonce) {
             if (configPreferences.highlightLikelyBots.value && type === 'follower') {
               window.tumblr.apiFetch(`/v2/blog/${fromTumblelogUuid}/info`).then(response => {
                 const { title, name, posts, likes } = response.response.blog;
-                if ((posts === 0 && untitledStrings.includes(title)) ||
-                (likes === 0 && untitledStrings.includes(title)) ||
-                (name === title && posts === 1)) {
+                if (untitledStrings.includes(title) 
+                && ([0,1].includes(posts) || likes === 0)
+                || (name === title && posts === 1)) {
                   hide(note.querySelector('.customLabelContainer'));
                   css(note, { backgroundColor: 'rgba(255,37,47,.15)' });
                   note.querySelector(keyToCss('tumblelogName')).append(labelContainer('Possible Bot', 'warning-circle', 'This blog may be a bot; block at your own discretion. This feature is a component of dashboard unfucker.'));
