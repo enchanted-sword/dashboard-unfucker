@@ -68,7 +68,8 @@ const main = async function (nonce) {
     displayVoteCounts: { advanced: false, type: 'checkbox', value: '' },
     votelessResults : { advanced: false, type: 'checkbox', value: ''},
     showNsfwPosts: { advanced: true, type: 'checkbox', value: '' },
-    disableScrollingAvatars: { advanced: false, type: 'checkbox', value: '' }
+    disableScrollingAvatars: { advanced: false, type: 'checkbox', value: '' },
+    originalEditorHeaders: { advanced: false, type: 'checkbox', value: '' }
   };
   let pathname = window.location.pathname.split('/')[1];
   const $a = selector => document.querySelectorAll(selector);
@@ -1308,6 +1309,10 @@ const main = async function (nonce) {
             break;
           case '__revertActivityFeedRedesign':
             featureStyles.toggle('__acs', configPreferences.revertActivityFeedRedesign.value);
+            break;
+          case '__originalEditorHeaders':
+            featureStyles.toggle('__oe', configPreferences.originalEditorHeaders.value)
+            break;
         }
       };
       const rangeEvent = (id, value) => {
@@ -1440,7 +1445,8 @@ const main = async function (nonce) {
           enableReblogPolls: 'enable adding polls to reblogs',
           disableTagNag: 'disable "post without tags" nag',
           reAddHomeNotifications: 're-add unread post notifications to the corner of the home icon',
-          showNsfwPosts: 'show hidden NSFW posts in the timeline'
+          showNsfwPosts: 'show hidden NSFW posts in the timeline',
+          originalEditorHeaders: 'revert the post editor header design'
         };
         const configEntry = (obj = {}) => {
           const entry = [];
@@ -1674,6 +1680,25 @@ const main = async function (nonce) {
         if (configPreferences.displayVoteCounts.value) mutationManager.start(detailPolls, answerSelector);
 
         if (configPreferences.votelessResults.value) mutationManager.start(pollResults, voteSelector);
+
+        featureStyles.build('__oe', `
+          #glass-container ${keyToCss('menuContainer')} {
+            border-bottom: none !important;
+
+            ${keyToCss('avatarWrapper')} {
+              position: absolute;
+              top: -6px;
+              left: -100px;
+            }
+            ${keyToCss('avatar')} {
+              &, img {
+                width: 64px !important;
+                height: 64px !important;
+              }
+            }
+            ${keyToCss('selectedBlogName')}${keyToCss('hasAvatar')} { margin-left: 0 !important; }
+          }
+        `, '', configPreferences.originalEditorHeaders.value);
 
         featureStyles.build('__bs', `${keyToCss('badgeContainer')}, ${keyToCss('peeprHeaderBadgesWrapper')} { display: none; }`, '', configPreferences.hideBadges.value);
         if (matchPathname()) {
