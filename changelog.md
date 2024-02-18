@@ -1,5 +1,14 @@
 # Changelog
 
+## v5.6.10
+- Added a new bot type to the potential bot filter
+- Added the 'revert editor header' feature
+- Fixed a few more elements that use larger radii
+- Added the proper url params to the post fetch request (currently unused)
+
+## v5.6.9
+- New added post array system (likely will only use this for extension announcements going forwards)
+
 ## v5.6.8
 - Fixed incorrect vote counts for posts with multiple polls
 
