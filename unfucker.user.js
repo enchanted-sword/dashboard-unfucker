@@ -33,7 +33,6 @@ const main = async function (nonce) {
   ];
   let state = window.___INITIAL_STATE___;
   let configPreferences = {
-    canShowAddedPost: true,
     lastVersion: version,
     hideDashboardTabs: { advanced: false, type: 'checkbox', value: '' },
     collapseCaughtUp: { advanced: false, type: 'checkbox', value: '' },
@@ -181,35 +180,8 @@ const main = async function (nonce) {
   `);
 
   let localAddedPostFlag = true;
+  let dummyValue = false //config prop placeholder
   const addedPosts = [
-    '742430501808308224',
-    '742443212841648128'
-  ];
-  const avatarSet = [
-    {
-      "width": 512,
-      "height": 512,
-      "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s512x512u_c1/2e2453bc1595a6aa02946a2c5362741fb69ea6d8.pnj",
-      "accessories": []
-    },
-    {
-      "width": 128,
-      "height": 128,
-      "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s128x128u_c1/032993a7cc940d7a6c9c3f2f7ddf0b1de389a05a.pnj",
-      "accessories": []
-    },
-    {
-      "width": 96,
-      "height": 96,
-      "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s96x96u_c1/de3ec6a00834afb9e15b212e7091ed441b910e56.pnj",
-      "accessories": []
-    },
-    {
-      "width": 64,
-      "height": 64,
-      "url": "https://64.media.tumblr.com/24922f169b0ed2a504cc9f9f9011ae95/4f029fc238af0b3d-07/s64x64u_c1/38b8e85a053264786a658e34064760f1b118bc88.pnj",
-      "accessories": []
-    }
   ];
 
   const timelineSelector = /\/api\/v2\/timeline/;
@@ -222,25 +194,24 @@ const main = async function (nonce) {
   window.fetch = async (input, options) => {
     const response = await oldFetch(input, options);
     let content = await response.text();
-    if (isPostFetch(input) && (configPreferences.showNsfwPosts.value || configPreferences.canShowAddedPost)) {
+    if (isPostFetch(input) && (configPreferences.showNsfwPosts.value || dummyValue)) {
       console.info(`modified data fetched from ${input}`);
       content = JSON.parse(content);
       const elements = content.response.timeline.elements;
       elements.forEach(function (post) { post.isNsfw = false; });
-      if (timelineSelector.test(input) && configPreferences.canShowAddedPost && localAddedPostFlag && typeof window.tumblr.apiFetch !== 'undefined') {
+      if (timelineSelector.test(input) && dummyValue && localAddedPostFlag && typeof window.tumblr.apiFetch !== 'undefined') {
         for (const id of addedPosts) {
           let addedPost;
-          await window.tumblr.apiFetch(`/v2/blog/dragongirlsnout/posts/${id}`).then(response => {
+          await window.tumblr.apiFetch(`/v2/blog/dragongirlsnout/posts/${id}?fields[blogs]=name,avatar,title,url,blog_view_url,is_adult,description_npf,uuid,can_be_followed,?followed`).then(response => {
             if (response && response?.meta.status === 200) {
               const data = response.response;
-              data.blog.avatar = avatarSet;
               addedPost = data;
             }
           });
           if (typeof addedPost !== 'undefined') elements.push(addedPost);
         }
         localAddedPostFlag = false;
-        configPreferences.canShowAddedPost = false;
+        dummyValue = false;
         updatePreferences();
       }
       content = JSON.stringify(content);
@@ -276,7 +247,7 @@ const main = async function (nonce) {
   }
 
   const modifyInitialTimeline = (obj, context) => {
-    if (!obj || !configPreferences.showNsfwPosts.value && !configPreferences.canShowAddedPost) return obj;
+    if (!obj || !configPreferences.showNsfwPosts.value) return obj;
     else if (context === 'dashboard') {
       obj.dashboardTimeline.response.timeline.elements.forEach(function (post) { post.isNsfw = false; });
     } else if (context === 'peepr') {
@@ -1948,10 +1919,10 @@ const main = async function (nonce) {
 
       unfuck();
 
-      window.setTimeout(() => {
-        configPreferences.canShowAddedPost = false;
+      window.setTimeout(() => { //added post fallback. does it work? who knows
+        dummyValue = false;
         updatePreferences();
-      }, 1800000)
+      }, 900000)
 
       window.addEventListener('resize', () => {
         if (!$('#__m')) return;
