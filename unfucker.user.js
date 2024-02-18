@@ -726,6 +726,7 @@ const main = async function (nonce) {
 
           ${keyToCss('postColumn')} > ${keyToCss('bar')}, 
             ${keyToCss('activityPopover')} ${keyToCss('selectorPopover')},
+            ${keyToCss('tabManagement')}, ${keyToCss('selectorPopover')}:has(${keyToCss('blogsList')})
             [data-timeline] article { border-radius: 3px !important; }
           article header { border-radius: 3px 3px 0 0 !important; }
 
