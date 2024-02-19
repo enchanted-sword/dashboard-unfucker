@@ -22,8 +22,11 @@ Steps to reproduce the behavior:
 If applicable, add screenshots to help explain your problem.
 
 **Version (please complete the following information):**
- - Browser and version [e.g. FF Nightly 118.0a1]
+ - Browser and version [e.g. Firefox Nightly 125]
  - Version [e.g. 3.6.2a]
 
+**Enabled features**
+List all enabled script features or upload the preferences JSON file.
+
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the problem here, e.g. applicable routesets.
