@@ -1,5 +1,10 @@
 # Changelog
 
+## v5.7.0 (Final)
+- Fixed post footer radius
+- Fixed post without tags feature
+- Added sidebar message
+
 ## v5.6.10
 - Added a new bot type to the potential bot filter
 - Added the 'revert editor header' feature

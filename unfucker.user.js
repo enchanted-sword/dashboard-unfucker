@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.6.10
+// @version      5.7.0
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -16,7 +16,7 @@
 const $ = window.jQuery;
 
 const main = async function (nonce) {
-  const version = '5.6.10';
+  const version = '5.7.0';
   const match = [
     '',
     'dashboard',
@@ -34,6 +34,7 @@ const main = async function (nonce) {
   let state = window.___INITIAL_STATE___;
   let configPreferences = {
     lastVersion: version,
+    showCta: true,
     hideDashboardTabs: { advanced: false, type: 'checkbox', value: '' },
     collapseCaughtUp: { advanced: false, type: 'checkbox', value: '' },
     hideRecommendedBlogs: { advanced: false, type: 'checkbox', value: '' },
@@ -62,7 +63,7 @@ const main = async function (nonce) {
     revertSearchbarRedesign: { advanced: true, type: 'checkbox', value: 'checked' },
     enableCustomTabs: { advanced: true, type: 'checkbox', value: '' },
     enableReblogPolls: { advanced: true, type: 'checkbox', value: '' },
-    disableTagNag: { advanced: true, type: 'checkbox', value: 'checked' },
+    disableTagNag: { advanced: false, type: 'checkbox', value: 'checked' },
     reAddHomeNotifications: { advanced: true, type: 'checkbox', value: 'checked' },
     displayVoteCounts: { advanced: false, type: 'checkbox', value: '' },
     votelessResults : { advanced: false, type: 'checkbox', value: ''},
@@ -242,6 +243,7 @@ const main = async function (nonce) {
           configPreferences[key] = currentPreferences[key];
         }
       }
+      configPreferences.disableTagNag.advanced = false;
       updatePreferences();
     }
   }
@@ -263,7 +265,6 @@ const main = async function (nonce) {
     { name: 'improvedSearchTypeahead', value: !configPreferences.revertSearchbarRedesign.value },
     { name: 'configurableTabbedDash', value: !!configPreferences.enableCustomTabs.value },
     { name: 'allowAddingPollsToReblogs', value: !!configPreferences.enableReblogPolls.value },
-    { name: 'tagSuggestionTwoStepDialog', value: !configPreferences.disableTagNag.value },
     { name: 'redpopUnreadNotificationsOnTab', value: !configPreferences.reAddHomeNotifications.value },
     { name: 'redpopDesktopVerticalNav', value: false },
     { name: 'crowdsignalPollsNpf', value: true },
@@ -309,6 +310,8 @@ const main = async function (nonce) {
       const carouselCellSelector = `[data-cell-id] ${keyToCss('tagCard')}, [data-cell-id] ${keyToCss('blogRecommendation')}, [data-cell-id] ${keyToCss('tagChicletLink')}`;
       const masonryNotesSelector = `[data-timeline]${keyToCss('masonry')} article ${keyToCss('formattedNoteCount')}`;
       const containerSelector = `${keyToCss('bluespaceLayout')} > ${keyToCss('container')}:not(${keyToCss('mainContentIs4ColumnMasonry')})`;
+
+      const tsKey = 'lastSeenNoTagPromptTsKey';
 
       const newNodes = [];
       const target = document.getElementById('root');
@@ -697,9 +700,10 @@ const main = async function (nonce) {
 
           ${keyToCss('postColumn')} > ${keyToCss('bar')}, 
             ${keyToCss('activityPopover')} ${keyToCss('selectorPopover')},
-            ${keyToCss('tabManagement')}, ${keyToCss('selectorPopover')}:has(${keyToCss('blogsList')})
-            [data-timeline] article { border-radius: 3px !important; }
-          article header { border-radius: 3px 3px 0 0 !important; }
+            ${keyToCss('tabManagement')}, ${keyToCss('selectorPopover')}:has(${keyToCss('blogsList')}),
+            [data-timeline] article,
+            [data-timeline] article ${keyToCss('footerWrapper')} { border-radius: 3px !important; }
+          [data-timeline] article header { border-radius: 3px 3px 0 0 !important; }
 
           ${keyToCss('toastHolder')} { display: none; }
 
@@ -708,6 +712,59 @@ const main = async function (nonce) {
           button${keyToCss('pollAnswer')} { overflow: clip; }
 
           figure${keyToCss('anonymous')} { background-image: url(https://assets.tumblr.com/pop/src/assets/images/avatar/anonymous_avatar_96-223fabe0.png) !important; }
+
+          #__cta-close {
+            padding: .5rem;
+            color: rgb(var(--red));
+            border: 1px solid rgb(var(--red));
+            border-radius: .5rem;
+            line-height: 32px;
+            transition: color 0.3s;
+
+            &:hover {
+              background-color: rgb(var(--red));
+              color: rgb(var(--black));
+            }
+          }
+          __cta-div h1 {
+          }
+          .__cta-div h3 {
+            font-size: 20px;
+            line-height: 1.5;
+            font-weight: bold;
+          }
+          .__cta-div p {
+            margin-top: 8px;
+            margin-bottom: 0;
+            line-height: 1.5;
+          }
+          .__cta-div img {
+          }
+          .__cta-div footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-flow: row nowrap;
+            margin-top: 12px;
+            width: 240px;
+          }
+          .__cohost-logo {
+            display: block;
+            height: 2rem;
+            color: white;
+            background-color: rgb(131 37 79);
+            padding: .5rem;
+            border-radius: .5rem;
+          }
+          .__cta-div {
+            padding: 8px;
+            background-color: rgb(var(--white));
+            border-radius: 3px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+          }
         </style>
       `);
 
@@ -1285,6 +1342,9 @@ const main = async function (nonce) {
           case '__originalEditorHeaders':
             featureStyles.toggle('__oe', configPreferences.originalEditorHeaders.value)
             break;
+          case '__disableTagNag':
+            if (configPreferences.disableTagNag.value) window.localStorage.setItem(tsKey, Number.MAX_SAFE_INTEGER);
+            else window.localStorage.setItem(tsKey, 0);
         }
       };
       const rangeEvent = (id, value) => {
@@ -1584,12 +1644,40 @@ const main = async function (nonce) {
 
         return menuShell;
       };
+      const cta = $str(`
+        <div class="__cta-div">
+          <div>
+            <h3>with regards to recent events,</h3>
+            <p>this project will no longer be actively maintained, and the development of the Dashboard Plus extension is being shelved.</p>
+            <p>despite the fact that tumblr as a website is largely propped up by LGBTQ+ content creators, many of whom are trans women, the way this website has treated and continues to treat trans women is utterly disgusting. </p>
+            <p>from the harassment trans women face from this site's users, many of whom claim to be trans allies or are even trans themselves, to transphobic moderators targeting trans women and selling bans for money, all the way to the CEO of the website directly confronting a trans woman and threatening legal action against her for inactionable threats, tumblr has made it clear that it is by no means the queerest place on earth.</p>
+            <p>some of my trans sisters may remain on tumblr, even when faced with constant vitriol. i am deeply proud of them and their visibility in the face of hostility, however after seeing recent events unfold, and after being <a href="https://www.tumblr.com/dragongirlsnout/742816811736760320/speechless" target="_blank">directly confronted by tumblr's CEO himself in a digusting display of indifference</a>, i myself have decided to move onto better pursuits for the larger part. tumblr no longer holds the same shine for me that it did five years ago, and i can no longer justify spending hours of my time every week pouring more work and love into this site than any member of staff ever did.</p>
+            <p>i thank you all for the support you've given me in the past 8 months, whether through donations, contributions to the script, or even just sending me a kind message. i would ask that you show the same generosity and kindness to other trans girls in my absence, and especially to those who <i>don't</i> code, or write stories, or draw art. every trans girl is valuable, and their worth is more than any arbitrary set of talents. and a little love can go a long way.</p>
+            <p>yours truly,</p>
+            <img width="160" alt="dragongirlsnout" title="dragongirlsnout" src="https://64.media.tumblr.com/ddfd786c6517f2cda29c4295723ccba4/5ebdb69cac43d4bb-82/s400x600/b5d56fb5b0d3fac531b32ad23abff6cd93239684.png">
+          </div>
+          <footer>
+            <a href="https://cohost.org/minecraft" target="_blank" title="@minecraft on cohost">
+              <svg role="img" aria-label="cohost" viewBox="0 0 506 128" xmlns="http://www.w3.org/2000/svg" class="__cohost-logo" fill="">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M142.814 106.403C131.705 113.206 118.897 118.552 104.39 122.439C88.2779 126.756 73.0919 128.487 58.8317 127.631C44.5716 126.775 32.4222 123.055 22.3834 116.471C12.3446 109.887 5.57634 100.068 2.07868 87.0142C-1.43905 73.886 -0.492012 61.9799 4.9198 51.2958C10.3316 40.6118 19.0083 31.3714 30.95 23.5747C42.8917 15.7779 56.9185 9.72092 73.0304 5.40379C89.0677 1.1066 104.193 -0.627685 118.406 0.200922C127.955 0.757684 136.568 2.6028 144.246 5.73626C147.995 7.26657 151.521 9.10414 154.824 11.249C164.89 17.7858 171.672 27.581 175.17 40.6346C178.667 53.6882 177.697 65.5807 172.258 76.312C171.498 77.8112 170.675 79.2823 169.789 80.7261C169.163 77.9074 167.906 75.4497 166.018 73.353C165.091 72.3236 164.061 71.3784 162.926 70.5172C160.603 68.7538 157.845 67.3429 154.652 66.2845C149.898 64.7092 144.602 63.9216 138.763 63.9216C132.896 63.9216 127.58 64.7024 122.813 66.2641C118.046 67.8259 114.257 70.1752 111.446 73.3122C108.635 76.4492 107.23 80.4078 107.23 85.188C107.23 89.9411 108.635 93.8928 111.446 97.0434C114.257 100.194 118.046 102.564 122.813 104.153C127.58 105.741 132.896 106.536 138.763 106.536C140.143 106.536 141.493 106.492 142.814 106.403ZM91.9944 97.9397C90.8808 99.1348 88.9185 100.404 86.1074 101.749C83.2963 103.093 79.9081 104.227 75.9427 105.151C71.9773 106.074 67.7132 106.536 63.1502 106.536C59.1577 106.536 55.2466 106.149 51.417 105.375C47.5875 104.601 44.1245 103.372 41.0283 101.688C37.932 100.004 35.4672 97.8039 33.6339 95.0879C31.8006 92.3719 30.8839 89.0719 30.8839 85.188C30.8839 81.2498 31.8006 77.9227 33.6339 75.2066C35.4672 72.4906 37.932 70.3042 41.0283 68.6475C44.1245 66.9907 47.5875 65.7888 51.417 65.0419C55.2466 64.295 59.1577 63.9216 63.1502 63.9216C67.7403 63.9216 71.9773 64.329 75.8612 65.1438C79.7451 65.9586 83.079 67.0246 85.8629 68.3419C88.6469 69.6592 90.6635 71.0647 91.9129 72.5585L81.4834 79.4028C79.9624 77.7461 77.6538 76.4221 74.5575 75.4307C71.4613 74.4394 67.6996 73.9437 63.2725 73.9437C61.0997 73.9437 58.9065 74.1135 56.6929 74.4529C54.4793 74.7925 52.4491 75.3696 50.6022 76.1844C48.7554 76.9992 47.2683 78.1399 46.1412 79.6066C45.014 81.0732 44.4504 82.9337 44.4504 85.188C44.4504 87.4151 45.014 89.2553 46.1412 90.7083C47.2683 92.1614 48.7554 93.3157 50.6022 94.1712C52.4491 95.0268 54.4793 95.6311 56.6929 95.9842C58.9065 96.3373 61.0997 96.5138 63.2725 96.5138C67.6181 96.5138 71.3866 95.9706 74.5779 94.8842C77.7692 93.7978 80.0167 92.5484 81.3204 91.1361L91.9944 97.9397ZM138.763 96.3508C144.439 96.3508 148.839 95.3323 151.963 93.2953C155.086 91.2583 156.648 88.5559 156.648 85.188C156.648 81.7386 155.079 79.0294 151.942 77.0603C148.805 75.0912 144.412 74.1066 138.763 74.1066C133.086 74.1066 128.666 75.0912 125.502 77.0603C122.338 79.0294 120.756 81.7386 120.756 85.188C120.756 88.6102 122.338 91.3262 125.502 93.3361C128.666 95.3459 133.086 96.3508 138.763 96.3508Z" fill="currentColor"></path>
+                <path d="M194.473 106.424V42.5023H207.737V72.5055C210.187 70.215 213.403 68.4904 217.385 67.3319C221.366 66.1733 225.888 65.594 230.948 65.594C238.592 65.594 244.285 67.2054 248.027 70.4281C251.769 73.6508 253.64 78.871 253.64 86.0889V106.424H240.297V87.2474C240.297 84.078 239.824 81.6543 238.878 79.9764C237.933 78.2984 236.415 77.1465 234.324 76.5206C232.233 75.8947 229.457 75.5818 225.994 75.5818C222.984 75.5818 220.135 75.9413 217.445 76.6604C214.755 77.3796 212.524 78.4183 210.753 79.7766C208.982 81.135 207.976 82.7596 207.737 84.6506V106.424H194.473V106.424Z" fill="currentColor"></path>
+                <path d="M394.498 106.615C387.518 106.615 381.312 106.167 375.88 105.27C370.448 104.374 366.36 103.22 363.617 101.808L373.313 93.9039C374.943 94.8273 377.707 95.649 381.604 96.3687C385.502 97.0884 389.895 97.4484 394.784 97.4484C400.352 97.4484 404.69 97.0816 407.8 96.3483C410.91 95.615 412.465 94.6101 412.465 93.3335C412.465 92.573 411.766 91.962 410.367 91.5002C408.968 91.0385 406.7 90.6379 403.563 90.2984C400.426 89.9589 396.237 89.6262 390.995 89.3003C382.466 88.7299 375.941 87.4398 371.419 85.43C366.897 83.4201 364.636 80.3781 364.636 76.3041C364.636 74.1041 365.512 72.2233 367.264 70.6616C369.015 69.0998 371.378 67.8301 374.352 66.8524C377.326 65.8746 380.681 65.1548 384.415 64.6931C388.15 64.2314 391.986 64.0005 395.924 64.0005C404.1 64.0005 410.455 64.503 414.991 65.5079C419.527 66.5128 422.256 67.3005 423.18 67.8709L414.217 76.7523C413.809 76.4535 412.961 76.1072 411.67 75.7133C410.38 75.3196 408.819 74.9325 406.985 74.5523C405.152 74.172 403.21 73.8529 401.159 73.5949C399.109 73.3369 397.119 73.2078 395.191 73.2078C392.04 73.2078 389.168 73.3233 386.574 73.5541C383.981 73.785 381.923 74.1381 380.402 74.6134C378.881 75.0887 378.121 75.7202 378.121 76.5078C378.121 77.5399 379.486 78.2936 382.215 78.7689C384.945 79.2442 389.637 79.6991 396.291 80.1337C399.713 80.3781 403.169 80.738 406.659 81.2133C410.15 81.6886 413.341 82.3812 416.233 83.2911C419.126 84.2009 421.448 85.4163 423.2 86.9373C424.952 88.4583 425.828 90.3595 425.828 92.641C425.828 95.194 425.006 97.3532 423.363 99.1187C421.72 100.884 419.445 102.324 416.539 103.437C413.633 104.551 410.292 105.359 406.517 105.861C402.742 106.364 398.735 106.615 394.498 106.615Z" fill="currentColor"></path>
+                <path d="M449.364 76.7974V67.4755H469.77V53.3752H482.617V67.4755H506V76.7974H482.617V98.0654H501.3V106.643H469.77V76.7974H449.364Z" fill="currentColor"></path>
+                <path d="M308.663 106.615C302.797 106.615 297.48 105.82 292.713 104.232C287.947 102.643 284.158 100.273 281.347 97.1224C278.536 93.9718 277.13 90.02 277.13 85.267C277.13 80.4868 278.536 76.5282 281.347 73.3912C284.158 70.2542 287.947 67.9048 292.713 66.3431C297.48 64.7814 302.797 64.0005 308.663 64.0005C314.503 64.0005 319.799 64.7882 324.552 66.3635C329.305 67.9387 333.094 70.2949 335.918 73.4319C338.743 76.5689 340.155 80.5139 340.155 85.267C340.155 90.02 338.743 93.9718 335.918 97.1224C333.094 100.273 329.305 102.643 324.552 104.232C319.799 105.82 314.503 106.615 308.663 106.615ZM308.663 96.4298C314.34 96.4298 318.74 95.4113 321.863 93.3743C324.986 91.3373 326.548 88.6348 326.548 85.267C326.548 81.8176 324.98 79.1084 321.843 77.1393C318.706 75.1701 314.312 74.1856 308.663 74.1856C302.987 74.1856 298.566 75.1701 295.402 77.1393C292.238 79.1084 290.656 81.8176 290.656 85.267C290.656 88.6892 292.238 91.4052 295.402 93.415C298.566 95.4249 302.987 96.4298 308.663 96.4298Z" fill="currentColor"></path>
+              </svg>
+            </a>
+            <button id="__cta-close">dismiss</button>
+          </footer>
+        </div>
+      `);
       const initializePreferences = () => {
         mutationManager.start(fixMasonryNotes, masonryNotesSelector);
 
         waitFor(containerSelector).then(() => {
           if (state.routeName === 'peepr-route' && !matchPathname()) $(containerSelector).setAttribute('data-blog-container', '');
         });
+
+        if (configPreferences.disableTagNag.value) window.localStorage.setItem(tsKey, Number.MAX_SAFE_INTEGER);
 
         if (configPreferences.collapseCaughtUp.value || configPreferences.hideRecommendedBlogs.value || configPreferences.hideRecommendedTags.value) mutationManager.start(labelCells, carouselCellSelector);
         featureStyles.build('__cc', `
@@ -1905,6 +1993,15 @@ const main = async function (nonce) {
                 $('#__in').addEventListener('click', () => { $a('.__n').forEach(value => hide(value)); });
                 configPreferences.lastVersion = version;
                 updatePreferences();
+
+              }
+              if (configPreferences.showCta) {
+                $(keyToCss('sidebar')).insertBefore(cta, $(`${keyToCss('sidebar')} aside`));
+                $('#__cta-close').addEventListener('click', () => {
+                  configPreferences.showCta = false;
+                  updatePreferences();
+                  $('.__cta-div').remove();
+                });
               }
               setupButtons();
             });
