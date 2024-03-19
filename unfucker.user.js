@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         dashboard unfucker
-// @version      5.7.0
+// @version      5.7.1
 // @description  no more shitty twitter ui for pc
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -893,6 +893,7 @@ const main = async function (nonce) {
         </span>
       `);
       const fixHeader = posts => {
+        /*
         for (const post of posts) {
           if (window.location.pathname.split('/').some(x => ['inbox', 'messages'].includes(x))) return;
           try {
@@ -933,6 +934,7 @@ const main = async function (nonce) {
             console.error(fetchNpf(post));
           }
         }
+        */
       };
       const blogViewLink = avatar => {
         const links = avatar.querySelectorAll('a');
@@ -1456,7 +1458,8 @@ const main = async function (nonce) {
           collapseCaughtUp: "collapse the 'changes', 'staff picks', etc. carousel",
           hideRecommendedBlogs: 'hide recommended blogs',
           hideRecommendedTags: 'hide recommended tags',
-          originalHeaders: 'revert the post header design and re-add user avatars beside posts',
+          // originalHeaders: 'revert the post header design and re-add user avatars beside posts',
+          originalHeaders: 're-add user avatars beside posts',
           hideTumblrRadar: 'hide tumblr radar',
           hideExplore: 'hide explore',
           hideTumblrShop: 'hide tumblr shop',
