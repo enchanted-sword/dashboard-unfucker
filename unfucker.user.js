@@ -1443,7 +1443,8 @@ const main = async function (nonce) {
           { url: 'https://github.com/enchanted-sword/dashboard-unfucker/issues/', text: 'report a bug' },
           { url: 'https://raw.githubusercontent.com/enchanted-sword/dashboard-unfucker/main/unfucker.user.js', text: 'update' },
           { url: 'https://tumblr.com/dragongirlsnout', text: 'my tumblr!' },
-          { url: 'https://www.paypal.com/paypalme/dragongirled', text: 'support my work!' }
+          { url: 'https://www.paypal.com/paypalme/dragongirled', text: 'support my work!' },
+          { url: 'https://www.tumblr.com/dragongirlsnout/742942435707109376/with-regards-to-recent-events', text: 'read why this extension is no longer being developed' }
         ];
 
         const infoList = menuShell.querySelector('#__am');

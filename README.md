@@ -1,5 +1,5 @@
 # NOTICE: This project is no longer being actively maintained as of 21 February 2024
-### **[Read why here](https://www.tumblr.com/dragongirlsnout/742942435707109376/with-regards-to-recent-events?source=share)**
+### **[Read why here](https://www.tumblr.com/dragongirlsnout/742942435707109376/with-regards-to-recent-events)**
 
 # dashboard-unfucker
 Unfucks the twitterification of tumblr's dashboard by reverting it to the old layout as closely as possible while also offering control over other aspects of the UI.
