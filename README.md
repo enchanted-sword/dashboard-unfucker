@@ -1,4 +1,4 @@
-# NOTICE: This project is no longer being maintained as of 21 February 2024
+# NOTICE: This project is no longer being actively maintained as of 21 February 2024
 ### **[Read why here](https://www.tumblr.com/dragongirlsnout/742942435707109376/with-regards-to-recent-events?source=share)**
 
 # dashboard-unfucker

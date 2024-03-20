@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         iconfix
-// @version      2.6
+// @version      2.7
 // @description  fixes tumblr post headers
 // @author       dragongirlsnout
 // @match        https://www.tumblr.com/*
@@ -142,8 +142,7 @@ const main = async function () {
             }
           }
 
-          attribution.normalize();
-          [...attribution.childNodes].filter(node => node.nodeName === '#text').forEach(node => node.remove());
+          [...attribution.childNodes].filter(node => node.nodeName === '#text').forEach(function (node) {node.textContent = ''});
           if (addingNewRebloggedFrom) attribution.append(rebloggedFrom);
           if (rebloggedFrom && !header.querySelector('.ΘΔreblogIcon')) {
             rebloggedFrom.before(reblogIcon());
@@ -281,6 +280,8 @@ const main = async function () {
         }
 
         figure${keyToCss('anonymous')} { background-image: url(https://assets.tumblr.com/pop/src/assets/images/avatar/anonymous_avatar_96-223fabe0.png) !important; }
+
+        ${keyToCss('attribution')} > ${keyToCss('badgeContainer')} { margin-left: 5px; }
       </style>
     `);
 

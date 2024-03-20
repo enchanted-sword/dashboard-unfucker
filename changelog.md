@@ -1,6 +1,9 @@
 # Changelog
 
-## v5.7.0 (Final)
+## v5.7.1
+- Prevent glitchy timeline effects when using revert header style
+
+## v5.7.0
 - Fixed post footer radius
 - Fixed post without tags feature
 - Added sidebar message
